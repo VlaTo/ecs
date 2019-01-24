@@ -25,6 +25,7 @@ namespace ClassLibrary1.Core
             }
 
             components.Add(component);
+
             observer.OnAdded(component);
         }
 
@@ -53,6 +54,68 @@ namespace ClassLibrary1.Core
             if (components.Remove(component))
             {
                 observer.OnRemoved(component);
+            }
+        }
+    }
+
+    internal sealed class PredicateEntityObserver<TComponent> : IEntityObserver
+        where TComponent : IComponent
+    {
+        private readonly Predicate<IComponent> predicate;
+        private readonly IEntityObserver<TComponent> observer;
+        private readonly IList<TComponent> components;
+
+        public PredicateEntityObserver(Predicate<IComponent> predicate, IEntityObserver<TComponent> observer)
+        {
+            this.predicate = predicate;
+            this.observer = observer;
+
+            components = new List<TComponent>();
+        }
+
+        public void OnAdded(IComponent component)
+        {
+            if (component is TComponent item)
+            {
+                if (false == predicate.Invoke(component))
+                {
+                    return;
+                }
+
+                components.Add(item);
+
+                observer.OnAdded(item);
+            }
+        }
+
+        public void OnCompleted()
+        {
+            foreach (var component in components)
+            {
+                components.Remove(component);
+            }
+
+            observer.OnCompleted();
+        }
+
+        public void OnError(Exception error)
+        {
+            foreach (var component in components)
+            {
+                components.Remove(component);
+            }
+
+            observer.OnError(error);
+        }
+
+        public void OnRemoved(IComponent component)
+        {
+            if (component is TComponent item)
+            {
+                if (components.Remove(item))
+                {
+                    observer.OnRemoved(item);
+                }
             }
         }
     }

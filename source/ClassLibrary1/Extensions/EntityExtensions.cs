@@ -37,7 +37,15 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(observer));
             }
 
-            return SubscribeInternal(entity, condition, observer, recursive);
+            var entityObserver = new PredicateEntityObserver(condition.IsMet, observer);
+
+            if (recursive)
+            {
+                var collectionObserver = new ChildrenCollectionObserver(entityObserver);
+                return collectionObserver.SubscribeTo(entity);
+            }
+
+            return entity.Subscribe(entityObserver);
         }
 
         /// <summary>
@@ -64,12 +72,15 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(observer));
             }
 
-            return SubscribeInternal(
-                entity,
-                new TypedComponentCondition<TComponent>(),
-                new ComponentObserverProxy<TComponent>(observer),
-                recursive
-            );
+            var entityObserver = new TypedComponentEntityObserver<TComponent>(observer);
+
+            if (recursive)
+            {
+                var collectionObserver = new ChildrenCollectionObserver(entityObserver);
+                return collectionObserver.SubscribeTo(entity);
+            }
+
+            return entity.Subscribe(entityObserver);
         }
 
         /// <summary>
@@ -86,60 +97,21 @@ namespace ClassLibrary1.Extensions
             IEntityObserver<TComponent> observer)
             where TComponent : IComponent
         {
-            throw new NotImplementedException();
-        }
-
-        private static IDisposable SubscribeInternal(
-            Entity entity,
-            ICondition<IComponent> condition,
-            IEntityObserver observer,
-            bool recursive)
-        {
-            var entityObserver = new PredicateEntityObserver(condition.IsMet, observer);
-            var subscription = entity.Subscribe(entityObserver);
-
-            if (recursive)
+            if (null == entity)
             {
-                var collectionObserver = new ChildrenCollectionObserver(entityObserver);
-                subscription = entity.Children.Subscribe(collectionObserver);
+                throw new ArgumentNullException(nameof(entity));
             }
 
-            return subscription;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TComponent"></typeparam>
-        private class ComponentObserverProxy<TComponent> : IEntityObserver
-            where TComponent : IComponent
-        {
-            private readonly IEntityObserver<TComponent> observer;
-
-            public ComponentObserverProxy(IEntityObserver<TComponent> observer)
+            if (null == observer)
             {
-                this.observer = observer;
+                throw new ArgumentNullException(nameof(observer));
             }
 
-            public void OnAdded(IComponent component)
-            {
-                observer.OnAdded((TComponent) component);
-            }
+            var match = new EntityPathMatch(path, entity);
+            var entityObserver = new PredicateEntityObserver<TComponent>(match.IsMet, observer);
+            var collectionObserver = new ChildrenCollectionObserver(entityObserver);
 
-            public void OnCompleted()
-            {
-                observer.OnCompleted();
-            }
-
-            public void OnError(Exception error)
-            {
-                observer.OnError(error);
-            }
-
-            public void OnRemoved(IComponent component)
-            {
-                observer.OnRemoved((TComponent) component);
-            }
+            return collectionObserver.SubscribeTo(entity);
         }
     }
 }

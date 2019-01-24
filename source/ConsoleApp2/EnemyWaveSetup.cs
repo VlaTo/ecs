@@ -34,12 +34,12 @@ namespace ConsoleApp2
         {
             foreach (var config in Waves)
             {
-                var wave = entity.AddComponent<EnemyWavesComponent>();
+                var wave = entity.Add<EnemyWavesComponent>();
                 wave.NumberOfEnemies = config.NumberOfEnemies;
             }
 
-            entity.AddComponent<UpdateComponent>();
-            entity.AddComponent<CurrentWaveComponent>(wave =>
+            entity.Add<UpdateComponent>();
+            entity.Add<CurrentWaveComponent>(wave =>
             {
                 wave.Number.Value = 1;
             });

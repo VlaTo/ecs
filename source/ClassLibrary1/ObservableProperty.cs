@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ClassLibrary1.Core;
 
 namespace ClassLibrary1
 {

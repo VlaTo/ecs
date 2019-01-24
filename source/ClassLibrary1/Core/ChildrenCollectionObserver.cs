@@ -7,27 +7,31 @@ namespace ClassLibrary1.Core
     internal class ChildrenCollectionObserver : ICollectionObserver<Entity>
     {
         private readonly IEntityObserver next;
-        private readonly IDictionary<Observer, IDisposable> tokens;
         private readonly IDictionary<Entity, IDisposable> subscriptions;
 
         public ChildrenCollectionObserver(IEntityObserver next)
         {
             this.next = next;
 
-            tokens = new Dictionary<Observer, IDisposable>();
             subscriptions = new Dictionary<Entity, IDisposable>();
         }
 
-        public void OnAdded(Entity item, int index)
+        public IDisposable SubscribeTo(Entity entity)
         {
-            var collectionObserver = new Observer(this);
-            var subscription = item.Children.Subscribe(collectionObserver);
+            var observer = new CollectionObserver(this, entity);
+            var disposable = new EntitySubscription(entity, observer, entity.Subscribe(next));
 
-            subscriptions.Add(item, subscription);
-            tokens.Add(collectionObserver, item.Subscribe(next));
+            subscriptions.Add(entity, disposable);
+
+            return disposable;
         }
 
-        public void OnCompleted()
+        void ICollectionObserver<Entity>.OnAdded(Entity item, int index)
+        {
+            SubscribeTo(item);
+        }
+
+        void ICompletable.OnCompleted()
         {
             var disposables = subscriptions.Values.ToArray();
 
@@ -39,94 +43,81 @@ namespace ClassLibrary1.Core
             }
         }
 
-        public void OnError(Exception error)
+        void IError.OnError(Exception error)
         {
             throw new NotImplementedException();
         }
 
-        public void OnRemoved(Entity item, int index)
+        void ICollectionObserver<Entity>.OnRemoved(Entity item, int index)
         {
-            if (subscriptions.Remove(item, out var subscription))
+            if (subscriptions.Remove(item, out var disposable))
             {
-                subscription.Dispose();
+                disposable.Dispose();
             }
         }
 
-        private void DoObserverAdded(Observer observer, Entity entity)
+        private void DoAdded(CollectionObserver observer, Entity entity)
         {
-            tokens.Add(observer, entity.Subscribe(next));
+            SubscribeTo(entity);
         }
 
-        private void DoObserverCompleted(Observer observer)
+        private void DoCompleted(CollectionObserver observer)
         {
-            if (tokens.Remove(observer, out var subscription))
+            ;
+        }
+
+        private void DoError(CollectionObserver observer, Exception exception)
+        {
+            ;
+        }
+
+        private void DoRemoved(CollectionObserver observer, Entity entity)
+        {
+            if (subscriptions.Remove(entity, out var disposable))
             {
-                subscription.Dispose();
-            }
-        }
-
-        private void DoObserverError(Observer o, Exception exception)
-        {
-
-        }
-
-        private void DoObserverRemoved(Observer observer, Entity entity)
-        {
-            if (tokens.Remove(observer, out var subscription))
-            {
-                subscription.Dispose();
+                disposable.Dispose();
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private class Observer : ICollectionObserver<Entity>
+        private class CollectionObserver : ICollectionObserver<Entity>
         {
             private readonly ChildrenCollectionObserver parent;
-            private readonly IDictionary<Entity, IDisposable> subscriptions;
 
-            public Observer(ChildrenCollectionObserver parent)
+            public Entity Entity
+            {
+                get;
+            }
+
+            public CollectionObserver(ChildrenCollectionObserver parent, Entity entity)
             {
                 this.parent = parent;
-                subscriptions = new Dictionary<Entity, IDisposable>();
+                Entity = entity;
             }
 
-            public void OnAdded(Entity item, int index)
+            void ICollectionObserver<Entity>.OnAdded(Entity item, int index)
             {
-                parent.DoObserverAdded(this, item);
-
-                var collectionObserver = new Observer(parent);
-                var subscription = item.Children.Subscribe(collectionObserver);
-
-                subscriptions.Add(item, subscription);
+                parent.DoAdded(this, item);
             }
 
-            public void OnCompleted()
+            void ICompletable.OnCompleted()
             {
-                parent.DoObserverCompleted(this);
-
-                ReleaseSubscriptions();
+                parent.DoCompleted(this);
             }
 
-            public void OnError(Exception error)
+            void IError.OnError(Exception error)
             {
-                parent.DoObserverError(this, error);
-
-                ReleaseSubscriptions();
+                parent.DoError(this, error);
             }
 
-            public void OnRemoved(Entity item, int index)
+            void ICollectionObserver<Entity>.OnRemoved(Entity item, int index)
             {
-                parent.DoObserverRemoved(this, item);
-
-                if (subscriptions.Remove(item, out var subscription))
-                {
-                    subscription.Dispose();
-                }
+                parent.DoRemoved(this, item);
             }
 
-            private void ReleaseSubscriptions()
+            /*private void ReleaseSubscriptions()
             {
                 var disposables = subscriptions.Values.ToArray();
 
@@ -136,6 +127,33 @@ namespace ClassLibrary1.Core
                 {
                     subscription.Dispose();
                 }
+            }*/
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class EntitySubscription : IDisposable
+        {
+            private readonly Entity entity;
+            private readonly IDisposable disposable;
+            private readonly IDisposable subscription;
+
+            public EntitySubscription(
+                Entity entity,
+                CollectionObserver observer,
+                IDisposable disposable
+            )
+            {
+                this.entity = entity;
+                this.disposable = disposable;
+                subscription = entity.Children.Subscribe(observer);
+            }
+
+            void IDisposable.Dispose()
+            {
+                disposable.Dispose();
+                subscription.Dispose();
             }
         }
     }

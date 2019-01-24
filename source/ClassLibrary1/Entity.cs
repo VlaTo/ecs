@@ -1,28 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using ClassLibrary1.Core;
 
 namespace ClassLibrary1
 {
     /// <summary>
     /// 
     /// </summary>
-    public class Entity : IObservableEntity, IDisposable
+    public abstract class Entity : IObservableEntity, IStateProvider<EntityState>, IDisposable
     {
-        private readonly EntityCollection children;
-        private readonly ICollection<IEntityObserver> observers;
-        private readonly ICollection<IComponent> components;
-        private readonly IDictionary<Type, Collection<IComponent>> cache;
+        internal const char Separator = '/';
+
         private Entity parent;
-        private bool disposed;
 
-        public IEntityCollection Children => children;
+        protected bool Disposed
+        {
+            get;
+            private set;
+        }
 
-        public IEnumerable<IComponent> Components => components;
+        /// <summary>
+        /// 
+        /// </summary>
+        public abstract IEntityCollection Children
+        {
+            get;
+        }
 
-        public Entity Parent
+        /// <summary>
+        /// 
+        /// </summary>
+        public abstract IEnumerable<IComponent> Components
+        {
+            get;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Key
+        {
+            get;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual Entity Parent
         {
             get => parent;
             set
@@ -46,7 +69,32 @@ namespace ClassLibrary1
             }
         }
 
-        public Entity Root
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual EntityPathString Path
+        {
+            get
+            {
+                var queue = new Stack<string>();
+                var current = this;
+
+                while (null != current)
+                {
+                    queue.Push(current.Key);
+                    current = current.Parent;
+                }
+
+                queue.Push(String.Empty);
+
+                return new EntityPathString(String.Join(Separator, queue));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual Entity Root
         {
             get
             {
@@ -63,274 +111,152 @@ namespace ClassLibrary1
             }
         }
 
-        public Entity()
+        protected Entity()
         {
-            children = new EntityCollection(this);
-            observers = new List<IEntityObserver>();
-            components = new Collection<IComponent>();
-            cache = new Dictionary<Type, Collection<IComponent>>();
         }
 
-        public IDisposable Subscribe(IEntityObserver observer)
+        protected Entity(string key)
+            : this()
         {
-            if (null == observer)
-            {
-                throw new ArgumentNullException(nameof(observer));
-            }
-
-            if (false == observers.Contains(observer))
-            {
-                observers.Add(observer);
-            }
-
-            foreach (var component in Components)
-            {
-                DoComponentAdded(component);
-            }
-
-            return new Subscription(this, observer);
+            Key = key;
         }
 
-        public void AddComponent(IComponent component)
-        {
-            if (null == component)
-            {
-                throw new ArgumentNullException(nameof(component));
-            }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="observer"></param>
+        /// <returns></returns>
+        public abstract IDisposable Subscribe(IEntityObserver observer);
 
-            var key = component.GetType();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="component"></param>
+        public abstract void Add(IComponent component);
 
-            if (false == cache.TryGetValue(key, out var collection))
-            {
-                collection = new Collection<IComponent>();
-                cache.Add(key, collection);
-            }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="component"></param>
+        public abstract void Remove(IComponent component);
 
-            if (collection.Contains(component))
-            {
-                return;
-            }
-
-            components.Add(component);
-            collection.Add(component);
-
-            component.Attach(this);
-
-            DoComponentAdded(component);
-        }
-
-        public TComponent AddComponent<TComponent>(Action<TComponent> initializer = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <param name="initializer"></param>
+        /// <returns></returns>
+        public virtual TComponent Add<TComponent>(Action<TComponent> initializer = null)
             where TComponent : IComponent, new()
         {
             var component = new TComponent();
 
             initializer?.Invoke(component);
 
-            AddComponent(component);
+            Add(component);
 
             return component;
         }
 
-        public void RemoveComponent(IComponent component)
-        {
-            if (null == component)
-            {
-                throw new ArgumentNullException(nameof(component));
-            }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns></returns>
+        public abstract TComponent Get<TComponent>() where TComponent : class, IComponent;
 
-            var key = component.GetType();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns></returns>
+        public abstract IReadOnlyCollection<TComponent> GetAll<TComponent>() where TComponent : class, IComponent;
 
-            if (false == cache.TryGetValue(key, out var collection))
-            {
-                return;
-            }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public abstract bool Has(IComponent component);
 
-            if (false == collection.Remove(component))
-            {
-                return;
-            }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns></returns>
+        public abstract bool Has<TComponent>() where TComponent : IComponent;
 
-            components.Remove(component);
-            component.Release();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <returns></returns>
+        public abstract IEnumerable<TComponent> Find<TComponent>() where TComponent : class, IComponent;
 
-            DoComponentRemoved(component);
-        }
+        /// <inheritdoc cref="GetState" />
+        public abstract EntityState GetState();
 
-        public TComponent GetComponent<TComponent>()
-            where TComponent : class, IComponent
-        {
-            var key = typeof(TComponent);
-
-            if (false == cache.TryGetValue(key, out var collection))
-            {
-                return null;
-            }
-
-            if (1 < collection.Count)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return (TComponent) collection[0];
-        }
-
-        public IReadOnlyCollection<TComponent> GetComponents<TComponent>()
-            where TComponent : class, IComponent
-        {
-            var key = typeof(TComponent);
-            var result = new List<TComponent>();
-
-            if (cache.TryGetValue(key, out var collection))
-            {
-                result.AddRange(collection.OfType<TComponent>());
-            } 
-
-            return new ReadOnlyCollection<TComponent>(result);
-        }
-
-        public bool HasComponent(IComponent component)
-        {
-            if (null == component)
-            {
-                throw new ArgumentNullException(nameof(component));
-            }
-
-            var key = component.GetType();
-
-            if (false == cache.TryGetValue(key, out var collection))
-            {
-                return false;
-            }
-
-            return collection.Contains(component);
-        }
-
-        public bool HasComponents<TComponent>()
-            where TComponent : IComponent
-        {
-            var key = typeof(TComponent);
-
-            if (false == cache.TryGetValue(key, out var collection))
-            {
-                return false;
-            }
-
-            return collection.Any();
-        }
-
-        public IEnumerable<TComponent> FindComponents<TComponent>()
-            where TComponent : class, IComponent
-        {
-            var collection = new List<TComponent>();
-            var current = this;
-
-            while (null != current)
-            {
-                collection.AddRange(current.GetComponents<TComponent>());
-
-                current = current.Parent;
-            }
-
-            return collection;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-        }
-
-        private void Unsubscribe(IEntityObserver observer)
-        {
-            if (false == observers.Remove(observer))
-            {
-                return;
-            }
-
-            observer.OnCompleted();
-        }
-
-        private void DoComponentAdded(IComponent component)
-        {
-            foreach (var observer in observers)
-            {
-                observer.OnAdded(component);
-            }
-        }
-
-        private void DoComponentRemoved(IComponent component)
-        {
-            foreach (var observer in observers)
-            {
-                observer.OnRemoved(component);
-            }
-        }
-
-        private void Dispose(bool dispose)
-        {
-            if (disposed)
+            if (Disposed)
             {
                 return;
             }
 
             try
             {
-                if (dispose)
-                {
-                    var handlers = observers.ToArray();
-
-                    observers.Clear();
-                    
-                    foreach (var observer in handlers)
-                    {
-                        observer.OnCompleted();
-                    }
-                }
+                Dispose(true);
             }
             finally
             {
-                disposed = true;
+                Disposed = true;
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private class Subscription : IDisposable
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static Entity CreateEntity(string key)
         {
-            private readonly Entity entity;
-            private readonly IEntityObserver observer;
-            private bool disposed;
-
-            public Subscription(Entity entity, IEntityObserver observer)
+            if (null == key)
             {
-                this.entity = entity;
-                this.observer = observer;
+                throw new ArgumentNullException(nameof(key));
             }
 
-            public void Dispose()
+            if (String.IsNullOrWhiteSpace(key))
             {
-                Dispose(true);
+                throw new ArgumentException("", nameof(key));
             }
 
-            private void Dispose(bool dispose)
-            {
-                if (disposed)
-                {
-                    return;
-                }
-
-                try
-                {
-                    if (dispose)
-                    {
-                        entity.Unsubscribe(observer);
-                    }
-                }
-                finally
-                {
-                    disposed = true;
-                }
-            }
+            return new EntityImplementation(key);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static Entity CreateRef(string key, Entity entity)
+        {
+            if (null == key)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            if (String.IsNullOrWhiteSpace(key))
+            {
+                throw new ArgumentException("", nameof(key));
+            }
+
+            return new EntityReference(key, entity);
+        }
+
+        protected abstract void Dispose(bool dispose);
     }
 }

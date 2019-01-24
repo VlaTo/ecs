@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace ClassLibrary1
 {
@@ -11,6 +13,26 @@ namespace ClassLibrary1
     {
         private readonly string path;
 
+        internal IEnumerable<EntityPathStringSegment> Segments
+        {
+            get
+            {
+                var segments = new List<EntityPathStringSegment>();
+
+                foreach (var str in path.Split(Entity.Separator, StringSplitOptions.None))
+                {
+                    if (String.IsNullOrWhiteSpace(str))
+                    {
+                        ;
+                    }
+
+                    segments.Add(new EntityPathStringSegment(str));
+                }
+
+                return segments.ToArray();
+            }
+        }
+
         public EntityPathString(string path)
         {
             this.path = path;
@@ -18,7 +40,7 @@ namespace ClassLibrary1
 
         public override bool Equals(object obj)
         {
-            if (null == obj)
+            if (ReferenceEquals(null, obj))
             {
                 return false;
             }
@@ -44,7 +66,7 @@ namespace ClassLibrary1
 
         public bool Equals(EntityPathString other)
         {
-            if (null == other)
+            if (ReferenceEquals(null, other))
             {
                 return false;
             }
@@ -59,12 +81,12 @@ namespace ClassLibrary1
 
         public static bool operator ==(EntityPathString left, EntityPathString right)
         {
-            return null != left && left.Equals(right);
+            return false == ReferenceEquals(null, left) && left.Equals(right);
         }
 
         public static bool operator !=(EntityPathString left, EntityPathString right)
         {
-            throw new NotImplementedException();
+            return ReferenceEquals(null, left) || false == left.Equals(right);
         }
 
         public static explicit operator string(EntityPathString instance)

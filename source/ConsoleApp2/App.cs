@@ -17,9 +17,9 @@ namespace ConsoleApp2
         public App(params string[] args)
         {
             root = new Entity();
-            root.AddComponent<GameTimeComponent>();
+            root.Add<GameTimeComponent>();
 
-            var environment = root.GetComponent<GameTimeComponent>();
+            var environment = root.Get<GameTimeComponent>();
             var queue = new MessageQueue();
 
             environment.Elapsed.Subscribe(value =>
@@ -59,7 +59,7 @@ namespace ConsoleApp2
         private async Task DoRun(CancellationToken ct)
         {
             var started = TimeSpan.FromTicks(DateTime.UtcNow.Ticks);
-            var environment = root.GetComponent<GameTimeComponent>();
+            var environment = root.Get<GameTimeComponent>();
 
             while (false == ct.IsCancellationRequested)
             {

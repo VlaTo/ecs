@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClassLibrary1.Core;
+using System;
 
 namespace ClassLibrary1
 {
@@ -8,6 +9,7 @@ namespace ClassLibrary1
     /// <typeparam name="T"></typeparam>
     public class Subject<T> : ObservableBase<T>, ISubject<T>
     {
+        /// <inheritdoc cref="ObservableBase{T}.Subscribe" />
         public override IDisposable Subscribe(IObserver<T> observer)
         {
             var subscription = base.Subscribe(observer);
@@ -15,22 +17,22 @@ namespace ClassLibrary1
             return subscription;
         }
 
-        public void OnCompleted()
+        void IObserver<T>.OnCompleted()
         {
             Completed();
         }
 
-        public void OnError(Exception error)
+        void IObserver<T>.OnError(Exception error)
         {
             Error(error);
         }
 
-        public void OnNext(T value)
+        void IObserver<T>.OnNext(T value)
         {
             Next(value);
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             Release();
         }

@@ -5,7 +5,7 @@ namespace ClassLibrary1
     /// <summary>
     /// 
     /// </summary>
-    public class Component : IComponent
+    public abstract class Component : IComponent
     {
         /// <inheritdoc />
         public Entity Entity
@@ -29,10 +29,14 @@ namespace ClassLibrary1
 
             Entity = entity;
 
-            if (null != Entity)
+            if (null == Entity)
             {
-                Entity.AddComponent(this);
+                return;
             }
+
+            Entity.Add(this);
+
+            DoAttach();
         }
 
         /// <inheritdoc cref="IComponent.Release" />
@@ -43,9 +47,15 @@ namespace ClassLibrary1
                 return;
             }
 
-            Entity.RemoveComponent(this);
+            Entity.Remove(this);
 
             Entity = null;
+
+            DoRelease();
         }
+
+        protected abstract void DoAttach();
+
+        protected abstract void DoRelease();
     }
 }

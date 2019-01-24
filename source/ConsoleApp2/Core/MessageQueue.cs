@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ClassLibrary1;
+using ClassLibrary1.Core;
 
 namespace ConsoleApp2.Core
 {
