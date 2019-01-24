@@ -54,6 +54,12 @@ namespace ClassLibrary1
             DoRelease();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public abstract ComponentState GetState();
+
         protected abstract void DoAttach();
 
         protected abstract void DoRelease();

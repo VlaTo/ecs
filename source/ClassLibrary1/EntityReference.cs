@@ -67,7 +67,7 @@ namespace ClassLibrary1
         {
             return new EntityState
             {
-
+                Key = Key
             };
         }
 

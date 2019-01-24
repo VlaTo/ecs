@@ -189,10 +189,17 @@ namespace ClassLibrary1
         /// <inheritdoc cref="GetState" />
         public override EntityState GetState()
         {
-            return new EntityState
+            var state = new EntityState
             {
-
+                Key = Key
             };
+
+            foreach (var component in Components)
+            {
+                state.Components.Add(component.GetState());
+            }
+
+            return state;
         }
 
         protected override void Dispose(bool dispose)
