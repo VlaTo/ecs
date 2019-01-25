@@ -212,5 +212,19 @@ namespace UnitTestProject1
 
             Assert.AreEqual(child.Path, new EntityPathString("/root/entity"));
         }
+
+        [TestMethod]
+        public void TestMethod9()
+        {
+            var root = Entity.CreateEntity("root");
+            var child = Entity.CreateEntity("entity");
+
+            root.Children.Add(child);
+            child.Add(new TestComponent());
+
+            var state = root.GetState();
+
+            Assert.IsNotNull(state);
+        }
     }
 }

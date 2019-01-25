@@ -8,7 +8,20 @@ namespace ClassLibrary1
     /// </summary>
     public sealed class EntityReference : Entity
     {
-        private readonly Entity entity;
+        private Entity entity;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public EntityPathString EntityPath
+        {
+            get;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal Entity Entity => entity ?? (entity = ResolveEntity());
 
         /// <inheritdoc cref="Children" />
         public override IEntityCollection Children => entity.Children;
@@ -16,50 +29,67 @@ namespace ClassLibrary1
         /// <inheritdoc cref="Entity.Components" />
         public override IEnumerable<IComponent> Components => entity.Components;
 
-        internal EntityReference(string key, Entity entity)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="entityPath"></param>
+        public EntityReference(string key, EntityPathString entityPath)
             : base(key)
         {
-            this.entity = entity;
+            EntityPath = entityPath;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        public EntityReference(EntityReference instance)
+            : this(instance.Key, instance.EntityPath)
+        {
+        }
+
+        /// <inheritdoc cref="ClassLibrary1.Entity.Subscribe" />
         public override IDisposable Subscribe(IEntityObserver observer)
         {
-            return entity.Subscribe(observer);
+            return Entity.Subscribe(observer);
         }
 
+        /// <inheritdoc cref="ClassLibrary1.Entity.Add" />
         public override void Add(IComponent component)
         {
-            entity.Add(component);
+            throw new NotSupportedException();
         }
 
+        /// <inheritdoc cref="ClassLibrary1.Entity.Remove" />
         public override void Remove(IComponent component)
         {
-            entity.Remove(component);
+            throw new NotSupportedException();
         }
 
         public override TComponent Get<TComponent>()
         {
-            return entity.Get<TComponent>();
+            return Entity.Get<TComponent>();
         }
 
         public override IReadOnlyCollection<TComponent> GetAll<TComponent>()
         {
-            return entity.GetAll<TComponent>();
+            return Entity.GetAll<TComponent>();
+        }
+
+        public override IEnumerable<Entity> Find(EntityPathString path)
+        {
+            return Entity.Find(path);
         }
 
         public override bool Has(IComponent component)
         {
-            return entity.Has(component);
+            return Entity.Has(component);
         }
 
         public override bool Has<TComponent>()
         {
-            return entity.Has<TComponent>();
-        }
-
-        public override IEnumerable<TComponent> Find<TComponent>()
-        {
-            return entity.Find<TComponent>();
+            return Entity.Has<TComponent>();
         }
 
         /// <inheritdoc cref="GetState" />
@@ -67,12 +97,26 @@ namespace ClassLibrary1
         {
             return new EntityState
             {
-                Key = Key
+                Key = Key,
+                EntityPath = (string) EntityPath
             };
         }
 
-        protected override void Dispose(bool dispose)
+        public override void SetState(EntityState state)
         {
+            throw new NotImplementedException();
+        }
+
+        public override Entity Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        private Entity ResolveEntity()
+        {
+            //var match = new EntityPathMatch(EntityPath, this);
+            //return match.IsMet()
+            throw new NotImplementedException();
         }
     }
 }

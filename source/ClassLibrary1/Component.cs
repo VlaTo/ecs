@@ -7,11 +7,23 @@ namespace ClassLibrary1
     /// </summary>
     public abstract class Component : IComponent
     {
+        private static readonly ComponentResolverCollection resolvers;
+
+        /// <inheritdoc cref="IComponent.Alias" />
+        public abstract string Alias { get; }
+
         /// <inheritdoc />
         public Entity Entity
         {
             get;
             private set;
+        }
+
+        public static IComponentResolverCollection Resolvers => resolvers;
+
+        static Component()
+        {
+            resolvers = new ComponentResolverCollection();
         }
 
         /// <inheritdoc cref="IComponent.Attach" />

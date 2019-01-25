@@ -3,15 +3,13 @@
     /// <summary>
     /// 
     /// </summary>
-    public class ComponentState
+    /// <typeparam name="T"></typeparam>
+    public interface ICloneable<out T>
     {
         /// <summary>
         /// 
         /// </summary>
-        public string Alias
-        {
-            get;
-            set;
-        }
+        /// <returns></returns>
+        T Clone();
     }
 }

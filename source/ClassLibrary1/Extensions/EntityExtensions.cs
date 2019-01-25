@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ClassLibrary1.Core;
 
 namespace ClassLibrary1.Extensions
@@ -8,6 +9,26 @@ namespace ClassLibrary1.Extensions
     /// </summary>
     public static class EntityExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static IEnumerable<TComponent> GetAllRecursive<TComponent>(this Entity entity)
+            where TComponent : class, IComponent
+        {
+            var collection = new List<TComponent>();
+
+            while (null != entity)
+            {
+                collection.AddRange(entity.GetAll<TComponent>());
+                entity = entity.Parent;
+            }
+
+            return collection;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -41,7 +62,7 @@ namespace ClassLibrary1.Extensions
 
             if (recursive)
             {
-                var collectionObserver = new ChildrenCollectionObserver(entityObserver);
+                var collectionObserver = new ChildrenCollectionObserver(entityObserver, Condition<Entity>.True);
                 return collectionObserver.SubscribeTo(entity);
             }
 
@@ -76,7 +97,7 @@ namespace ClassLibrary1.Extensions
 
             if (recursive)
             {
-                var collectionObserver = new ChildrenCollectionObserver(entityObserver);
+                var collectionObserver = new ChildrenCollectionObserver(entityObserver, Condition<Entity>.True);
                 return collectionObserver.SubscribeTo(entity);
             }
 
@@ -108,8 +129,8 @@ namespace ClassLibrary1.Extensions
             }
 
             var match = new EntityPathMatch(path, entity);
-            var entityObserver = new PredicateEntityObserver<TComponent>(match.IsMet, observer);
-            var collectionObserver = new ChildrenCollectionObserver(entityObserver);
+            var entityObserver = new TypedComponentEntityObserver<TComponent>(observer);
+            var collectionObserver = new ChildrenCollectionObserver(entityObserver, match.IsMet);
 
             return collectionObserver.SubscribeTo(entity);
         }

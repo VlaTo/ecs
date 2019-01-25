@@ -3,7 +3,80 @@ using System.Collections.Generic;
 
 namespace ClassLibrary1.Core
 {
-    internal sealed class EntityPathMatch : ICondition<IComponent>
+    /// <summary>
+    /// Implements entity path match processor.
+    /// </summary>
+    /// <remarks>
+    /// <list type="table">
+    ///     <listheader>
+    ///         <term>path</term>
+    ///         <description>meaning</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term>
+    ///             <c>/*</c>
+    ///         </term>
+    ///         <description>all entities, staring from root.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>
+    ///             <c>/entity1</c>
+    ///         </term>
+    ///         <description>
+    ///         all entities with key 'entity1', staring from root.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term>
+    ///             <c>/entity1/entity2</c>
+    ///         </term>
+    ///         <description>
+    ///         all entities with key 'entity2' wich is child of entity 'entity1', staring from root.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term>
+    ///             <c>/entity1/*</c>
+    ///         </term>
+    ///         <description>
+    ///             all entity with any key wich is child of entity 'entity1', staring from root.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term>
+    ///             <c>*</c>
+    ///         </term>
+    ///         <description>
+    ///             all entities which is child of current entity.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term>
+    ///             <c>entity1</c>
+    ///         </term>
+    ///         <description>
+    ///             all child entities with key 'entity1' from current.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term>
+    ///             <c>entity1/entity2</c>
+    ///         </term>
+    ///         <description>
+    ///             all child entities with key 'entity1' from current.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <term>
+    ///             <c>entity1/*</c>
+    ///         </term>
+    ///         <description>
+    ///             all child entities with key 'entity1' from current.
+    ///         </description>
+    ///     </item>
+    /// </list>
+    /// </remarks>
+    internal sealed class EntityPathMatch : ICondition<Entity>
     {
         private readonly Entity entity;
         private readonly MatchPattern pattern;
@@ -14,28 +87,29 @@ namespace ClassLibrary1.Core
             pattern = BuildPattern(path.Segments);
         }
 
-        public bool IsMet(IComponent value)
+        public bool IsMet(Entity value)
         {
-            var path = value.Entity.Path;
-            return pattern.Match(path.Segments);
+            var path = value.Path;
+            var segments = path.Segments.GetEnumerator();
+            return pattern.Match(segments);
         }
 
         private static MatchPattern BuildPattern(IEnumerable<EntityPathStringSegment> segments)
         {
-            var patters = new List<MatchPattern>();
+            MatchPattern next = null;
 
             foreach (var segment in segments)
             {
                 if (segment.IsWildCart)
                 {
-                    patters.Add(new WildcartMatch(WildCart.Star));
+                    next = new WildcartMatch(WildCart.Star, next);
                     continue;
                 }
 
-                patters.Add(new ExactMatch(segment));
+                next = new SegmentMatch(segment, next);
             }
 
-            return patters.ToArray();
+            return next;
         }
 
         /// <summary>
@@ -53,8 +127,10 @@ namespace ClassLibrary1.Core
                 Next = next;
             }
 
-            public bool Match(IReadOnlyList<EntityPathStringSegment> segments)
+            public bool Match(IEnumerator<EntityPathStringSegment> segments)
             {
+                //segments.Current;
+                //segments.MoveNext();
                 throw new NotImplementedException();
             }
 
@@ -64,19 +140,35 @@ namespace ClassLibrary1.Core
         /// <summary>
         /// 
         /// </summary>
-        private sealed class ExactMatch : MatchPattern
+        private sealed class RootMatch : MatchPattern
+        {
+            public RootMatch(MatchPattern next)
+                : base(next)
+            {
+            }
+
+            protected override bool DoMatch()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private sealed class SegmentMatch : MatchPattern
         {
             private readonly EntityPathStringSegment segment;
 
-            public ExactMatch(EntityPathStringSegment segment, MatchPattern next)
+            public SegmentMatch(EntityPathStringSegment segment, MatchPattern next)
                 : base(next)
             {
                 this.segment = segment;
             }
 
-            public override bool Match(EntityPathStringSegment segment)
+            protected override bool DoMatch()
             {
-                return this.segment == segment&&Next.Match();
+                throw new NotImplementedException();
             }
         }
 
@@ -87,25 +179,15 @@ namespace ClassLibrary1.Core
         {
             private readonly WildCart wildcart;
 
-            public WildcartMatch(WildCart wildcart)
+            public WildcartMatch(WildCart wildcart, MatchPattern next)
+                : base(next)
             {
                 this.wildcart = wildcart;
             }
 
-            public override bool Match(EntityPathStringSegment segment)
+            protected override bool DoMatch()
             {
-                switch (wildcart)
-                {
-                    case WildCart.Star:
-                    {
-                        return true;
-                    }
-
-                    default:
-                    {
-                        return false;
-                    }
-                }
+                throw new NotImplementedException();
             }
         }
 

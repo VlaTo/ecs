@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ClassLibrary1
 {
@@ -15,7 +16,25 @@ namespace ClassLibrary1
 
         public bool Equals(EntityPathStringSegment other)
         {
+            EntityPathStringSegment
             throw new NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj is EntityPathStringSegment other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static implicit operator string(EntityPathStringSegment segment)
+        {
+            return segment.str;
         }
     }
 }

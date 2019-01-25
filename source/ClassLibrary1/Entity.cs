@@ -6,17 +6,11 @@ namespace ClassLibrary1
     /// <summary>
     /// 
     /// </summary>
-    public abstract class Entity : IObservableEntity, IStateProvider<EntityState>, IDisposable
+    public abstract class Entity : IObservableEntity, IStateProvider<EntityState>, IStateAcceptor<EntityState>, ICloneable<Entity>
     {
         internal const char Separator = '/';
 
         private Entity parent;
-
-        protected bool Disposed
-        {
-            get;
-            private set;
-        }
 
         /// <summary>
         /// 
@@ -37,7 +31,7 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
-        public string Key
+        public virtual string Key
         {
             get;
         }
@@ -175,6 +169,13 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public abstract IEnumerable<Entity> Find(EntityPathString path);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="component"></param>
         /// <returns></returns>
         public abstract bool Has(IComponent component);
@@ -186,77 +187,13 @@ namespace ClassLibrary1
         /// <returns></returns>
         public abstract bool Has<TComponent>() where TComponent : IComponent;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TComponent"></typeparam>
-        /// <returns></returns>
-        public abstract IEnumerable<TComponent> Find<TComponent>() where TComponent : class, IComponent;
-
-        /// <inheritdoc cref="GetState" />
+        /// <inheritdoc cref="IStateProvider{TState}.GetState" />
         public abstract EntityState GetState();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Dispose()
-        {
-            if (Disposed)
-            {
-                return;
-            }
+        /// <inheritdoc cref="IStateAcceptor{TState}.SetState" />
+        public abstract void SetState(EntityState state);
 
-            try
-            {
-                Dispose(true);
-            }
-            finally
-            {
-                Disposed = true;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static Entity CreateEntity(string key)
-        {
-            if (null == key)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            if (String.IsNullOrWhiteSpace(key))
-            {
-                throw new ArgumentException("", nameof(key));
-            }
-
-            return new EntityImplementation(key);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public static Entity CreateRef(string key, Entity entity)
-        {
-            if (null == key)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            if (String.IsNullOrWhiteSpace(key))
-            {
-                throw new ArgumentException("", nameof(key));
-            }
-
-            return new EntityReference(key, entity);
-        }
-
-        protected abstract void Dispose(bool dispose);
+        /// <inheritdoc cref="ICloneable{T}.Clone" />
+        public abstract Entity Clone();
     }
 }

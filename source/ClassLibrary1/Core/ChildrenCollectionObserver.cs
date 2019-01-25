@@ -7,28 +7,27 @@ namespace ClassLibrary1.Core
     internal class ChildrenCollectionObserver : ICollectionObserver<Entity>
     {
         private readonly IEntityObserver next;
+        private readonly Predicate<Entity> selector;
         private readonly IDictionary<Entity, IDisposable> subscriptions;
 
-        public ChildrenCollectionObserver(IEntityObserver next)
+        public ChildrenCollectionObserver(IEntityObserver next, Predicate<Entity> selector)
         {
             this.next = next;
+            this.selector = selector;
 
             subscriptions = new Dictionary<Entity, IDisposable>();
         }
 
         public IDisposable SubscribeTo(Entity entity)
         {
-            var observer = new CollectionObserver(this, entity);
-            var disposable = new EntitySubscription(entity, observer, entity.Subscribe(next));
+            SubscribeToEntity(entity);
 
-            subscriptions.Add(entity, disposable);
-
-            return disposable;
+            return subscriptions[entity];
         }
 
         void ICollectionObserver<Entity>.OnAdded(Entity item, int index)
         {
-            SubscribeTo(item);
+            SubscribeToEntity(item);
         }
 
         void ICompletable.OnCompleted()
@@ -56,9 +55,17 @@ namespace ClassLibrary1.Core
             }
         }
 
+        private void SubscribeToEntity(Entity entity)
+        {
+            var observer = new CollectionObserver(this, entity);
+            var disposable = new EntitySubscription(this, entity, observer);
+
+            subscriptions.Add(entity, disposable);
+        }
+
         private void DoAdded(CollectionObserver observer, Entity entity)
         {
-            SubscribeTo(entity);
+            SubscribeToEntity(entity);
         }
 
         private void DoCompleted(CollectionObserver observer)
@@ -135,25 +142,30 @@ namespace ClassLibrary1.Core
         /// </summary>
         private class EntitySubscription : IDisposable
         {
-            private readonly Entity entity;
-            private readonly IDisposable disposable;
-            private readonly IDisposable subscription;
+            private readonly ChildrenCollectionObserver owner;
+            private readonly IDisposable entitySubscription;
+            private readonly IDisposable childSubscription;
 
             public EntitySubscription(
+                ChildrenCollectionObserver owner,
                 Entity entity,
-                CollectionObserver observer,
-                IDisposable disposable
+                CollectionObserver observer
             )
             {
-                this.entity = entity;
-                this.disposable = disposable;
-                subscription = entity.Children.Subscribe(observer);
+                this.owner = owner;
+
+                if (owner.selector.Invoke(entity))
+                {
+                    entitySubscription = entity.Subscribe(owner.next);
+                }
+
+                childSubscription = entity.Children.Subscribe(observer);
             }
 
             void IDisposable.Dispose()
             {
-                disposable.Dispose();
-                subscription.Dispose();
+                entitySubscription?.Dispose();
+                childSubscription.Dispose();
             }
         }
     }

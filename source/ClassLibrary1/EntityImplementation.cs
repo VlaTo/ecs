@@ -15,6 +15,10 @@ namespace ClassLibrary1
         private readonly ICollection<IComponent> components;
         private readonly IDictionary<Type, Collection<IComponent>> cache;
         private readonly ICollection<IEntityObserver> observers;
+        private string keyOverride;
+
+        /// <inheritdoc cref="Entity.Key" />
+        public override string Key => keyOverride ?? base.Key;
 
         /// <inheritdoc cref="Entity.Children" />
         public override IEntityCollection Children => children;
@@ -22,13 +26,27 @@ namespace ClassLibrary1
         /// <inheritdoc cref="Entity.Components" />
         public override IEnumerable<IComponent> Components => components;
 
-        internal EntityImplementation(string key)
+        public EntityImplementation(string key)
             : base(key)
         {
             children = new EntityCollection(this);
             components = new Collection<IComponent>();
             cache = new Dictionary<Type, Collection<IComponent>>();
             observers = new List<IEntityObserver>();
+        }
+
+        public EntityImplementation(EntityImplementation instance)
+            : this(instance.Key)
+        {
+            foreach (var component in instance.Components)
+            {
+                Add(component.Clone());
+            }
+
+            foreach (var child in instance.Children)
+            {
+                Children.Add(child.Clone());
+            }
         }
 
         /// <inheritdoc cref="Subscribe" />
@@ -119,7 +137,7 @@ namespace ClassLibrary1
 
             if (1 < collection.Count)
             {
-                throw new InvalidOperationException();
+                throw new EntityException();
             }
 
             return (TComponent)collection[0];
@@ -137,6 +155,17 @@ namespace ClassLibrary1
             }
 
             return new ReadOnlyCollection<TComponent>(result);
+        }
+
+        /// <inheritdoc cref="Find" />
+        public override IEnumerable<Entity> Find(EntityPathString path)
+        {
+            if (null == path)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+
         }
 
         /// <inheritdoc cref="Has" />
@@ -170,28 +199,13 @@ namespace ClassLibrary1
             return collection.Any();
         }
 
-        /// <inheritdoc cref="Find{TComponent}" />
-        public override IEnumerable<TComponent> Find<TComponent>()
-        {
-            var collection = new List<TComponent>();
-            Entity current = this;
-
-            while (null != current)
-            {
-                collection.AddRange(current.GetAll<TComponent>());
-
-                current = current.Parent;
-            }
-
-            return collection;
-        }
-
         /// <inheritdoc cref="GetState" />
         public override EntityState GetState()
         {
             var state = new EntityState
             {
-                Key = Key
+                Key = Key,
+                EntityPath = null
             };
 
             foreach (var component in Components)
@@ -199,27 +213,65 @@ namespace ClassLibrary1
                 state.Components.Add(component.GetState());
             }
 
+            foreach (var child in Children)
+            {
+                state.Children.Add(child.GetState());
+            }
+
             return state;
         }
 
-        protected override void Dispose(bool dispose)
+        /// <inheritdoc cref="Entity.SetState" />
+        public override void SetState(EntityState state)
         {
-            if (Disposed)
+            if (null == state)
             {
-                return;
+                throw new ArgumentNullException(nameof(state));
             }
 
-            if (dispose)
+            Clear();
+
+            if (false == Key.Equals(state.Key))
             {
-                var handlers = observers.ToArray();
-
-                observers.Clear();
-
-                foreach (var observer in handlers)
-                {
-                    observer.OnCompleted();
-                }
+                keyOverride = state.Key;
             }
+
+            foreach (var componentState in state.Components)
+            {
+                var component = Component.Resolvers.Resolve(componentState.Alias);
+
+                component.SetState(componentState);
+
+                Add(component);
+            }
+
+            foreach (var entityState in state.Children)
+            {
+                var entity = Create(state.Key, state.EntityPath);
+
+                entity.SetState(entityState);
+
+                Children.Add(entity);
+            }
+        }
+
+        /// <inheritdoc cref="Clone" />
+        public override Entity Clone()
+        {
+            return new EntityImplementation(this);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Clear()
+        {
+            foreach (var component in Components)
+            {
+                Remove(component);
+            }
+
+            Children.Clear();
         }
 
         private void Unsubscribe(IEntityObserver observer)
@@ -246,6 +298,16 @@ namespace ClassLibrary1
             {
                 observer.OnRemoved(component);
             }
+        }
+
+        private static Entity Create(string key, string entityPath)
+        {
+            if (String.IsNullOrEmpty(entityPath))
+            {
+                return new EntityImplementation(key);
+            }
+
+            return new EntityReference(key, entityPath);
         }
 
         /// <summary>

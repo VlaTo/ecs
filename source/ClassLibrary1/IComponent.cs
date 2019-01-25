@@ -3,8 +3,13 @@
     /// <summary>
     /// 
     /// </summary>
-    public interface IComponent : IStateProvider<ComponentState>
+    public interface IComponent : IStateProvider<ComponentState>, IStateAcceptor<ComponentState>, ICloneable<IComponent>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        string Alias { get; }
+
         /// <summary>
         /// 
         /// </summary>
