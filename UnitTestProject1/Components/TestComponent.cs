@@ -6,12 +6,30 @@ namespace UnitTestProject1.Components
     {
         public override string Alias => nameof(TestComponent);
 
+        public TestComponent()
+        {
+        }
+
+        private TestComponent(TestComponent instance)
+        {
+        }
+
         public override ComponentState GetState()
         {
             return new ComponentState
             {
 
             };
+        }
+
+        public override void SetState(ComponentState state)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override IComponent Clone()
+        {
+            return new TestComponent(this);
         }
 
         protected override void DoAttach()

@@ -78,23 +78,22 @@ namespace ClassLibrary1.Core
     /// </remarks>
     internal sealed class EntityPathMatch : ICondition<Entity>
     {
+        private readonly EntityPathString path;
         private readonly Entity entity;
         private readonly MatchPattern pattern;
 
         public EntityPathMatch(EntityPathString path, Entity entity)
         {
+            this.path = path;
             this.entity = entity;
-            pattern = BuildPattern(path.Segments);
         }
 
         public bool IsMet(Entity value)
         {
-            var path = value.Path;
-            var segments = path.Segments.GetEnumerator();
-            return pattern.Match(segments);
+            return false;
         }
 
-        private static MatchPattern BuildPattern(IEnumerable<EntityPathStringSegment> segments)
+        /*private static MatchPattern BuildPattern(IEnumerable<EntityPathStringSegment> segments)
         {
             MatchPattern next = null;
 
@@ -110,7 +109,7 @@ namespace ClassLibrary1.Core
             }
 
             return next;
-        }
+        }*/
 
         /// <summary>
         /// 

@@ -10,7 +10,10 @@ namespace ClassLibrary1
         private static readonly ComponentResolverCollection resolvers;
 
         /// <inheritdoc cref="IComponent.Alias" />
-        public abstract string Alias { get; }
+        public abstract string Alias
+        {
+            get;
+        }
 
         /// <inheritdoc />
         public Entity Entity
@@ -66,11 +69,14 @@ namespace ClassLibrary1
             DoRelease();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="IStateProvider{TState}.GetState" />
         public abstract ComponentState GetState();
+
+        /// <inheritdoc cref="IStateAcceptor{TState}.SetState" />
+        public abstract void SetState(ComponentState state);
+
+        /// <inheritdoc cref="ICloneable{T}.Clone" />
+        public abstract IComponent Clone();
 
         protected abstract void DoAttach();
 

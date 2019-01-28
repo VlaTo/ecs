@@ -165,7 +165,7 @@ namespace ClassLibrary1
                 throw new ArgumentNullException(nameof(path));
             }
 
-
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc cref="Has" />

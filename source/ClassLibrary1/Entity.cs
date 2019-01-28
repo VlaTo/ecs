@@ -81,7 +81,7 @@ namespace ClassLibrary1
 
                 queue.Push(String.Empty);
 
-                return new EntityPathString(String.Join(Separator, queue));
+                return EntityPathString.Parse(String.Join(Separator, queue));
             }
         }
 

@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
 using ClassLibrary1;
 using ClassLibrary1.Extensions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Collections.Generic;
 using UnitTestProject1.Components;
 
 namespace UnitTestProject1
@@ -16,7 +14,7 @@ namespace UnitTestProject1
         public void TestMethod1()
         {
             var mock = new Mock<IEntityObserver>();
-            var entity = Entity.CreateEntity("entity");
+            var entity = new EntityImplementation("entity");
             var testComponent = new TestComponent();
 
             mock.Setup(observer => observer.OnAdded(testComponent));
@@ -40,7 +38,7 @@ namespace UnitTestProject1
         public void TestMethod2()
         {
             var mock = new Mock<IEntityObserver>();
-            var entity = Entity.CreateEntity("entity");
+            var entity = new EntityImplementation("entity");
             var testComponent = new TestComponent();
 
             mock.Setup(observer => observer.OnAdded(testComponent));
@@ -63,7 +61,7 @@ namespace UnitTestProject1
         public void TestMethod3()
         {
             var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = Entity.CreateEntity("root");
+            var root = new EntityImplementation("root");
             var testComponent = new TestComponent();
             var components = new List<TestComponent>();
 
@@ -85,7 +83,7 @@ namespace UnitTestProject1
                 .Setup(observer => observer.OnCompleted())
                 .Callback(() => { });
 
-            var entity = Entity.CreateEntity("entity");
+            var entity = new EntityImplementation("entity");
 
             entity.Add(testComponent);
             root.Children.Add(entity);
@@ -105,7 +103,7 @@ namespace UnitTestProject1
         public void TestMethod4()
         {
             var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = Entity.CreateEntity("root");
+            var root = new EntityImplementation("root");
             var testComponent = new TestComponent();
 
             mock.Setup(observer => observer.OnAdded(testComponent));
@@ -114,7 +112,7 @@ namespace UnitTestProject1
 
             using (root.Subscribe(mock.Object, true))
             {
-                var entity = Entity.CreateEntity("entity");
+                var entity = new EntityImplementation("entity");
 
                 entity.Add(testComponent);
                 root.Children.Add(entity);
@@ -130,7 +128,7 @@ namespace UnitTestProject1
         public void TestMethod5()
         {
             var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = Entity.CreateEntity("root");
+            var root = new EntityImplementation("root");
 
             mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
             mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
@@ -138,7 +136,7 @@ namespace UnitTestProject1
 
             using (root.Subscribe(mock.Object, recursive:true))
             {
-                root.Children.Add(Entity.CreateEntity("entity"));
+                root.Children.Add(new EntityImplementation("entity"));
             }
 
             mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>()), Times.Never);
@@ -152,7 +150,7 @@ namespace UnitTestProject1
         public void TestMethod6(bool recursive, int added, int removed)
         {
             var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = Entity.CreateEntity("root");
+            var root = new EntityImplementation("root");
 
             mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
             mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
@@ -160,7 +158,7 @@ namespace UnitTestProject1
 
             using (root.Subscribe(mock.Object, recursive))
             {
-                var child = Entity.CreateEntity("entity");
+                var child = new EntityImplementation("child");
                 var component = new TestComponent();
 
                 child.Add(component);
@@ -180,7 +178,7 @@ namespace UnitTestProject1
         public void TestMethod7(string path)
         {
             var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = Entity.CreateEntity("root");
+            var root = new EntityImplementation("root");
 
             mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
             mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
@@ -188,7 +186,7 @@ namespace UnitTestProject1
 
             using (root.Subscribe(path, mock.Object))
             {
-                var child = Entity.CreateEntity("entity");
+                var child = new EntityImplementation("child");
                 var component = new TestComponent();
 
                 child.Add(component);
@@ -205,19 +203,20 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestMethod8()
         {
-            var root = Entity.CreateEntity("root");
-            var child = Entity.CreateEntity("entity");
+            var root = new EntityImplementation("root");
+            var child = new EntityImplementation("child");
+            var pathString = EntityPathString.Parse("/root/entity");
 
             root.Children.Add(child);
 
-            Assert.AreEqual(child.Path, new EntityPathString("/root/entity"));
+            Assert.AreEqual(child.Path, pathString);
         }
 
         [TestMethod]
         public void TestMethod9()
         {
-            var root = Entity.CreateEntity("root");
-            var child = Entity.CreateEntity("entity");
+            var root = new EntityImplementation("root");
+            var child = new EntityImplementation("child");
 
             root.Children.Add(child);
             child.Add(new TestComponent());
@@ -225,6 +224,15 @@ namespace UnitTestProject1
             var state = root.GetState();
 
             Assert.IsNotNull(state);
+        }
+
+        [TestMethod]
+        public void TestMethod10()
+        {
+            var expected = "/root/entity";
+            var pathString = EntityPathString.Parse(expected);
+
+            Assert.AreEqual(expected, pathString);
         }
     }
 }
