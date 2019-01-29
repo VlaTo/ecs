@@ -80,7 +80,7 @@ namespace ClassLibrary1.Core
     {
         private readonly EntityPathString path;
         private readonly Entity entity;
-        private readonly MatchPattern pattern;
+        //private readonly MatchPattern pattern;
 
         public EntityPathMatch(EntityPathString path, Entity entity)
         {

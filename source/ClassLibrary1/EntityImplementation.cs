@@ -202,23 +202,26 @@ namespace ClassLibrary1
         /// <inheritdoc cref="GetState" />
         public override EntityState GetState()
         {
-            var state = new EntityState
-            {
-                Key = Key,
-                EntityPath = null
-            };
+            var states = new Collection<ComponentState>();
+            var entities = new Collection<EntityState>();
 
             foreach (var component in Components)
             {
-                state.Components.Add(component.GetState());
+                states.Add(component.GetState());
             }
 
             foreach (var child in Children)
             {
-                state.Children.Add(child.GetState());
+                entities.Add(child.GetState());
             }
 
-            return state;
+            return new EntityState
+            {
+                Key = Key,
+                EntityPath = null,
+                Components = states.ToArray(),
+                Children = entities.ToArray()
+            };
         }
 
         /// <inheritdoc cref="Entity.SetState" />

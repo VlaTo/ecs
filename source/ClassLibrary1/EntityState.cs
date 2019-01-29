@@ -1,35 +1,48 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace ClassLibrary1
 {
+    [DataContract]
     public sealed class EntityState
     {
+        [DataMember, XmlAttribute]
         public string Key
         {
             get;
             set;
         }
 
+        [DataMember, XmlAttribute]
         public string EntityPath
         {
             get;
             set;
         }
 
-        public IList<ComponentState> Components
+        [DataMember, XmlArray]
+        [XmlArrayItem(typeof(ComponentState))]
+        //public IList<ComponentState> Components
+        public ComponentState[] Components
         {
             get;
+            set;
         }
 
-        public IList<EntityState> Children
+        [DataMember, XmlArray]
+        [XmlArrayItem(typeof(EntityState))]
+        //public IList<EntityState> Children
+        public EntityState[] Children
         {
             get;
+            set;
         }
 
         public EntityState()
         {
-            Components = new List<ComponentState>();
-            Children = new List<EntityState>();
+            Components = new ComponentState[0];
+            Children = new EntityState[0];
         }
     }
 }

@@ -1,8 +1,14 @@
+using System;
 using ClassLibrary1;
 using ClassLibrary1.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 using UnitTestProject1.Components;
 
 namespace UnitTestProject1
@@ -233,6 +239,52 @@ namespace UnitTestProject1
             var pathString = EntityPathString.Parse(expected);
 
             Assert.AreEqual(expected, pathString);
+        }
+
+        [TestMethod]
+        public void TestMethod11()
+        {
+            var root = new EntityImplementation("root");
+            var child1 = new EntityImplementation("child1");
+            var child2 = new EntityImplementation("child2");
+
+            root.Children.Add(child1);
+            child1.Children.Add(child2);
+            root.Children.Add(new EntityReference("child3", child2));
+
+            child1.Add(new TestComponent());
+            child2.Add(new TestComponent
+            {
+                TestProperty =
+                {
+                    Value = 10
+                }
+            });
+
+            root.Add(new TestComponent
+            {
+                TestProperty =
+                {
+                    Value = 20
+                }
+            });
+
+            var state = root.GetState();
+            var text = new StringBuilder();
+
+            using (var writer = XmlWriter.Create(text))
+            {
+                var serializer = new XmlSerializer(typeof(EntityState), new[]
+                {
+                    typeof(ComponentState)
+                });
+
+                serializer.Serialize(writer, state);
+            }
+
+            Console.WriteLine(text.ToString());
+
+            Assert.IsNotNull(state);
         }
     }
 }

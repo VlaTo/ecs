@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace ClassLibrary1
 {
@@ -70,18 +71,27 @@ namespace ClassLibrary1
         {
             get
             {
-                var queue = new Stack<string>();
+                var path = new StringBuilder();
+                var root = Root;
                 var current = this;
 
-                while (null != current)
+                while (root != current)
                 {
-                    queue.Push(current.Key);
+                    if (0 < path.Length)
+                    {
+                        path.Insert(0, Separator);
+                    }
+
+                    path.Insert(0, current.Key);
                     current = current.Parent;
                 }
 
-                queue.Push(String.Empty);
+                if (root == current)
+                {
+                    path.Insert(0, Separator);
+                }
 
-                return EntityPathString.Parse(String.Join(Separator, queue));
+                return EntityPathString.Parse(path.ToString());
             }
         }
 
