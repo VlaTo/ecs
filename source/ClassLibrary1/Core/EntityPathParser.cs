@@ -33,14 +33,33 @@ namespace ClassLibrary1.Core
 
             if (token.IsPathDelimiter())
             {
-                var next = ParseWildCardOrString(tokenizer);
-                return new RootEntityPathStringSegment(next);
+                //var next = ParseWildCardOrString(tokenizer);
+                //return new RootEntityPathStringSegment(next);
+                return ParseFromRoot(tokenizer);
             }
 
             if (token.IsSegment(out var segment))
             {
                 var next = ParseDelimiter(tokenizer);
                 return new StringEntityPathStringSegment(segment, next);
+            }
+
+            throw new Exception();
+        }
+
+        private EntityPathStringSegment ParseFromRoot(EntityPathStringTokenizer tokenizer)
+        {
+            var token = tokenizer.GetNextToken();
+
+            if (token.IsEndOfStream())
+            {
+                return null;
+            }
+
+            if (token.IsPathDelimiter())
+            {
+                var next = ParseWildCardOrString(tokenizer);
+                return new RootEntityPathStringSegment(next);
             }
 
             throw new Exception();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using ClassLibrary1.Core;
+using ClassLibrary1.Extensions;
 
 namespace ClassLibrary1
 {
@@ -53,7 +54,7 @@ namespace ClassLibrary1
 
             while (null != current)
             {
-                if (0 < path.Length)
+                if (0 < path.Length && false == current.IsRoot())
                 {
                     path.Append(PathDelimiter);
                 }

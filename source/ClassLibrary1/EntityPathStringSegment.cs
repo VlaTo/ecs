@@ -35,7 +35,7 @@ namespace ClassLibrary1
             return (obj is EntityPathStringSegment other) && Equals(other);
         }
 
-        public bool Equals(EntityPathStringSegment other)
+        public virtual bool Equals(EntityPathStringSegment other)
         {
             if (ReferenceEquals(null, other))
             {

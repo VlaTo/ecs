@@ -8,8 +8,6 @@ namespace ClassLibrary1
     /// </summary>
     public abstract class Entity : IObservableEntity, IStateProvider<EntityState>, IStateAcceptor<EntityState>, ICloneable<Entity>
     {
-        internal const char Separator = '/';
-
         private Entity parent;
 
         /// <summary>
@@ -79,9 +77,10 @@ namespace ClassLibrary1
                     current = current.Parent;
                 }
 
-                queue.Push(String.Empty);
+                //queue.Push(String.Empty);
+                queue.Push(new string(EntityPathString.PathDelimiter, 1));
 
-                return EntityPathString.Parse(String.Join(Separator, queue));
+                return EntityPathString.Parse(String.Join(EntityPathString.PathDelimiter, queue));
             }
         }
 

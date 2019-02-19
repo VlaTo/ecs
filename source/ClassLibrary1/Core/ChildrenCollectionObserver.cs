@@ -70,7 +70,10 @@ namespace ClassLibrary1.Core
 
         private void DoCompleted(CollectionObserver observer)
         {
-            ;
+            if (subscriptions.Remove(observer.Entity, out var disposable))
+            {
+                disposable.Dispose();
+            }
         }
 
         private void DoError(CollectionObserver observer, Exception exception)
@@ -123,18 +126,6 @@ namespace ClassLibrary1.Core
             {
                 parent.DoRemoved(this, item);
             }
-
-            /*private void ReleaseSubscriptions()
-            {
-                var disposables = subscriptions.Values.ToArray();
-
-                subscriptions.Clear();
-
-                foreach (var subscription in disposables)
-                {
-                    subscription.Dispose();
-                }
-            }*/
         }
 
         /// <summary>
@@ -166,6 +157,7 @@ namespace ClassLibrary1.Core
             {
                 entitySubscription?.Dispose();
                 childSubscription.Dispose();
+                //owner?.DoCompleted();
             }
         }
     }

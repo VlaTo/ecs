@@ -47,11 +47,17 @@ namespace ClassLibrary1
 
         private static bool IsSegmentsEqual(EntityPathStringSegment left, EntityPathStringSegment right)
         {
-            bool equal;
+            var equal = false;
 
             while (true)
             {
-                if (ReferenceEquals(null, left) || ReferenceEquals(null, right))
+                if (ReferenceEquals(null, left))
+                {
+                    equal = ReferenceEquals(null, right);
+                    break;
+                }
+
+                if (ReferenceEquals(null, right))
                 {
                     equal = false;
                     break;

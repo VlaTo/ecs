@@ -5,7 +5,7 @@ namespace ClassLibrary1
     /// <summary>
     /// 
     /// </summary>
-    public sealed class WildCardEntityPathStringSegment : EntityPathStringSegment, IEquatable<WildCardEntityPathStringSegment>
+    public sealed class WildCardEntityPathStringSegment : EntityPathStringSegment
     {
         /// <summary>
         /// 
@@ -16,7 +16,7 @@ namespace ClassLibrary1
         {
         }
 
-        public bool Equals(WildCardEntityPathStringSegment other)
+        public override bool Equals(EntityPathStringSegment other)
         {
             if (ReferenceEquals(null, other))
             {
@@ -28,22 +28,7 @@ namespace ClassLibrary1
                 return true;
             }
 
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return (obj is WildCardEntityPathStringSegment other) && Equals(other);
+            return (other is StringEntityPathStringSegment) || (other is WildCardEntityPathStringSegment);
         }
 
         public override int GetHashCode()

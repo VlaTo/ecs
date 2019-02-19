@@ -128,7 +128,7 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(observer));
             }
 
-            var match = new EntityPathMatch(path, entity);
+            var match = new EntityPathMatch(path);
             var entityObserver = new TypedComponentEntityObserver<TComponent>(observer);
             var collectionObserver = new ChildrenCollectionObserver(entityObserver, match.IsMet);
 

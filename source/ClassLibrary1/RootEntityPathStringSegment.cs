@@ -1,17 +1,16 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace ClassLibrary1
 {
     [DebuggerDisplay("/")]
-    public sealed class RootEntityPathStringSegment : EntityPathStringSegment, IEquatable<RootEntityPathStringSegment>
+    public sealed class RootEntityPathStringSegment : EntityPathStringSegment
     {
         public RootEntityPathStringSegment(EntityPathStringSegment next) 
             : base(next)
         {
         }
 
-        public bool Equals(RootEntityPathStringSegment other)
+        public override bool Equals(EntityPathStringSegment other)
         {
             if (ReferenceEquals(null, other))
             {
@@ -23,22 +22,7 @@ namespace ClassLibrary1
                 return true;
             }
 
-            return true;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return (obj is RootEntityPathStringSegment other) && Equals(other);
+            return other is RootEntityPathStringSegment;
         }
 
         public override int GetHashCode()

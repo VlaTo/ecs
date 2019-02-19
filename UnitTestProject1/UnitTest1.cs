@@ -173,12 +173,14 @@ namespace UnitTestProject1
         }
 
         [DataTestMethod]
-        [DataRow("")]
-        [DataRow("")]
+        [DataRow("//root/*")]
+        [DataRow("//root/child")]
         public void TestMethod7(string path)
         {
             var mock = new Mock<IEntityObserver<TestComponent>>();
             var root = new EntityImplementation("root");
+            var child = new EntityImplementation("child");
+            var component = new TestComponent();
 
             mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
             mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
@@ -186,17 +188,13 @@ namespace UnitTestProject1
 
             using (root.Subscribe(path, mock.Object))
             {
-                var child = new EntityImplementation("child");
-                var component = new TestComponent();
-
-                child.Add(component);
                 root.Children.Add(child);
-
+                child.Add(component);
                 child.Remove(component);
             }
 
-            //mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>()), Times.Exactly(added));
-            //mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>()), Times.Exactly(removed));
+            mock.Verify(observer => observer.OnAdded(component), Times.Once);
+            mock.Verify(observer => observer.OnRemoved(component), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
@@ -205,7 +203,7 @@ namespace UnitTestProject1
         {
             var root = new EntityImplementation("root");
             var child = new EntityImplementation("child");
-            var pathString = EntityPathString.Parse("/root/entity");
+            var pathString = EntityPathString.Parse("//root/child");
 
             root.Children.Add(child);
 
@@ -229,10 +227,19 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestMethod10()
         {
-            var expected = "/root/entity";
+            var expected = "//root/entity";
             var pathString = EntityPathString.Parse(expected);
 
-            Assert.AreEqual(expected, pathString);
+            Assert.AreEqual(expected, (string) pathString);
+        }
+
+        [TestMethod]
+        public void TestMethod11()
+        {
+            var expected = "//root/entity*";
+            var pathString = EntityPathString.Parse(expected);
+
+            Assert.AreEqual(expected, (string) pathString);
         }
     }
 }
