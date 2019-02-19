@@ -249,7 +249,7 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void TestMethod11()
+        public void TestMethod12()
         {
             var root = new EntityImplementation("root");
             var child1 = new EntityImplementation("child1");
