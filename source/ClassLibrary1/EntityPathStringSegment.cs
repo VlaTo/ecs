@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace ClassLibrary1
+﻿namespace ClassLibrary1
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class EntityPathStringSegment : IEquatable<EntityPathStringSegment>
+    public abstract class EntityPathStringSegment
     {
         /// <summary>
         /// 

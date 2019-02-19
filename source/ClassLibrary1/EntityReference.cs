@@ -43,6 +43,17 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="key"></param>
+        /// <param name="entity"></param>
+        public EntityReference(string key, Entity entity)
+            : base(key)
+        {
+            EntityPath = entity.Path;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="instance"></param>
         public EntityReference(EntityReference instance)
             : this(instance.Key, instance.EntityPath)

@@ -1,4 +1,5 @@
-﻿using ClassLibrary1;
+﻿using System.Collections.ObjectModel;
+using ClassLibrary1;
 
 namespace UnitTestProject1.Components
 {
@@ -6,8 +7,14 @@ namespace UnitTestProject1.Components
     {
         public override string Alias => nameof(TestComponent);
 
+        public ObservableProperty<int> TestProperty
+        {
+            get;
+        }
+
         public TestComponent()
         {
+            TestProperty = new ObservableProperty<int>(this);
         }
 
         private TestComponent(TestComponent instance)
@@ -18,7 +25,15 @@ namespace UnitTestProject1.Components
         {
             return new ComponentState
             {
-
+                Alias = Alias,
+                Properties = new[]
+                {
+                    new PropertyState
+                    {
+                        Name = nameof(TestProperty),
+                        Value = TestProperty.Value.ToString()
+                    }
+                }
             };
         }
 
