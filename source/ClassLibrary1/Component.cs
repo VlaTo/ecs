@@ -16,7 +16,7 @@ namespace ClassLibrary1
         }
 
         /// <inheritdoc />
-        public Entity Entity
+        public EntityBase Entity
         {
             get;
             private set;
@@ -30,7 +30,7 @@ namespace ClassLibrary1
         }
 
         /// <inheritdoc cref="IComponent.Attach" />
-        public void Attach(Entity entity)
+        public void Attach(EntityBase entity)
         {
             if (ReferenceEquals(Entity, entity))
             {
@@ -71,9 +71,6 @@ namespace ClassLibrary1
 
         /// <inheritdoc cref="IStateProvider{TState}.GetState" />
         public abstract ComponentState GetState();
-
-        /// <inheritdoc cref="IStateAcceptor{TState}.SetState" />
-        public abstract void SetState(ComponentState state);
 
         /// <inheritdoc cref="ICloneable{T}.Clone" />
         public abstract IComponent Clone();

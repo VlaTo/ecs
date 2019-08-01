@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ClassLibrary1.Core;
+﻿using System.Collections.Generic;
 
 namespace ClassLibrary1
 {
@@ -47,7 +45,7 @@ namespace ClassLibrary1
 
         private static bool IsSegmentsEqual(EntityPathStringSegment left, EntityPathStringSegment right)
         {
-            var equal = false;
+            bool equal;
 
             while (true)
             {
@@ -63,7 +61,7 @@ namespace ClassLibrary1
                     break;
                 }
 
-                equal = left.Equals((object) right);
+                equal = left.Equals(right);
 
                 if (equal)
                 {

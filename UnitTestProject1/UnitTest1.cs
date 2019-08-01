@@ -1,15 +1,15 @@
-using System;
 using ClassLibrary1;
 using ClassLibrary1.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization;
+using System.Diagnostics;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using UnitTestProject1.Components;
+using IComponent = ClassLibrary1.IComponent;
 
 namespace UnitTestProject1
 {
@@ -19,15 +19,15 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestMethod1()
         {
-            var mock = new Mock<IEntityObserver>();
-            var entity = new EntityImplementation("entity");
+            var mock = new Mock<ICollectionObserver<IComponent>>();
+            var entity = new Entity("entity");
             var testComponent = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(testComponent));
+            mock.Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()));
             mock.Setup(observer => observer.OnCompleted());
 
             Assert.IsNotNull(entity);
-            Assert.IsInstanceOfType(entity, typeof(EntityImplementation));
+            Assert.IsInstanceOfType(entity, typeof(Entity));
 
             entity.Add(testComponent);
 
@@ -36,22 +36,22 @@ namespace UnitTestProject1
                 Assert.IsNotNull(subscription);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
+            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
         [TestMethod]
         public void TestMethod2()
         {
-            var mock = new Mock<IEntityObserver>();
-            var entity = new EntityImplementation("entity");
+            var mock = new Mock<ICollectionObserver<IComponent>>();
+            var entity = new Entity("entity");
             var testComponent = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(testComponent));
+            mock.Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()));
             mock.Setup(observer => observer.OnCompleted());
 
             Assert.IsNotNull(entity);
-            Assert.IsInstanceOfType(entity, typeof(EntityImplementation));
+            Assert.IsInstanceOfType(entity, typeof(Entity));
 
             using (var subscription = entity.Subscribe(mock.Object))
             {
@@ -59,28 +59,28 @@ namespace UnitTestProject1
                 entity.Add(testComponent);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
+            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
         [TestMethod]
         public void TestMethod3()
         {
-            var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = new EntityImplementation("root");
+            var mock = new Mock<ICollectionObserver<IComponent>>();
+            var root = new Entity("_");
             var testComponent = new TestComponent();
-            var components = new List<TestComponent>();
+            var components = new List<IComponent>();
 
             mock
-                .Setup(observer => observer.OnAdded(testComponent))
-                .Callback<TestComponent>(component =>
+                .Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()))
+                .Callback<IComponent, int>((component, index) =>
                 {
                     components.Add(component);
                 });
 
             mock
-                .Setup(observer => observer.OnRemoved(testComponent))
-                .Callback<TestComponent>(component =>
+                .Setup(observer => observer.OnRemoved(testComponent, It.IsAny<int>()))
+                .Callback<IComponent, int>((component, index) =>
                 {
                     components.Remove(component);
                 });
@@ -89,64 +89,64 @@ namespace UnitTestProject1
                 .Setup(observer => observer.OnCompleted())
                 .Callback(() => { });
 
-            var entity = new EntityImplementation("entity");
+            var child = new Entity("child");
 
-            entity.Add(testComponent);
-            root.Children.Add(entity);
+            child.Add(testComponent);
+            root.Children.Add(child);
 
             using (root.Subscribe(mock.Object, true))
             {
-
-                entity.Remove(testComponent);
+                child.Remove(testComponent);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
-            mock.Verify(observer => observer.OnRemoved(testComponent), Times.Once);
-            mock.Verify(observer => observer.OnCompleted(), Times.Once);
+            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
+            mock.Verify(observer => observer.OnRemoved(testComponent, It.IsAny<int>()), Times.Once);
+            // since we subscribe to the 'root' but component removed from 'child' -- our observer completed twice.
+            mock.Verify(observer => observer.OnCompleted(), Times.Exactly(2));
         }
 
         [TestMethod]
         public void TestMethod4()
         {
-            var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = new EntityImplementation("root");
+            var mock = new Mock<ICollectionObserver<IComponent>>();
+            var root = new Entity("_");
             var testComponent = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(testComponent));
-            mock.Setup(observer => observer.OnRemoved(testComponent));
+            mock.Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()));
+            mock.Setup(observer => observer.OnRemoved(testComponent, It.IsAny<int>()));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(mock.Object, true))
             {
-                var entity = new EntityImplementation("entity");
+                var child = new Entity("child");
 
-                entity.Add(testComponent);
-                root.Children.Add(entity);
-                entity.Remove(testComponent);
+                child.Add(testComponent);
+                root.Children.Add(child);
+                child.Remove(testComponent);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
-            mock.Verify(observer => observer.OnRemoved(testComponent), Times.Once);
-            mock.Verify(observer => observer.OnCompleted(), Times.Once);
+            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
+            mock.Verify(observer => observer.OnRemoved(testComponent, It.IsAny<int>()), Times.Once);
+            mock.Verify(observer => observer.OnCompleted(), Times.Exactly(2));
         }
 
         [TestMethod]
         public void TestMethod5()
         {
-            var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = new EntityImplementation("root");
+            var mock = new Mock<ICollectionObserver<IComponent>>();
+            var root = new Entity("_");
 
-            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
-            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
+            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()));
+            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(mock.Object, recursive:true))
             {
-                root.Children.Add(new EntityImplementation("entity"));
+                root.Children.Add(new Entity("child"));
             }
 
-            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>()), Times.Never);
-            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>()), Times.Never);
+            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Never);
+            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Never);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
@@ -155,16 +155,16 @@ namespace UnitTestProject1
         [DataRow(false, 0, 0, DisplayName = "Local")]
         public void TestMethod6(bool recursive, int added, int removed)
         {
-            var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = new EntityImplementation("root");
+            var mock = new Mock<ICollectionObserver<IComponent>>();
+            var root = new Entity("root");
 
-            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
-            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
+            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()));
+            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(mock.Object, recursive))
             {
-                var child = new EntityImplementation("child");
+                var child = new Entity("child");
                 var component = new TestComponent();
 
                 child.Add(component);
@@ -173,23 +173,28 @@ namespace UnitTestProject1
                 child.Remove(component);
             }
 
-            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>()), Times.Exactly(added));
-            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>()), Times.Exactly(removed));
+            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Exactly(added));
+            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Exactly(removed));
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
+        /*[DataTestMethod]
+        [DataRow("//*", DisplayName = "TestAllFromRoot")]
+        [DataRow("//child", DisplayName = "TestSingleChild")]
+        public void TestMethod7(string path)*/
+
+        [DataRow("//*", DisplayName = "TestAllFromRoot")]
+        [DataRow("//child", DisplayName = "TestSingleChild")]
         [DataTestMethod]
-        [DataRow("//root/*")]
-        [DataRow("//root/child")]
         public void TestMethod7(string path)
         {
-            var mock = new Mock<IEntityObserver<TestComponent>>();
-            var root = new EntityImplementation("root");
-            var child = new EntityImplementation("child");
+            var mock = new Mock<ICollectionObserver<IComponent>>();
+            var root = new Entity("_");
+            var child = new Entity("child");
             var component = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
-            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
+            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()));
+            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(path, mock.Object))
@@ -199,17 +204,17 @@ namespace UnitTestProject1
                 child.Remove(component);
             }
 
-            mock.Verify(observer => observer.OnAdded(component), Times.Once);
-            mock.Verify(observer => observer.OnRemoved(component), Times.Once);
+            mock.Verify(observer => observer.OnAdded(component, It.IsAny<int>()), Times.Once);
+            mock.Verify(observer => observer.OnRemoved(component, It.IsAny<int>()), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
         [TestMethod]
-        public void TestMethod8()
+        public void TestMethod8_1()
         {
-            var root = new EntityImplementation("root");
-            var child = new EntityImplementation("child");
-            var pathString = EntityPathString.Parse("//root/child");
+            var root = new Entity("_");
+            var child = new Entity("child");
+            var pathString = EntityPathString.Parse("//child");
 
             root.Children.Add(child);
 
@@ -217,10 +222,24 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
+        public void TestMethod8_2()
+        {
+            var root = new Entity("_");
+            var parent = new Entity("parent");
+            var child = new Entity("child");
+            var pathString = EntityPathString.Parse("//parent/child");
+
+            root.Children.Add(parent);
+            parent.Children.Add(child);
+
+            Assert.AreEqual(child.Path, pathString);
+        }
+
+        [TestMethod]
         public void TestMethod9()
         {
-            var root = new EntityImplementation("root");
-            var child = new EntityImplementation("child");
+            var root = new Entity("_");
+            var child = new Entity("child");
 
             root.Children.Add(child);
             child.Add(new TestComponent());
@@ -233,7 +252,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestMethod10()
         {
-            var expected = "//root/entity";
+            var expected = "//root/parent/entity";
             var pathString = EntityPathString.Parse(expected);
 
             Assert.AreEqual(expected, (string) pathString);
@@ -242,25 +261,30 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestMethod11()
         {
-            var expected = "//root/entity*";
-            var pathString = EntityPathString.Parse(expected);
+            const string expected = "//root/fail*";
+            Assert.ThrowsException<Exception>(() => EntityPathString.Parse(expected));
+        }
 
-            Assert.AreEqual(expected, (string) pathString);
+        [TestMethod]
+        public void TestMethod11_1()
+        {
+            const string expected = "//root/*fail";
+            Assert.ThrowsException<Exception>(() => EntityPathString.Parse(expected));
         }
 
         [TestMethod]
         public void TestMethod12()
         {
-            var root = new EntityImplementation("root");
-            var child1 = new EntityImplementation("child1");
-            var child2 = new EntityImplementation("child2");
+            var root = new Entity("_");
+            var parent = new Entity("parent");
+            var child = new Entity("child");
 
-            root.Children.Add(child1);
-            child1.Children.Add(child2);
-            root.Children.Add(new EntityReference("child3", child2));
+            root.Children.Add(parent);
+            parent.Children.Add(child);
+            root.Children.Add(new ReferencedEntity("reference", child));
 
-            child1.Add(new TestComponent());
-            child2.Add(new TestComponent
+            parent.Add(new TestComponent());
+            child.Add(new TestComponent
             {
                 TestProperty =
                 {
@@ -293,5 +317,89 @@ namespace UnitTestProject1
 
             Assert.IsNotNull(state);
         }
+
+        /*[TestMethod]
+        public void TestMethod13()
+        {
+            //var converter = new EnumConverter(typeof(TestEnum));
+            var converter = new TestEnumConverter();
+            Debug.WriteLine(converter.ConvertToString(TestEnum.Value1 | TestEnum.Value3));
+        }*/
     }
+
+    /*[TypeConverter(typeof(TestEnumConverter))]
+    [Flags]
+    public enum TestEnum
+    {
+        [DisplayName("value-one")] Value1 = 1,
+        [DisplayName("value-two")] Value2 = 2,
+        Value3 = 4
+    }
+
+    public sealed class TestEnumConverter : TypeConverter
+    {
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            return typeof(string) == destinationType || base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (typeof(string) != destinationType)
+            {
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+
+            var enumType = value.GetType();
+            var values = Enum.GetValues(enumType);
+            var str = new StringBuilder();
+
+            foreach (var val in values)
+            {
+                var name = Enum.GetName(enumType, val);
+                var field = enumType.GetField(name, BindingFlags.Static | BindingFlags.Public);
+                var attribute = field.GetCustomAttribute<DisplayNameAttribute>();
+
+                if (0 < str.Length)
+                {
+                    str.Append(culture.TextInfo.ListSeparator);
+                }
+
+                str.Append(attribute?.DisplayName ?? name);
+            }
+
+            return str.ToString();
+        }
+
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            return typeof(TestEnum) == sourceType || base.CanConvertFrom(context, sourceType);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+
+            return base.ConvertFrom(context, culture, value);
+        }
+
+        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
+        {
+            return base.GetProperties(context, value, attributes);
+        }
+
+        public override bool IsValid(ITypeDescriptorContext context, object value)
+        {
+            return base.IsValid(context, value);
+        }
+
+        public override object CreateInstance(ITypeDescriptorContext context, IDictionary propertyValues)
+        {
+            return base.CreateInstance(context, propertyValues);
+        }
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return base.GetStandardValues(context);
+        }
+    }*/
 }

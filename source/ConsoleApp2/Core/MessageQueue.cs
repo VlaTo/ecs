@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ClassLibrary1;
 using ClassLibrary1.Core;
+using ClassLibrary1.Core.Reactive;
 
 namespace ConsoleApp2.Core
 {

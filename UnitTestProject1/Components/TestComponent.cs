@@ -1,9 +1,9 @@
-﻿using System.Collections.ObjectModel;
-using ClassLibrary1;
+﻿using ClassLibrary1;
 
 namespace UnitTestProject1.Components
 {
-    public class TestComponent : Component
+    [Component(Alias = "Test")]
+    public class TestComponent : Component, IComponentStateApply
     {
         public override string Alias => nameof(TestComponent);
 
@@ -37,7 +37,7 @@ namespace UnitTestProject1.Components
             };
         }
 
-        public override void SetState(ComponentState state)
+        public void Apply(ComponentState state)
         {
             throw new System.NotImplementedException();
         }

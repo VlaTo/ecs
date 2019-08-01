@@ -1,23 +1,36 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading;
 
 namespace ClassLibrary1.Core
 {
+    /// <summary>
+    /// Observable collection of the <see cref="EntityBase" /> items.
+    /// </summary>
+    public interface IEntityCollection : IList<EntityBase>, IObservableCollection<EntityBase>
+    {
+        int FindIndex(Predicate<string> condition);
+
+        void ForEach(Action<EntityBase> action);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class EntityCollection : IEntityCollection
     {
-        private readonly Entity owner;
+        private readonly EntityBase owner;
         private readonly ArrayList items;
-        private readonly ICollection<ICollectionObserver<Entity>> observers;
+        private readonly CollectionSubject<EntityBase> observers;
+
         private volatile int version;
 
         public int Count => items.Count;
 
         public bool IsReadOnly => items.IsReadOnly;
 
-        public Entity this[int index]
+        public EntityBase this[int index]
         {
             get
             {
@@ -26,7 +39,7 @@ namespace ClassLibrary1.Core
                     throw new IndexOutOfRangeException();
                 }
 
-                return (Entity) items[index];
+                return (EntityBase) items[index];
             }
             set
             {
@@ -40,32 +53,33 @@ namespace ClassLibrary1.Core
                     return;
                 }
 
-                var previous = (Entity) items[index];
+                observers.OnRemoved((EntityBase) items[index], index);
 
                 items[index] = value;
 
                 value.Parent = owner;
 
-                DoItemChanged(index, previous, value);
+                observers.OnAdded(value, index);
             }
         }
 
-        public EntityCollection(Entity owner)
+        public EntityCollection(EntityBase owner)
         {
             this.owner = owner;
 
-            observers = new Collection<ICollectionObserver<Entity>>();
+            //observers = new Collection<ICollectionObserver<EntityBase>>();
+            observers = new CollectionSubject<EntityBase>();
             items = new ArrayList();
         }
 
-        public void Add(Entity item)
+        public void Add(EntityBase item)
         {
             Insert(Count, item);
         }
 
-        public bool Contains(Entity item) => items.Contains(item);
+        public bool Contains(EntityBase item) => items.Contains(item);
 
-        public void CopyTo(Entity[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
+        public void CopyTo(EntityBase[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
 
         public void Clear()
         {
@@ -74,15 +88,15 @@ namespace ClassLibrary1.Core
             while (0 < items.Count)
             {
                 var index = items.Count - 1;
-                var item = (Entity) items[index];
+                var item = (EntityBase) items[index];
 
                 items.RemoveAt(index);
 
-                DoItemRemoved(index, item);
+                observers.OnRemoved(item, index);
             }
         }
 
-        public IEnumerator<Entity> GetEnumerator()
+        public IEnumerator<EntityBase> GetEnumerator()
         {
             return new Enumerator(this);
         }
@@ -92,7 +106,40 @@ namespace ClassLibrary1.Core
             return GetEnumerator();
         }
 
-        public int IndexOf(Entity item)
+        public int FindIndex(Predicate<string> condition)
+        {
+            if (null == condition)
+            {
+                throw new ArgumentNullException(nameof(condition));
+            }
+
+            for (var index = 0; index < items.Count; index++)
+            {
+                var entity = (EntityBase) items[index];
+
+                if (condition.Invoke(entity.Key))
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        public void ForEach(Action<EntityBase> action)
+        {
+            if (null == action)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            for (var index = 0; index < items.Count; index++)
+            {
+                action.Invoke((EntityBase) items[index]);
+            }
+        }
+
+        public int IndexOf(EntityBase item)
         {
             if (null == item)
             {
@@ -102,7 +149,7 @@ namespace ClassLibrary1.Core
             return items.IndexOf(item);
         }
 
-        public void Insert(int index, Entity item)
+        public void Insert(int index, EntityBase item)
         {
             if (null == item)
             {
@@ -125,10 +172,10 @@ namespace ClassLibrary1.Core
 
             item.Parent = owner;
 
-            DoItemAdded(index, item);
+            observers.OnAdded(item, index);
         }
 
-        public bool Remove(Entity item)
+        public bool Remove(EntityBase item)
         {
             if (null == item)
             {
@@ -156,80 +203,44 @@ namespace ClassLibrary1.Core
 
             Interlocked.Increment(ref version);
 
-            var item = (Entity) items[index];
+            var item = (EntityBase) items[index];
 
             items.RemoveAt(index);
 
             item.Parent = null;
 
-            DoItemRemoved(index, item);
+            observers.OnRemoved(item, index);
         }
 
-        public IDisposable Subscribe(ICollectionObserver<Entity> observer)
+        public IDisposable Subscribe(ICollectionObserver<EntityBase> observer)
         {
             if (null == observer)
             {
                 throw new ArgumentNullException(nameof(observer));
             }
 
-            if (false == observers.Contains(observer))
-            {
-                observers.Add(observer);
-            }
+            var disposable = observers.Subscribe(observer);
 
             for (var index = 0; index < items.Count; index++)
             {
-                var entity = (Entity) items[index];
+                var entity = (EntityBase) items[index];
                 observer.OnAdded(entity, index);
             }
 
-            return new Subscription(this, observer);
-        }
-
-        private void Unsubscribe(ICollectionObserver<Entity> observer)
-        {
-            if (observers.Remove(observer))
-            {
-                observer.OnCompleted();
-            }
-        }
-
-        private void DoItemAdded(int index, Entity item)
-        {
-            foreach (var observer in observers)
-            {
-                observer.OnAdded(item, index);
-            }
-        }
-
-        private void DoItemChanged(int index, Entity oldValue, Entity newValue)
-        {
-            foreach (var observer in observers)
-            {
-                observer.OnRemoved(oldValue, index);
-                observer.OnAdded(newValue, index);
-            }
-        }
-
-        private void DoItemRemoved(int index, Entity item)
-        {
-            foreach (var observer in observers)
-            {
-                observer.OnRemoved(item, index);
-            }
+            return disposable;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private class Enumerator : IEnumerator<Entity>
+        private class Enumerator : IEnumerator<EntityBase>
         {
             private readonly int version;
             private EntityCollection collection;
             private bool disposed;
             private int index;
 
-            public Entity Current
+            public EntityBase Current
             {
                 get
                 {
@@ -317,47 +328,6 @@ namespace ClassLibrary1.Core
                     if (dispose)
                     {
                         collection = null;
-                    }
-                }
-                finally
-                {
-                    disposed = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private class Subscription : IDisposable
-        {
-            private readonly EntityCollection collection;
-            private readonly ICollectionObserver<Entity> observer;
-            private bool disposed;
-
-            public Subscription(EntityCollection collection, ICollectionObserver<Entity> observer)
-            {
-                this.collection = collection;
-                this.observer = observer;
-            }
-
-            public void Dispose()
-            {
-                Dispose(true);
-            }
-
-            private void Dispose(bool dispose)
-            {
-                if (disposed)
-                {
-                    return;
-                }
-
-                try
-                {
-                    if (dispose)
-                    {
-                        collection.Unsubscribe(observer);
                     }
                 }
                 finally

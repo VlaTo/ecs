@@ -1,6 +1,4 @@
-﻿using ConsoleApp2;
-
-namespace ClassLibrary1
+﻿namespace ClassLibrary1
 {
     /// <summary>
     /// 

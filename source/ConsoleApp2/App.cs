@@ -12,48 +12,38 @@ namespace ConsoleApp2
 {
     public class App
     {
-        private readonly Entity root;
+        private EntityBase root;
+        private readonly EntityFactory factory;
 
         public App(params string[] args)
         {
-            root = new Entity();
-            root.Add<GameTimeComponent>();
-
-            var environment = root.Get<GameTimeComponent>();
-            var queue = new MessageQueue();
-
-            environment.Elapsed.Subscribe(value =>
+            factory = EntityFactory.Default;
+            factory.PrototypeResolver.Initialize(new EntityState
             {
-                queue
-                    .For<TickMessage>()
-                    .OnNext(new TickMessage(value));
-            });
-            var update = new UpdateElapsedTimeSystem(queue.For<TickMessage>());
-            var temp = root.Subscribe(update);
-            var spawn = new Entity();
-            var waveSetup = new EnemyWaveSetup
-            {
-                Tick = queue.For<TickMessage>(),
-                Waves = new[]
+                Children = new[]
                 {
-                    new EnemyWave
+                    new EntityState
                     {
-                        NumberOfEnemies = 10
+                        Key = "Enemy",
+                        Components = new ComponentState [0]
                     }
                 }
-            };
-
-                waveSetup.Apply(spawn);
-
-                root.Children.Add(spawn);
+            });
         }
 
         public void Run()
         {
-            var cts = new CancellationTokenSource();
-            var task = DoRun(cts.Token);
+            root = new Entity("Root");
 
-            task.GetAwaiter().GetResult();
+            var enemy = factory.CreateEntity("/Enemy");
+
+            root.Children.Add(enemy);
+
+            using (var cts = new CancellationTokenSource())
+            {
+                var task = DoRun(cts.Token);
+                task.GetAwaiter().GetResult();
+            }
         }
 
         private async Task DoRun(CancellationToken ct)

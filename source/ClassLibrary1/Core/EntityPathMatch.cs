@@ -73,18 +73,18 @@
     ///     </item>
     /// </list>
     /// </remarks>
-    internal sealed class EntityPathMatch : ICondition<Entity>
+    internal sealed class EntityPathMatch : ICondition<EntityBase>
     {
-        private readonly EntityPathString path;
+        public EntityPathString Path
+        {
+            get;
+        }
 
         public EntityPathMatch(EntityPathString path)
         {
-            this.path = path;
+            Path = path;
         }
 
-        public bool IsMet(Entity value)
-        {
-            return path.Equals(value.Path);
-        }
+        public bool IsMet(EntityBase value) => Path.Equals(value.Path);
     }
 }

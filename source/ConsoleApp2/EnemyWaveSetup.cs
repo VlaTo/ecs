@@ -30,7 +30,7 @@ namespace ConsoleApp2
             set;
         }
 
-        public void Apply(Entity entity)
+        public void Apply(EntityBase entity)
         {
             foreach (var config in Waves)
             {

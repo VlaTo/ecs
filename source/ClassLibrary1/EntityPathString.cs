@@ -15,14 +15,21 @@ namespace ClassLibrary1
     {
         public const char PathDelimiter = '/';
 
+        public static readonly EntityPathString Empty;
+
         internal EntityPathStringSegment Entry
         {
             get;
         }
 
-        private EntityPathString(EntityPathStringSegment entry)
+        internal EntityPathString(EntityPathStringSegment entry)
         {
             Entry = entry;
+        }
+
+        static EntityPathString()
+        {
+            Empty = new EntityPathString(null);
         }
 
         public override bool Equals(object obj)
@@ -41,11 +48,7 @@ namespace ClassLibrary1
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            var comparer = EntityPathStringComparer.Default;
-            return comparer.GetHashCode(this);
-        }
+        public override int GetHashCode() => EntityPathStringComparer.Default.GetHashCode(this);
 
         public override string ToString()
         {
@@ -67,11 +70,7 @@ namespace ClassLibrary1
             return path.ToString();
         }
 
-        public bool Equals(EntityPathString other)
-        {
-            var comparer = EntityPathStringComparer.Default;
-            return comparer.Equals(this, other);
-        }
+        public bool Equals(EntityPathString other) => EntityPathStringComparer.Default.Equals(this, other);
 
         /// <summary>
         /// 
@@ -96,27 +95,15 @@ namespace ClassLibrary1
             return new EntityPathString(top);
         }
 
-        public static bool operator ==(EntityPathString left, EntityPathString right)
-        {
-            var comparer = EntityPathStringComparer.Default;
-            return comparer.Equals(left, right);
-        }
+        public static bool operator ==(EntityPathString left, EntityPathString right) =>
+            EntityPathStringComparer.Default.Equals(left, right);
 
-        public static bool operator !=(EntityPathString left, EntityPathString right)
-        {
-            var comparer = EntityPathStringComparer.Default;
-            return false == comparer.Equals(left, right);
-        }
+        public static bool operator !=(EntityPathString left, EntityPathString right) =>
+            false == EntityPathStringComparer.Default.Equals(left, right);
 
-        public static explicit operator string(EntityPathString instance)
-        {
-            return instance.ToString();
-        }
+        public static explicit operator string(EntityPathString instance) => instance.ToString();
 
-        public static implicit operator EntityPathString(string path)
-        {
-            return Parse(path);
-        }
+        public static implicit operator EntityPathString(string path) => Parse(path);
 
         /// <summary>
         /// 

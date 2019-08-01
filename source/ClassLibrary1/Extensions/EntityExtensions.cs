@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using ClassLibrary1.Core;
+using ClassLibrary1.Core.Extensions;
 
 namespace ClassLibrary1.Extensions
 {
@@ -14,8 +16,27 @@ namespace ClassLibrary1.Extensions
         /// </summary>
         /// <typeparam name="TComponent"></typeparam>
         /// <param name="entity"></param>
+        /// <param name="initializer"></param>
         /// <returns></returns>
-        public static IEnumerable<TComponent> GetAllRecursive<TComponent>(this Entity entity)
+        public static TComponent Add<TComponent>(this EntityBase entity, Action<TComponent> initializer = null)
+            where TComponent : IComponent, new()
+        {
+            var component = new TComponent();
+
+            initializer?.Invoke(component);
+
+            entity.Add(component);
+
+            return component;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static IEnumerable<TComponent> GetAllRecursive<TComponent>(this EntityBase entity)
             where TComponent : class, IComponent
         {
             var collection = new List<TComponent>();
@@ -38,7 +59,7 @@ namespace ClassLibrary1.Extensions
         /// <param name="recursive"></param>
         /// <returns></returns>
         public static IDisposable Subscribe(
-            this Entity entity,
+            this EntityBase entity,
             ICondition<IComponent> condition,
             IEntityObserver observer,
             bool recursive = false)
@@ -58,30 +79,55 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(observer));
             }
 
-            var entityObserver = new PredicateEntityObserver(condition.IsMet, observer);
+            /*var entityObserver = new PredicateEntityObserver(condition.IsMet, observer);
 
             if (recursive)
             {
-                var collectionObserver = new ChildrenCollectionObserver(entityObserver, Condition<Entity>.True);
+                var collectionObserver = new ChildrenCollectionObserver(entityObserver, Condition<EntityBase>.True);
                 return collectionObserver.SubscribeTo(entity);
             }
 
-            return entity.Subscribe(entityObserver);
+            return entity.Subscribe(entityObserver);*/
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TComponent"></typeparam>
+        /// <param name="entity"></param>
+        /// <param name="onAdded"></param>
+        /// <param name="onCompleted"></param>
+        /// <returns></returns>
+        public static IDisposable Subscribe(
+            this EntityBase entity,
+            Action<IComponent, int> onAdded,
+            Action onCompleted)
+        {
+            if (null == entity)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (null == onAdded)
+            {
+                throw new ArgumentNullException(nameof(onAdded));
+            }
+
+            return entity.Subscribe(EntityObserver.Create(onAdded, onCompleted));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="entity"></param>
         /// <param name="observer"></param>
         /// <param name="recursive"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe<TComponent>(
-            this Entity entity,
-            IEntityObserver<TComponent> observer,
+        public static IDisposable Subscribe(
+            this EntityBase entity,
+            ICollectionObserver<IComponent> observer,
             bool recursive = false)
-            where TComponent : IComponent
         {
             if (null == entity)
             {
@@ -93,15 +139,47 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(observer));
             }
 
-            var entityObserver = new TypedComponentEntityObserver<TComponent>(observer);
-
             if (recursive)
             {
-                var collectionObserver = new ChildrenCollectionObserver(entityObserver, Condition<Entity>.True);
-                return collectionObserver.SubscribeTo(entity);
+                var collectionObserver = new RecursiveChildrenObserver(observer, Condition<EntityBase>.True);
+                return collectionObserver.Subscribe(entity);
             }
 
-            return entity.Subscribe(entityObserver);
+            return entity.Subscribe(observer);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="path"></param>
+        /// <param name="observer"></param>
+        /// <returns></returns>
+        public static IDisposable Subscribe(
+            this EntityBase entity,
+            EntityPathString path,
+            ICollectionObserver<IComponent> observer)
+        {
+            if (null == entity)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (null == observer)
+            {
+                throw new ArgumentNullException(nameof(observer));
+            }
+
+            var pathMatch = new EntityPathMatch(path);
+            var collectionObserver = new RecursiveChildrenObserver(observer, pathMatch.IsMet);
+
+            return collectionObserver.Subscribe(path.IsRelative() ? entity : entity.Root);
+
+            /*var match = new EntityPathMatch(path);
+            var entityObserver = new ComponentEntityObserver(observer);
+            var collectionObserver = new RecursiveChildrenObserver(entityObserver, match.IsMet);
+
+            return collectionObserver.SubscribeTo(entity);*/
         }
 
         /// <summary>
@@ -110,12 +188,12 @@ namespace ClassLibrary1.Extensions
         /// <typeparam name="TComponent"></typeparam>
         /// <param name="entity"></param>
         /// <param name="path"></param>
-        /// <param name="observer"></param>
+        /// <param name="onNext"></param>
         /// <returns></returns>
         public static IDisposable Subscribe<TComponent>(
-            this Entity entity,
+            this EntityBase entity,
             EntityPathString path,
-            IEntityObserver<TComponent> observer)
+            Action<TComponent> onNext)
             where TComponent : IComponent
         {
             if (null == entity)
@@ -123,16 +201,28 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            if (null == observer)
+            if (null == onNext)
             {
-                throw new ArgumentNullException(nameof(observer));
+                throw new ArgumentNullException(nameof(onNext));
             }
 
-            var match = new EntityPathMatch(path);
+            /*var match = new EntityPathMatch(path);
             var entityObserver = new TypedComponentEntityObserver<TComponent>(observer);
             var collectionObserver = new ChildrenCollectionObserver(entityObserver, match.IsMet);
 
-            return collectionObserver.SubscribeTo(entity);
+            return collectionObserver.SubscribeTo(entity);*/
+
+            throw new NotImplementedException();
         }
+    }
+
+    internal static class CollectionStubs<T>
+    {
+        public static readonly Action<T, int> Ignore = (component, index) => { };
+    }
+
+    internal static class CollectionStubs<T, TState>
+    {
+        public static readonly Action<T, TState, int> Ignore = (component, state, index) => { };
     }
 }

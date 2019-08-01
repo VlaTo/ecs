@@ -1,4 +1,6 @@
-﻿namespace ClassLibrary1
+﻿using System;
+
+namespace ClassLibrary1
 {
     /// <summary>
     /// 

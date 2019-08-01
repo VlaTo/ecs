@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public interface IComponent : IStateProvider<ComponentState>, IStateAcceptor<ComponentState>, ICloneable<IComponent>
+    public interface IComponent : IStateProvider<ComponentState>, ICloneable<IComponent>
     {
         /// <summary>
         /// 
@@ -13,7 +13,7 @@
         /// <summary>
         /// 
         /// </summary>
-        Entity Entity
+        EntityBase Entity
         {
             get;
         }
@@ -22,7 +22,7 @@
         /// 
         /// </summary>
         /// <param name="entity"></param>
-        void Attach(Entity entity);
+        void Attach(EntityBase entity);
 
         /// <summary>
         /// 

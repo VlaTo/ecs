@@ -6,4 +6,10 @@ namespace ClassLibrary1
     {
         IDisposable Subscribe(IEntityObserver observer);
     }
+
+    public interface IObservableEntity<out TComponent>
+        where TComponent : IComponent
+    {
+        IDisposable Subscribe(IEntityObserver<TComponent> observer);
+    }
 }

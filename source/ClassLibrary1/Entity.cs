@@ -1,205 +1,265 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.ObjectModel;
+using System.Linq;
+using ClassLibrary1.Core;
 
 namespace ClassLibrary1
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class Entity : IObservableEntity, IStateProvider<EntityState>, IStateAcceptor<EntityState>, ICloneable<Entity>
+    public sealed class Entity : EntityBase
     {
-        private Entity parent;
+        private readonly EntityCollection children;
+        private readonly Collection<IComponent> components;
+        private readonly IDictionary<Type, Collection<IComponent>> cache;
+        private readonly CollectionSubject<IComponent> observers;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public abstract IEntityCollection Children
+        /// <inheritdoc cref="EntityBase.Children" />
+        public override IEntityCollection Children => children;
+
+        /// <inheritdoc cref="EntityBase.Components" />
+        public override IEnumerable<IComponent> Components => components;
+
+        public Entity(string key)
+            : base(key)
         {
-            get;
+            children = new EntityCollection(this);
+            components = new Collection<IComponent>();
+            cache = new Dictionary<Type, Collection<IComponent>>();
+            observers = new CollectionSubject<IComponent>();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public abstract IEnumerable<IComponent> Components
+        public Entity(Entity instance)
+            : this(instance.Key)
         {
-            get;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public virtual string Key
-        {
-            get;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public virtual Entity Parent
-        {
-            get => parent;
-            set
+            foreach (var component in instance.Components)
             {
-                if (ReferenceEquals(parent, value))
-                {
-                    return;
-                }
+                Add(component.Clone());
+            }
 
-                if (null != parent)
-                {
-                    parent.Children.Remove(this);
-                }
-
-                parent = value;
-
-                if (null != parent)
-                {
-                    parent.Children.Add(this);
-                }
+            foreach (var child in instance.Children)
+            {
+                Children.Add(child.Clone());
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public virtual EntityPathString Path
+        /// <inheritdoc cref="Subscribe" />
+        public override IDisposable Subscribe(ICollectionObserver<IComponent> observer)
         {
-            get
+            if (null == observer)
             {
-                var path = new StringBuilder();
-                var root = Root;
-                var current = this;
-
-                while (root != current)
-                {
-                    if (0 < path.Length)
-                    {
-                        path.Insert(0, Separator);
-                    }
-
-                    path.Insert(0, current.Key);
-                    current = current.Parent;
-                }
-
-                //queue.Push(String.Empty);
-                queue.Push(new string(EntityPathString.PathDelimiter, 1));
-
-                return EntityPathString.Parse(String.Join(EntityPathString.PathDelimiter, queue));
+                throw new ArgumentNullException(nameof(observer));
             }
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public virtual Entity Root
-        {
-            get
+            var disposable = observers.Subscribe(observer);
+
+            for (var index = 0; index < components.Count; index++)
             {
-                var current = this;
-                var next = Parent;
-
-                while (null != next)
-                {
-                    current = next;
-                    next = current.Parent;
-                }
-
-                return current;
+                observer.OnAdded(components[index], index);
             }
+
+            return disposable;
         }
 
-        protected Entity()
+        /// <inheritdoc cref="EntityBase.Add" />
+        public override void Add(IComponent component)
         {
+            if (null == component)
+            {
+                throw new ArgumentNullException(nameof(component));
+            }
+
+            var key = component.GetType();
+
+            if (false == cache.TryGetValue(key, out var collection))
+            {
+                collection = new Collection<IComponent>();
+                cache.Add(key, collection);
+            }
+
+            if (collection.Contains(component))
+            {
+                return;
+            }
+
+            var index = components.Count;
+            components.Insert(index, component);
+            collection.Add(component);
+
+            component.Attach(this);
+
+            observers.OnAdded(component, index);
         }
 
-        protected Entity(string key)
-            : this()
+        /// <inheritdoc cref="Remove" />
+        public override void Remove(IComponent component)
         {
-            Key = key;
+            if (null == component)
+            {
+                throw new ArgumentNullException(nameof(component));
+            }
+
+            var key = component.GetType();
+
+            if (false == cache.TryGetValue(key, out var collection))
+            {
+                return;
+            }
+
+            if (false == collection.Remove(component))
+            {
+                return;
+            }
+
+            var index = components.IndexOf(component);
+            components.RemoveAt(index);
+            observers.OnRemoved(component, index);
+
+            component.Release();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="observer"></param>
-        /// <returns></returns>
-        public abstract IDisposable Subscribe(IEntityObserver observer);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="component"></param>
-        public abstract void Add(IComponent component);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="component"></param>
-        public abstract void Remove(IComponent component);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TComponent"></typeparam>
-        /// <param name="initializer"></param>
-        /// <returns></returns>
-        public virtual TComponent Add<TComponent>(Action<TComponent> initializer = null)
-            where TComponent : IComponent, new()
+        /// <inheritdoc cref="Get{TComponent}" />
+        public override TComponent Get<TComponent>()
         {
-            var component = new TComponent();
+            var key = typeof(TComponent);
 
-            initializer?.Invoke(component);
+            if (false == cache.TryGetValue(key, out var collection))
+            {
+                return null;
+            }
 
-            Add(component);
+            if (1 < collection.Count)
+            {
+                throw new EntityException();
+            }
 
-            return component;
+            return (TComponent)collection[0];
+        }
+
+        /// <inheritdoc cref="GetAll{TComponent}" />
+        public override IReadOnlyCollection<TComponent> GetAll<TComponent>()
+        {
+            var key = typeof(TComponent);
+            var result = new List<TComponent>();
+
+            if (cache.TryGetValue(key, out var collection))
+            {
+                result.AddRange(collection.OfType<TComponent>());
+            }
+
+            return new ReadOnlyCollection<TComponent>(result);
+        }
+
+        /// <inheritdoc cref="Has" />
+        public override bool Has(IComponent component)
+        {
+            if (null == component)
+            {
+                throw new ArgumentNullException(nameof(component));
+            }
+
+            var key = component.GetType();
+
+            if (false == cache.TryGetValue(key, out var collection))
+            {
+                return false;
+            }
+
+            return collection.Contains(component);
+        }
+
+        /// <inheritdoc cref="Has{TComponent}" />
+        public override bool Has<TComponent>()
+        {
+            var key = typeof(TComponent);
+
+            if (false == cache.TryGetValue(key, out var collection))
+            {
+                return false;
+            }
+
+            return collection.Any();
+        }
+
+        /// <inheritdoc cref="GetState" />
+        public override EntityState GetState()
+        {
+            var states = new Collection<ComponentState>();
+            var entities = new Collection<EntityState>();
+
+            foreach (var component in Components)
+            {
+                states.Add(component.GetState());
+            }
+
+            foreach (var child in Children)
+            {
+                entities.Add(child.GetState());
+            }
+
+            return new EntityState
+            {
+                Key = Key,
+                EntityPath = null,
+                Components = states.ToArray(),
+                Children = entities.ToArray()
+            };
+        }
+
+        /// <inheritdoc cref="AbstractEntity.SetState" />
+        /*public override void SetState(EntityState state)
+        {
+            if (null == state)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            Clear();
+
+            if (false == Key.Equals(state.Key))
+            {
+                throw new InvalidOperationException();
+            }
+
+            foreach (var componentState in state.Components)
+            {
+                var component = Component.Resolvers.Resolve(componentState.Alias);
+
+                component.SetState(componentState);
+
+                Add(component);
+            }
+        }*/
+
+        /// <inheritdoc cref="Clone" />
+        public override EntityBase Clone()
+        {
+            return new Entity(this);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TComponent"></typeparam>
-        /// <returns></returns>
-        public abstract TComponent Get<TComponent>() where TComponent : class, IComponent;
+        public void Clear()
+        {
+            foreach (var component in Components)
+            {
+                Remove(component);
+            }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TComponent"></typeparam>
-        /// <returns></returns>
-        public abstract IReadOnlyCollection<TComponent> GetAll<TComponent>() where TComponent : class, IComponent;
+            Children.Clear();
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public abstract IEnumerable<Entity> Find(EntityPathString path);
+        private static EntityBase Create(string key, string entityPath)
+        {
+            if (String.IsNullOrEmpty(entityPath))
+            {
+                return new Entity(key);
+            }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="component"></param>
-        /// <returns></returns>
-        public abstract bool Has(IComponent component);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TComponent"></typeparam>
-        /// <returns></returns>
-        public abstract bool Has<TComponent>() where TComponent : IComponent;
-
-        /// <inheritdoc cref="IStateProvider{TState}.GetState" />
-        public abstract EntityState GetState();
-
-        /// <inheritdoc cref="IStateAcceptor{TState}.SetState" />
-        public abstract void SetState(EntityState state);
-
-        /// <inheritdoc cref="ICloneable{T}.Clone" />
-        public abstract Entity Clone();
+            return new ReferencedEntity(key, entityPath);
+        }
     }
 }

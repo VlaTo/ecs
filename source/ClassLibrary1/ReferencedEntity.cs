@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using ClassLibrary1.Core;
 
 namespace ClassLibrary1
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class EntityReference : Entity
+    public sealed class ReferencedEntity : EntityBase
     {
-        private Entity entity;
+        private EntityBase entity;
 
         /// <summary>
         /// 
@@ -21,7 +22,7 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
-        internal Entity Entity => entity ?? (entity = ResolveEntity());
+        internal EntityBase Entity => entity ?? (entity = ResolveEntity());
 
         /// <inheritdoc cref="Children" />
         public override IEntityCollection Children => entity.Children;
@@ -34,7 +35,7 @@ namespace ClassLibrary1
         /// </summary>
         /// <param name="key"></param>
         /// <param name="entityPath"></param>
-        public EntityReference(string key, EntityPathString entityPath)
+        public ReferencedEntity(string key, EntityPathString entityPath)
             : base(key)
         {
             EntityPath = entityPath;
@@ -45,7 +46,7 @@ namespace ClassLibrary1
         /// </summary>
         /// <param name="key"></param>
         /// <param name="entity"></param>
-        public EntityReference(string key, Entity entity)
+        public ReferencedEntity(string key, EntityBase entity)
             : base(key)
         {
             EntityPath = entity.Path;
@@ -55,24 +56,24 @@ namespace ClassLibrary1
         /// 
         /// </summary>
         /// <param name="instance"></param>
-        public EntityReference(EntityReference instance)
+        public ReferencedEntity(ReferencedEntity instance)
             : this(instance.Key, instance.EntityPath)
         {
         }
 
-        /// <inheritdoc cref="ClassLibrary1.Entity.Subscribe" />
-        public override IDisposable Subscribe(IEntityObserver observer)
+        /// <inheritdoc cref="EntityBase.Subscribe" />
+        public override IDisposable Subscribe(ICollectionObserver<IComponent> observer)
         {
             return Entity.Subscribe(observer);
         }
 
-        /// <inheritdoc cref="ClassLibrary1.Entity.Add" />
+        /// <inheritdoc cref="EntityBase.Add" />
         public override void Add(IComponent component)
         {
             throw new NotSupportedException();
         }
 
-        /// <inheritdoc cref="ClassLibrary1.Entity.Remove" />
+        /// <inheritdoc cref="EntityBase.Remove" />
         public override void Remove(IComponent component)
         {
             throw new NotSupportedException();
@@ -88,10 +89,10 @@ namespace ClassLibrary1
             return Entity.GetAll<TComponent>();
         }
 
-        public override IEnumerable<Entity> Find(EntityPathString path)
+        /*public override IEnumerable<EntityBase> Find(EntityPathString path)
         {
             return Entity.Find(path);
-        }
+        }*/
 
         public override bool Has(IComponent component)
         {
@@ -113,17 +114,12 @@ namespace ClassLibrary1
             };
         }
 
-        public override void SetState(EntityState state)
+        public override EntityBase Clone()
         {
             throw new NotImplementedException();
         }
 
-        public override Entity Clone()
-        {
-            throw new NotImplementedException();
-        }
-
-        private Entity ResolveEntity()
+        private EntityBase ResolveEntity()
         {
             //var match = new EntityPathMatch(EntityPath, this);
             //return match.IsMet()
