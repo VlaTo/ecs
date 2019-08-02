@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClassLibrary1
+namespace ClassLibrary1.Core.Reactive.Collections
 {
     public class RefCountCollectionObserver<T>
     {

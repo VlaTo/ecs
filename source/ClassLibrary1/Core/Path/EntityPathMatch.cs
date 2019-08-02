@@ -1,4 +1,4 @@
-﻿namespace ClassLibrary1.Core
+﻿namespace ClassLibrary1.Core.Path
 {
     /// <summary>
     /// Implements entity path match processor.
@@ -75,12 +75,12 @@
     /// </remarks>
     internal sealed class EntityPathMatch : ICondition<EntityBase>
     {
-        public EntityPathString Path
+        public EntityPath Path
         {
             get;
         }
 
-        public EntityPathMatch(EntityPathString path)
+        public EntityPathMatch(EntityPath path)
         {
             Path = path;
         }

@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using ClassLibrary1.Core.Path;
+using ClassLibrary1.Core.Reactive.Collections;
 using UnitTestProject1.Components;
 using IComponent = ClassLibrary1.IComponent;
 
@@ -206,7 +208,7 @@ namespace UnitTestProject1
         {
             var root = new Entity("_");
             var child = new Entity("child");
-            var pathString = EntityPathString.Parse("//child");
+            var pathString = EntityPath.Parse("//child");
 
             root.Children.Add(child);
 
@@ -219,7 +221,7 @@ namespace UnitTestProject1
             var root = new Entity("_");
             var parent = new Entity("parent");
             var child = new Entity("child");
-            var pathString = EntityPathString.Parse("//parent/child");
+            var pathString = EntityPath.Parse("//parent/child");
 
             root.Children.Add(parent);
             parent.Children.Add(child);
@@ -231,7 +233,7 @@ namespace UnitTestProject1
         public void TestMethod8_3()
         {
             var root = new Entity("_");
-            var pathString = EntityPathString.Parse("//");
+            var pathString = EntityPath.Parse("//");
             Assert.AreEqual(pathString, root.Path);
         }
 
@@ -260,7 +262,7 @@ namespace UnitTestProject1
         public void TestMethod10()
         {
             const string expected = "//root/parent/entity";
-            var pathString = EntityPathString.Parse(expected);
+            var pathString = EntityPath.Parse(expected);
 
             Assert.AreEqual(expected, (string) pathString);
         }
@@ -269,14 +271,14 @@ namespace UnitTestProject1
         public void TestMethod11()
         {
             const string expected = "//root/fail*";
-            Assert.ThrowsException<Exception>(() => EntityPathString.Parse(expected));
+            Assert.ThrowsException<Exception>(() => EntityPath.Parse(expected));
         }
 
         [TestMethod]
         public void TestMethod11_1()
         {
             const string expected = "//root/*fail";
-            Assert.ThrowsException<Exception>(() => EntityPathString.Parse(expected));
+            Assert.ThrowsException<Exception>(() => EntityPath.Parse(expected));
         }
 
         [TestMethod]

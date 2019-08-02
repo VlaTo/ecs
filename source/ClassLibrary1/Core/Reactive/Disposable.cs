@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClassLibrary1.Core
+namespace ClassLibrary1.Core.Reactive
 {
     public static class Disposable
     {

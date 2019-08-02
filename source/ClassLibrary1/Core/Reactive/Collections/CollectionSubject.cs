@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Immutable;
-using ClassLibrary1.Core;
 
-namespace ClassLibrary1
+namespace ClassLibrary1.Core.Reactive.Collections
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class CollectionSubject<T> : IObservableCollection<T>, ICollectionObserver<T>, IDisposable
     {
         private readonly object gate;

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using ClassLibrary1.Core;
+using ClassLibrary1.Core.Path;
+using ClassLibrary1.Core.Reactive.Collections;
 
 namespace ClassLibrary1
 {
@@ -14,7 +16,7 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
-        public EntityPathString EntityPath
+        public EntityPath EntityPath
         {
             get;
         }
@@ -35,7 +37,7 @@ namespace ClassLibrary1
         /// </summary>
         /// <param name="key"></param>
         /// <param name="entityPath"></param>
-        public ReferencedEntity(string key, EntityPathString entityPath)
+        public ReferencedEntity(string key, EntityPath entityPath)
             : base(key)
         {
             EntityPath = entityPath;

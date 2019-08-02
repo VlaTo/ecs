@@ -1,21 +1,21 @@
 ﻿using System;
 
-namespace ClassLibrary1
+namespace ClassLibrary1.Core.Path.Segments
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class EntityPathStringSegment
+    internal abstract class EntityPathSegment
     {
         /// <summary>
         /// 
         /// </summary>
-        public EntityPathStringSegment Next
+        public EntityPathSegment Next
         {
             get;
         }
 
-        protected EntityPathStringSegment(EntityPathStringSegment next)
+        protected EntityPathSegment(EntityPathSegment next)
         {
             Next = next;
         }
@@ -32,10 +32,10 @@ namespace ClassLibrary1
                 return true;
             }
 
-            return (obj is EntityPathStringSegment other) && Equals(other);
+            return (obj is EntityPathSegment other) && Equals(other);
         }
 
-        public virtual bool Equals(EntityPathStringSegment other)
+        public virtual bool Equals(EntityPathSegment other)
         {
             if (ReferenceEquals(null, other))
             {

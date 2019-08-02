@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading;
-using ClassLibrary1.Core.Reactive;
 
-namespace ClassLibrary1
+namespace ClassLibrary1.Core.Reactive.Collections
 {
     public static class CollectionObserver
     {

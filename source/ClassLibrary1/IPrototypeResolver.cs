@@ -1,9 +1,11 @@
-﻿namespace ClassLibrary1
+﻿using ClassLibrary1.Core.Path;
+
+namespace ClassLibrary1
 {
     public interface IPrototypeResolver
     {
         void Initialize(EntityState state);
 
-        EntityBase Resolve(EntityPathString path);
+        EntityBase Resolve(EntityPath path);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using ClassLibrary1.Core.Path;
 
 namespace ClassLibrary1.Core.Extensions
 {

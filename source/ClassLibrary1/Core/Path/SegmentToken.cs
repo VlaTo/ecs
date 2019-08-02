@@ -1,4 +1,4 @@
-﻿namespace ClassLibrary1.Core
+﻿namespace ClassLibrary1.Core.Path
 {
     internal sealed class SegmentToken : PathToken
     {

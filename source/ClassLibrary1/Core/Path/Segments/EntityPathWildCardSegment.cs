@@ -1,22 +1,20 @@
-﻿using System;
-
-namespace ClassLibrary1
+﻿namespace ClassLibrary1.Core.Path.Segments
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class WildCardEntityPathStringSegment : EntityPathStringSegment
+    internal sealed class EntityPathWildCardSegment : EntityPathSegment
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="next"></param>
-        public WildCardEntityPathStringSegment()
+        public EntityPathWildCardSegment()
             : base(null)
         {
         }
 
-        public override bool Equals(EntityPathStringSegment other)
+        public override bool Equals(EntityPathSegment other)
         {
             if (ReferenceEquals(null, other))
             {
@@ -28,7 +26,7 @@ namespace ClassLibrary1
                 return true;
             }
 
-            return (other is StringEntityPathStringSegment) || (other is WildCardEntityPathStringSegment);
+            return (other is EntityPathStringSegment) || (other is EntityPathWildCardSegment);
         }
 
         public override int GetHashCode()

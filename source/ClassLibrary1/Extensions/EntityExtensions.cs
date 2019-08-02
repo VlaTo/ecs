@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using ClassLibrary1.Core;
 using ClassLibrary1.Core.Extensions;
+using ClassLibrary1.Core.Path;
+using ClassLibrary1.Core.Reactive.Collections;
 
 namespace ClassLibrary1.Extensions
 {
@@ -157,7 +159,7 @@ namespace ClassLibrary1.Extensions
         /// <returns></returns>
         public static IDisposable Subscribe(
             this EntityBase entity,
-            EntityPathString path,
+            EntityPath path,
             ICollectionObserver<IComponent> observer)
         {
             if (null == entity)
@@ -192,7 +194,7 @@ namespace ClassLibrary1.Extensions
         /// <returns></returns>
         public static IDisposable Subscribe<TComponent>(
             this EntityBase entity,
-            EntityPathString path,
+            EntityPath path,
             Action<TComponent> onNext)
             where TComponent : IComponent
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using ClassLibrary1.Core.Path;
 
 namespace ClassLibrary1
 {
@@ -17,7 +18,7 @@ namespace ClassLibrary1
                 cache = state;
             }
 
-            public EntityBase Resolve(EntityPathString path)
+            public EntityBase Resolve(EntityPath path)
             {
                 if (null == path)
                 {

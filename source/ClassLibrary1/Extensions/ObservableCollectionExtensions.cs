@@ -1,5 +1,6 @@
 ﻿using System;
 using ClassLibrary1.Core.Reactive;
+using ClassLibrary1.Core.Reactive.Collections;
 
 namespace ClassLibrary1.Extensions
 {

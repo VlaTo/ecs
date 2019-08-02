@@ -1,7 +1,8 @@
-﻿using ClassLibrary1.Extensions;
-using System;
+﻿using System;
+using ClassLibrary1.Core.Path.Segments;
+using ClassLibrary1.Extensions;
 
-namespace ClassLibrary1.Core
+namespace ClassLibrary1.Core.Path
 {
     internal sealed class SearchResult
     {
@@ -38,7 +39,7 @@ namespace ClassLibrary1.Core
         }
     }
 
-    internal class EntityPathFinder
+    internal sealed class EntityPathFinder
     {
         private readonly EntityBase entity;
 
@@ -74,14 +75,14 @@ namespace ClassLibrary1.Core
             Search(path.Entry);
         }*/
 
-        public SearchResult Search(EntityPathString path)
+        public SearchResult Search(EntityPath path)
         {
             if (null == path)
             {
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (path == EntityPathString.Empty)
+            if (path == EntityPath.Empty)
             {
                 return SearchResult.Empty;
             }
@@ -92,7 +93,7 @@ namespace ClassLibrary1.Core
             return SearchResult.Success(found);
         }
 
-        private static EntityBase SearchFromCurrent(EntityBase entity, EntityPathStringSegment segment)
+        private static EntityBase SearchFromCurrent(EntityBase entity, EntityPathSegment segment)
         {
             while (true)
             {

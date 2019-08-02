@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using ClassLibrary1.Core;
+using ClassLibrary1.Core.Reactive.Collections;
 
 namespace ClassLibrary1
 {

@@ -1,18 +1,18 @@
 ﻿using System;
 
-namespace ClassLibrary1
+namespace ClassLibrary1.Core.Path.Segments
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class StringEntityPathStringSegment : EntityPathStringSegment
+    internal sealed class EntityPathStringSegment : EntityPathSegment
     {
         public string Segment
         {
             get;
         }
 
-        public StringEntityPathStringSegment(string segment, EntityPathStringSegment next)
+        public EntityPathStringSegment(string segment, EntityPathSegment next)
             : base(next)
         {
             Segment = segment;
@@ -23,7 +23,7 @@ namespace ClassLibrary1
             return Segment;
         }
 
-        public override bool Equals(EntityPathStringSegment other)
+        public override bool Equals(EntityPathSegment other)
         {
             if (ReferenceEquals(null, other))
             {
@@ -35,8 +35,8 @@ namespace ClassLibrary1
                 return true;
             }
 
-            return (other is StringEntityPathStringSegment str) && String.Equals(Segment, str.Segment)
-                   || (other is WildCardEntityPathStringSegment);
+            return (other is EntityPathStringSegment str) && String.Equals(Segment, str.Segment)
+                   || (other is EntityPathWildCardSegment);
         }
 
         public override int GetHashCode()

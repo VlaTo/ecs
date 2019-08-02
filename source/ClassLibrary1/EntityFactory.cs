@@ -1,4 +1,5 @@
 ﻿using System;
+using ClassLibrary1.Core.Path;
 
 namespace ClassLibrary1
 {
@@ -40,7 +41,7 @@ namespace ClassLibrary1
             Default = new EntityFactory(entityCreator, prototypeResolver, componentRegistry);
         }
 
-        public EntityBase CreateEntity(EntityPathString prototypePath)
+        public EntityBase CreateEntity(EntityPath prototypePath)
         {
             var prototype = PrototypeResolver.Resolve(prototypePath);
             var state = new EntityState();

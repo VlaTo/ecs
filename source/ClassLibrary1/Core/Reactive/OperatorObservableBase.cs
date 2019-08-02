@@ -1,8 +1,7 @@
 ﻿using System;
-using ClassLibrary1.Core.Reactive;
 using ClassLibrary1.Core.Reactive.Schedulers;
 
-namespace ClassLibrary1.Core.Extensions
+namespace ClassLibrary1.Core.Reactive
 {
     public abstract class OperatorObservableBase<T> : IObservable<T>
     {

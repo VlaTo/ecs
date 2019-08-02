@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using ClassLibrary1.Core.Reactive;
+using ClassLibrary1.Core.Reactive.Collections;
 
 namespace ClassLibrary1.Core
 {

@@ -2,34 +2,33 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using ClassLibrary1.Core;
-using ClassLibrary1.Extensions;
+using ClassLibrary1.Core.Path.Segments;
 
-namespace ClassLibrary1
+namespace ClassLibrary1.Core.Path
 {
     /// <summary>
     /// 
     /// </summary>
     [DebuggerTypeProxy(typeof(DebugEntityPathStringProxy))]
-    public sealed class EntityPathString : IEquatable<EntityPathString>
+    public sealed partial class EntityPath : IEquatable<EntityPath>
     {
         public const char PathDelimiter = '/';
 
-        public static readonly EntityPathString Empty;
+        public static readonly EntityPath Empty;
 
-        internal EntityPathStringSegment Entry
+        internal EntityPathSegment Entry
         {
             get;
         }
 
-        internal EntityPathString(EntityPathStringSegment entry)
+        internal EntityPath(EntityPathSegment entry)
         {
             Entry = entry;
         }
 
-        static EntityPathString()
+        static EntityPath()
         {
-            Empty = new EntityPathString(null);
+            Empty = new EntityPath(null);
         }
 
         public override bool Equals(object obj)
@@ -44,7 +43,7 @@ namespace ClassLibrary1
                 return true;
             }
 
-            return (obj is EntityPathString other) && Equals(other);
+            return (obj is EntityPath other) && Equals(other);
         }
 
         /// <inheritdoc />
@@ -70,14 +69,14 @@ namespace ClassLibrary1
             return path.ToString();
         }
 
-        public bool Equals(EntityPathString other) => EntityPathStringComparer.Default.Equals(this, other);
+        public bool Equals(EntityPath other) => EntityPathStringComparer.Default.Equals(this, other);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static EntityPathString Parse(string path)
+        public static EntityPath Parse(string path)
         {
             if (null == path)
             {
@@ -92,32 +91,32 @@ namespace ClassLibrary1
                 throw new Exception();
             }
 
-            return new EntityPathString(top);
+            return new EntityPath(top);
         }
 
-        public static bool operator ==(EntityPathString left, EntityPathString right) =>
+        public static bool operator ==(EntityPath left, EntityPath right) =>
             EntityPathStringComparer.Default.Equals(left, right);
 
-        public static bool operator !=(EntityPathString left, EntityPathString right) =>
+        public static bool operator !=(EntityPath left, EntityPath right) =>
             false == EntityPathStringComparer.Default.Equals(left, right);
 
-        public static explicit operator string(EntityPathString instance) => instance.ToString();
+        public static explicit operator string(EntityPath instance) => instance.ToString();
 
-        public static implicit operator EntityPathString(string path) => Parse(path);
+        public static implicit operator EntityPath(string path) => Parse(path);
 
         /// <summary>
         /// 
         /// </summary>
         internal sealed class DebugEntityPathStringProxy
         {
-            public EntityPathStringSegment[] Segments
+            public EntityPathSegment[] Segments
             {
                 get;
             }
 
-            public DebugEntityPathStringProxy(EntityPathString path)
+            public DebugEntityPathStringProxy(EntityPath path)
             {
-                var segments = new List<EntityPathStringSegment>();
+                var segments = new List<EntityPathSegment>();
                 var entry = path.Entry;
 
                 while (null != entry)

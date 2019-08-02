@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ClassLibrary1.Core;
+using ClassLibrary1.Core.Path;
+using ClassLibrary1.Core.Path.Segments;
+using ClassLibrary1.Core.Reactive.Collections;
 
 namespace ClassLibrary1
 {
@@ -11,7 +14,7 @@ namespace ClassLibrary1
     public abstract class EntityBase : IEntity, IObservableCollection<IComponent>, IStateProvider<EntityState>, ICloneable<EntityBase>
     {
         private EntityBase parent;
-        private EntityPathString path;
+        private EntityPath path;
 
         /// <summary>
         /// 
@@ -67,27 +70,27 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
-        public EntityPathString Path
+        public EntityPath Path
         {
             get
             {
                 if (null == path)
                 {
                     var current = this;
-                    EntityPathStringSegment last = null;
+                    EntityPathSegment last = null;
 
                     while (Root != current)
                     {
-                        last = new StringEntityPathStringSegment(current.Key, last);
+                        last = new EntityPathStringSegment(current.Key, last);
                         current = current.Parent;
                     }
 
                     if (Root == current)
                     {
-                        last = new RootEntityPathStringSegment(last);
+                        last = new EntityPathRootSegment(last);
                     }
 
-                    path = new EntityPathString(last);
+                    path = new EntityPath(last);
                 }
 
                 return path;
@@ -162,7 +165,7 @@ namespace ClassLibrary1
         /// </summary>
         /// <param name="searchPath"></param>
         /// <returns></returns>
-        public virtual EntityBase Find(EntityPathString searchPath)
+        public virtual EntityBase Find(EntityPath searchPath)
         {
             if (null == searchPath)
             {
@@ -180,7 +183,7 @@ namespace ClassLibrary1
         /// </summary>
         /// <param name="searchPath"></param>
         /// <returns></returns>
-        public virtual IEnumerable<EntityBase> FindAll(EntityPathString searchPath)
+        public virtual IEnumerable<EntityBase> FindAll(EntityPath searchPath)
         {
             if (null == searchPath)
             {
