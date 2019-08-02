@@ -41,34 +41,31 @@ namespace ClassLibrary1
             Default = new EntityFactory(entityCreator, prototypeResolver, componentRegistry);
         }
 
-        public EntityBase CreateEntity(EntityPath prototypePath)
+        public EntityBase CreateEntity(string key, EntityPath prototypePath)
         {
             var prototype = PrototypeResolver.Resolve(prototypePath);
-            var state = new EntityState();
-            return CreateEntity(state, prototype);
+            return CreateEntity(key, prototype);
         }
 
         public EntityBase CreateEntity(EntityState state)
         {
-            return CreateEntity(state, null);
+            var instance = new Entity(state.Key);
+
+            foreach(var )
+
+            return instance;
         }
 
-        public EntityBase CreateEntity(EntityState state, EntityBase prototype)
+        private EntityBase CreateEntity(string key, EntityBase prototype)
         {
-            if (null == state)
+            if (null == prototype)
             {
-                throw new ArgumentNullException(nameof(state));
+                throw new ArgumentNullException(nameof(prototype));
             }
 
-            var entity = entityCreator.Instantiate(state);
+            var instance = new Entity(key, prototype);
 
-            foreach (var childState in state.Children)
-            {
-                var child = CreateEntity(childState);
-                entity.Children.Add(child);
-            }
-
-            return entity;
+            return instance;
         }
     }
 }

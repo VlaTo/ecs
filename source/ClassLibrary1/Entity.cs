@@ -32,19 +32,33 @@ namespace ClassLibrary1
             observers = new CollectionSubject<IComponent>();
         }
 
-        public Entity(Entity instance)
-            : this(instance.Key)
+        public Entity(string key, EntityBase prototype)
+            : this(key)
         {
-            foreach (var component in instance.Components)
+            foreach (var component in prototype.Components)
             {
                 Add(component.Clone());
             }
 
-            foreach (var child in instance.Children)
+            foreach (var child in prototype.Children)
             {
                 Children.Add(child.Clone());
             }
         }
+
+        /*public Entity(string key, EntityState state)
+            : this(key)
+        {
+            foreach (var component in state.Components)
+            {
+                Add(component.Clone());
+            }
+
+            foreach (var child in prototype.Children)
+            {
+                Children.Add(child.Clone());
+            }
+        }*/
 
         /// <inheritdoc cref="Subscribe" />
         public override IDisposable Subscribe(ICollectionObserver<IComponent> observer)
@@ -235,6 +249,7 @@ namespace ClassLibrary1
         /// <inheritdoc cref="Clone" />
         public override EntityBase Clone()
         {
+
             return new Entity(this);
         }
 

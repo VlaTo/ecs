@@ -1,4 +1,5 @@
 ﻿using System;
+using ClassLibrary1.Core.Path.Extensions;
 using ClassLibrary1.Core.Path.Segments;
 using ClassLibrary1.Extensions;
 

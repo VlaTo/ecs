@@ -1,12 +1,8 @@
 ﻿using ClassLibrary1;
-using ClassLibrary1.Extensions;
 using ConsoleApp2.Components;
-using ConsoleApp2.Messages;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ConsoleApp2.Core;
-using ConsoleApp2.Systems;
 
 namespace ConsoleApp2
 {
@@ -35,7 +31,7 @@ namespace ConsoleApp2
         {
             root = new Entity("Root");
 
-            var enemy = factory.CreateEntity("/Enemy");
+            var enemy = factory.CreateEntity("//Enemy");
 
             root.Children.Add(enemy);
 
