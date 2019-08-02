@@ -55,9 +55,9 @@ namespace ClassLibrary1
 
             var disposable = observers.Subscribe(observer);
 
-            for (var index = 0; index < components.Count; index++)
+            foreach (var component in components)
             {
-                observer.OnAdded(components[index], index);
+                observer.OnAdded(component);
             }
 
             return disposable;
@@ -84,13 +84,12 @@ namespace ClassLibrary1
                 return;
             }
 
-            var index = components.Count;
-            components.Insert(index, component);
+            components.Add(component);
             collection.Add(component);
 
             component.Attach(this);
 
-            observers.OnAdded(component, index);
+            observers.OnAdded(component);
         }
 
         /// <inheritdoc cref="Remove" />
@@ -113,9 +112,8 @@ namespace ClassLibrary1
                 return;
             }
 
-            var index = components.IndexOf(component);
-            components.RemoveAt(index);
-            observers.OnRemoved(component, index);
+            observers.OnRemoved(component);
+            components.Remove(component);
 
             component.Release();
         }

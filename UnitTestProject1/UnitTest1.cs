@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -23,7 +22,7 @@ namespace UnitTestProject1
             var entity = new Entity("entity");
             var testComponent = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()));
+            mock.Setup(observer => observer.OnAdded(testComponent));
             mock.Setup(observer => observer.OnCompleted());
 
             Assert.IsNotNull(entity);
@@ -36,7 +35,7 @@ namespace UnitTestProject1
                 Assert.IsNotNull(subscription);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
+            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
@@ -47,7 +46,7 @@ namespace UnitTestProject1
             var entity = new Entity("entity");
             var testComponent = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()));
+            mock.Setup(observer => observer.OnAdded(testComponent));
             mock.Setup(observer => observer.OnCompleted());
 
             Assert.IsNotNull(entity);
@@ -59,7 +58,7 @@ namespace UnitTestProject1
                 entity.Add(testComponent);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
+            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
@@ -72,18 +71,12 @@ namespace UnitTestProject1
             var components = new List<IComponent>();
 
             mock
-                .Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()))
-                .Callback<IComponent, int>((component, index) =>
-                {
-                    components.Add(component);
-                });
+                .Setup(observer => observer.OnAdded(testComponent))
+                .Callback<IComponent>(component => components.Add(component));
 
             mock
-                .Setup(observer => observer.OnRemoved(testComponent, It.IsAny<int>()))
-                .Callback<IComponent, int>((component, index) =>
-                {
-                    components.Remove(component);
-                });
+                .Setup(observer => observer.OnRemoved(testComponent))
+                .Callback<IComponent>(component => components.Remove(component));
 
             mock
                 .Setup(observer => observer.OnCompleted())
@@ -99,10 +92,9 @@ namespace UnitTestProject1
                 child.Remove(testComponent);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
-            mock.Verify(observer => observer.OnRemoved(testComponent, It.IsAny<int>()), Times.Once);
-            // since we subscribe to the 'root' but component removed from 'child' -- our observer completed twice.
-            mock.Verify(observer => observer.OnCompleted(), Times.Exactly(2));
+            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
+            mock.Verify(observer => observer.OnRemoved(testComponent), Times.Once);
+            mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
         [TestMethod]
@@ -112,8 +104,8 @@ namespace UnitTestProject1
             var root = new Entity("_");
             var testComponent = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(testComponent, It.IsAny<int>()));
-            mock.Setup(observer => observer.OnRemoved(testComponent, It.IsAny<int>()));
+            mock.Setup(observer => observer.OnAdded(testComponent));
+            mock.Setup(observer => observer.OnRemoved(testComponent));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(mock.Object, true))
@@ -125,9 +117,9 @@ namespace UnitTestProject1
                 child.Remove(testComponent);
             }
 
-            mock.Verify(observer => observer.OnAdded(testComponent, It.IsAny<int>()), Times.Once);
-            mock.Verify(observer => observer.OnRemoved(testComponent, It.IsAny<int>()), Times.Once);
-            mock.Verify(observer => observer.OnCompleted(), Times.Exactly(2));
+            mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
+            mock.Verify(observer => observer.OnRemoved(testComponent), Times.Once);
+            mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
         [TestMethod]
@@ -136,8 +128,8 @@ namespace UnitTestProject1
             var mock = new Mock<ICollectionObserver<IComponent>>();
             var root = new Entity("_");
 
-            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()));
-            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()));
+            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
+            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(mock.Object, recursive:true))
@@ -145,8 +137,8 @@ namespace UnitTestProject1
                 root.Children.Add(new Entity("child"));
             }
 
-            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Never);
-            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Never);
+            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>()), Times.Never);
+            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>()), Times.Never);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
@@ -156,10 +148,10 @@ namespace UnitTestProject1
         public void TestMethod6(bool recursive, int added, int removed)
         {
             var mock = new Mock<ICollectionObserver<IComponent>>();
-            var root = new Entity("root");
+            var root = new Entity("_");
 
-            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()));
-            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()));
+            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
+            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(mock.Object, recursive))
@@ -173,8 +165,8 @@ namespace UnitTestProject1
                 child.Remove(component);
             }
 
-            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Exactly(added));
-            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()), Times.Exactly(removed));
+            mock.Verify(observer => observer.OnAdded(It.IsAny<TestComponent>()), Times.Exactly(added));
+            mock.Verify(observer => observer.OnRemoved(It.IsAny<TestComponent>()), Times.Exactly(removed));
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
@@ -193,8 +185,8 @@ namespace UnitTestProject1
             var child = new Entity("child");
             var component = new TestComponent();
 
-            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>(), It.IsAny<int>()));
-            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>(), It.IsAny<int>()));
+            mock.Setup(observer => observer.OnAdded(It.IsAny<TestComponent>()));
+            mock.Setup(observer => observer.OnRemoved(It.IsAny<TestComponent>()));
             mock.Setup(observer => observer.OnCompleted());
 
             using (root.Subscribe(path, mock.Object))
@@ -204,8 +196,8 @@ namespace UnitTestProject1
                 child.Remove(component);
             }
 
-            mock.Verify(observer => observer.OnAdded(component, It.IsAny<int>()), Times.Once);
-            mock.Verify(observer => observer.OnRemoved(component, It.IsAny<int>()), Times.Once);
+            mock.Verify(observer => observer.OnAdded(component), Times.Once);
+            mock.Verify(observer => observer.OnRemoved(component), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
         }
 
@@ -232,7 +224,22 @@ namespace UnitTestProject1
             root.Children.Add(parent);
             parent.Children.Add(child);
 
-            Assert.AreEqual(child.Path, pathString);
+            Assert.AreEqual(pathString, child.Path);
+        }
+
+        [TestMethod]
+        public void TestMethod8_3()
+        {
+            var root = new Entity("_");
+            var pathString = EntityPathString.Parse("//");
+            Assert.AreEqual(pathString, root.Path);
+        }
+
+        [TestMethod]
+        public void TestMethod8_4()
+        {
+            var root = new Entity("_");
+            Assert.AreEqual("//", (string) root.Path);
         }
 
         [TestMethod]
@@ -252,7 +259,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestMethod10()
         {
-            var expected = "//root/parent/entity";
+            const string expected = "//root/parent/entity";
             var pathString = EntityPathString.Parse(expected);
 
             Assert.AreEqual(expected, (string) pathString);

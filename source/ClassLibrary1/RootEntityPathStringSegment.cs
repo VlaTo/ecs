@@ -32,7 +32,7 @@ namespace ClassLibrary1
 
         public override string ToString()
         {
-            return new string(EntityPathString.PathDelimiter, 1);
+            return new string(EntityPathString.PathDelimiter, 2);
         }
     }
 }

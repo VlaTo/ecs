@@ -57,7 +57,7 @@ namespace ClassLibrary1
 
             while (null != current)
             {
-                if (0 < path.Length && false == current.IsRoot())
+                if (0 < path.Length && path[path.Length - 1] != PathDelimiter)
                 {
                     path.Append(PathDelimiter);
                 }

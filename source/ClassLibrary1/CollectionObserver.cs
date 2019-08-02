@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Threading;
-using ClassLibrary1.Extensions;
+using ClassLibrary1.Core.Reactive;
 
 namespace ClassLibrary1
 {
     public static class CollectionObserver
     {
-        public static ICollectionObserver<T> Create<T>(
-            Action<T, int> onAdded,
-            Action<T, int> onRemoved,
-            Action<Exception> onError,
-            Action onCompleted)
+        public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved)
         {
-            if (CollectionStubs<T>.Ignore == onAdded && CollectionStubs<T>.Ignore == onRemoved)
+            return Create(onAdded, onRemoved, Stubs.Throw, Stubs.Nop);
+        }
+
+        public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved, Action onCompleted)
+        {
+            return Create(onAdded, onRemoved, Stubs.Throw, onCompleted);
+        }
+
+        public static ICollectionObserver<T> Create<T>(Action onCompleted)
+        {
+            return Create(Stubs<T>.Ignore, Stubs<T>.Ignore, Stubs.Throw, onCompleted);
+        }
+
+        public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved, Action<Exception> onError, Action onCompleted)
+        {
+            if (Stubs<T>.Ignore == onAdded && Stubs<T>.Ignore == onRemoved)
             {
                 return new EmptyAnonymousObserver<T>(onError, onCompleted);
             }
@@ -20,19 +31,58 @@ namespace ClassLibrary1
             return new AnonymousObserver<T>(onAdded, onRemoved, onError, onCompleted);
         }
 
-        public static ICollectionObserver<T> Create<T, TState>(
-            TState state,
-            Action<T, TState, int> onAdded,
-            Action<T, TState, int> onRemoved,
-            Action<Exception, TState> onError,
-            Action<TState> onCompleted)
+        public static ICollectionObserver<T> Create<T, TState>(TState state, Action<T, TState> onAdded, Action<T, TState> onRemoved)
         {
-            if (CollectionStubs<T, TState>.Ignore == onAdded && CollectionStubs<T, TState>.Ignore == onRemoved)
+            return Create(state, onAdded, onRemoved, Stubs<TState>.Throw, Stubs<TState>.Ignore);
+        }
+
+        public static ICollectionObserver<T> Create<T, TState>(TState state, Action<T, TState> onAdded, Action<T, TState> onRemoved, Action<Exception, TState> onError, Action<TState> onCompleted)
+        {
+            if (Stubs<T, TState>.Ignore == onAdded && Stubs<T, TState>.Ignore == onRemoved)
             {
                 return new EmptyAnonymousObserver<T, TState>(state, onError, onCompleted);
             }
 
             return new AnonymousObserver<T, TState>(state, onAdded, onRemoved, onError, onCompleted);
+        }
+
+        public static ICollectionObserver<T> Empty<T>()
+        {
+            return EmptyObserver<T>.Instance;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        private class EmptyObserver<T> : ICollectionObserver<T>
+        {
+            public static readonly EmptyObserver<T> Instance;
+
+            private EmptyObserver()
+            {
+            }
+
+            static EmptyObserver()
+            {
+                Instance = new EmptyObserver<T>();
+            }
+
+            public void OnCompleted()
+            {
+            }
+
+            public void OnError(Exception error)
+            {
+            }
+
+            public void OnAdded(T item)
+            {
+            }
+
+            public void OnRemoved(T item)
+            {
+            }
         }
 
         /// <summary>
@@ -68,11 +118,11 @@ namespace ClassLibrary1
                 }
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
             }
         }
@@ -113,11 +163,11 @@ namespace ClassLibrary1
                 }
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
             }
         }
@@ -128,15 +178,15 @@ namespace ClassLibrary1
         /// <typeparam name="T"></typeparam>
         private class AnonymousObserver<T> : ICollectionObserver<T>
         {
-            private readonly Action<T, int> onAdded;
-            private readonly Action<T, int> onRemoved;
+            private readonly Action<T> onAdded;
+            private readonly Action<T> onRemoved;
             private readonly Action<Exception> onError;
             private readonly Action onCompleted;
             private int stopped;
 
             public AnonymousObserver(
-                Action<T, int> onAdded,
-                Action<T, int> onRemoved,
+                Action<T> onAdded,
+                Action<T> onRemoved,
                 Action<Exception> onError,
                 Action onCompleted)
             {
@@ -163,19 +213,19 @@ namespace ClassLibrary1
                 }
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
                 if (0 == stopped)
                 {
-                    onAdded.Invoke(item, index);
+                    onAdded.Invoke(item);
                 }
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
                 if (0 == stopped)
                 {
-                    onRemoved.Invoke(item, index);
+                    onRemoved.Invoke(item);
                 }
             }
         }
@@ -188,16 +238,16 @@ namespace ClassLibrary1
         private class AnonymousObserver<T, TState> : ICollectionObserver<T>
         {
             private readonly TState state;
-            private readonly Action<T, TState, int> onAdded;
-            private readonly Action<T, TState, int> onRemoved;
+            private readonly Action<T, TState> onAdded;
+            private readonly Action<T, TState> onRemoved;
             private readonly Action<Exception, TState> onError;
             private readonly Action<TState> onCompleted;
             private int stopped;
 
             public AnonymousObserver(
                 TState state,
-                Action<T, TState, int> onAdded,
-                Action<T, TState, int> onRemoved,
+                Action<T, TState> onAdded,
+                Action<T, TState> onRemoved,
                 Action<Exception, TState> onError,
                 Action<TState> onCompleted)
             {
@@ -225,19 +275,19 @@ namespace ClassLibrary1
                 }
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
                 if (0 == stopped)
                 {
-                    onAdded.Invoke(item, state, index);
+                    onAdded.Invoke(item, state);
                 }
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
                 if (0 == stopped)
                 {
-                    onRemoved.Invoke(item, state, index);
+                    onRemoved.Invoke(item, state);
                 }
             }
         }

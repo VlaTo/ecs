@@ -99,9 +99,9 @@ namespace ClassLibrary1.Extensions
         /// <param name="onAdded"></param>
         /// <param name="onCompleted"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe(
+        /*public static IDisposable Subscribe(
             this EntityBase entity,
-            Action<IComponent, int> onAdded,
+            Action<IComponent> onAdded,
             Action onCompleted)
         {
             if (null == entity)
@@ -114,8 +114,8 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(onAdded));
             }
 
-            return entity.Subscribe(EntityObserver.Create(onAdded, onCompleted));
-        }
+            return entity.Subscribe(CollectionObserver.Create(onAdded, onCompleted));
+        }*/
 
         /// <summary>
         /// 
@@ -214,15 +214,5 @@ namespace ClassLibrary1.Extensions
 
             throw new NotImplementedException();
         }
-    }
-
-    internal static class CollectionStubs<T>
-    {
-        public static readonly Action<T, int> Ignore = (component, index) => { };
-    }
-
-    internal static class CollectionStubs<T, TState>
-    {
-        public static readonly Action<T, TState, int> Ignore = (component, state, index) => { };
     }
 }

@@ -105,7 +105,6 @@ namespace ClassLibrary1.Core
             public InnerDisposable(RefCountDisposable parent)
             {
                 this.parent = parent;
-
                 gate = new object();
             }
 

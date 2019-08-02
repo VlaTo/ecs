@@ -53,13 +53,13 @@ namespace ClassLibrary1.Core
                     return;
                 }
 
-                observers.OnRemoved((EntityBase) items[index], index);
+                observers.OnRemoved((EntityBase) items[index]);
 
                 items[index] = value;
 
                 value.Parent = owner;
 
-                observers.OnAdded(value, index);
+                observers.OnAdded(value);
             }
         }
 
@@ -67,7 +67,6 @@ namespace ClassLibrary1.Core
         {
             this.owner = owner;
 
-            //observers = new Collection<ICollectionObserver<EntityBase>>();
             observers = new CollectionSubject<EntityBase>();
             items = new ArrayList();
         }
@@ -92,7 +91,7 @@ namespace ClassLibrary1.Core
 
                 items.RemoveAt(index);
 
-                observers.OnRemoved(item, index);
+                observers.OnRemoved(item);
             }
         }
 
@@ -172,7 +171,7 @@ namespace ClassLibrary1.Core
 
             item.Parent = owner;
 
-            observers.OnAdded(item, index);
+            observers.OnAdded(item);
         }
 
         public bool Remove(EntityBase item)
@@ -209,7 +208,7 @@ namespace ClassLibrary1.Core
 
             item.Parent = null;
 
-            observers.OnRemoved(item, index);
+            observers.OnRemoved(item);
         }
 
         public IDisposable Subscribe(ICollectionObserver<EntityBase> observer)
@@ -221,11 +220,16 @@ namespace ClassLibrary1.Core
 
             var disposable = observers.Subscribe(observer);
 
-            for (var index = 0; index < items.Count; index++)
+            foreach (EntityBase entity in items)
+            {
+                observer.OnAdded(entity);
+            }
+
+            /*for (var index = 0; index < items.Count; index++)
             {
                 var entity = (EntityBase) items[index];
-                observer.OnAdded(entity, index);
-            }
+                observer.OnAdded(entity);
+            }*/
 
             return disposable;
         }

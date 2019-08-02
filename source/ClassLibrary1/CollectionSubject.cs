@@ -129,14 +129,14 @@ namespace ClassLibrary1
             observer.OnCompleted();
         }
 
-        public void OnAdded(T item, int index)
+        public void OnAdded(T item)
         {
-            current.OnAdded(item, index);
+            current.OnAdded(item);
         }
 
-        public void OnRemoved(T item, int index)
+        public void OnRemoved(T item)
         {
-            current.OnRemoved(item, index);
+            current.OnRemoved(item);
         }
 
         private void ThrowIfDisposed()
@@ -219,11 +219,11 @@ namespace ClassLibrary1
             {
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
             }
         }
@@ -250,14 +250,14 @@ namespace ClassLibrary1
                 observers.ForEach(observer => observer.OnError(error));
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
-                observers.ForEach(observer => observer.OnAdded(item, index));
+                observers.ForEach(observer => observer.OnAdded(item));
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
-                observers.ForEach(observer => observer.OnRemoved(item, index));
+                observers.ForEach(observer => observer.OnRemoved(item));
             }
 
             internal ICollectionObserver<T> Add(ICollectionObserver<T> observer)
@@ -309,12 +309,12 @@ namespace ClassLibrary1
                 throw new ObjectDisposedException(String.Empty);
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
                 throw new ObjectDisposedException(String.Empty);
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
                 throw new ObjectDisposedException(String.Empty);
             }

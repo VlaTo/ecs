@@ -8,22 +8,22 @@ namespace ClassLibrary1
     internal static class EntityObserver
     {
         public static ICollectionObserver<IComponent> Create(
-            Action<IComponent, int> onAdded,
+            Action<IComponent> onAdded,
             Action onCompleted)
         {
-            if (CollectionStubs<IComponent>.Ignore == onAdded)
+            if (Stubs<IComponent>.Ignore == onAdded)
             {
                 return new EmptyOnAddedAndOnRemovedAnonymousCollectionObserver<IComponent>(Stubs.Throw, onCompleted);
             }
 
-            return Create(onAdded, CollectionStubs<IComponent>.Ignore, onCompleted);
+            return Create(onAdded, Stubs<IComponent>.Ignore, onCompleted);
         }
 
         public static ICollectionObserver<IComponent> Create(
-            Action<IComponent, int> onAdded,
-            Action<IComponent, int> onRemoved)
+            Action<IComponent> onAdded,
+            Action<IComponent> onRemoved)
         {
-            if (CollectionStubs<IComponent>.Ignore == onAdded)
+            if (Stubs<IComponent>.Ignore == onAdded)
             {
                 return new EmptyOnAddedAndOnRemovedAnonymousCollectionObserver<IComponent>(Stubs.Throw, Stubs.Nop);
             }
@@ -32,11 +32,11 @@ namespace ClassLibrary1
         }
 
         public static ICollectionObserver<IComponent> Create(
-            Action<IComponent, int> onAdded,
-            Action<IComponent, int> onRemoved,
+            Action<IComponent> onAdded,
+            Action<IComponent> onRemoved,
             Action onCompleted)
         {
-            if (CollectionStubs<IComponent>.Ignore == onAdded)
+            if (Stubs<IComponent>.Ignore == onAdded)
             {
                 return new EmptyOnAddedAndOnRemovedAnonymousCollectionObserver<IComponent>(Stubs.Throw, onCompleted);
             }
@@ -45,12 +45,12 @@ namespace ClassLibrary1
         }
 
         private static ICollectionObserver<IComponent> CreateSubscribeObserver(
-            Action<IComponent, int> onAdded,
-            Action<IComponent, int> onRemoved,
+            Action<IComponent> onAdded,
+            Action<IComponent> onRemoved,
             Action<Exception> onError,
             Action onCompleted)
         {
-            if (CollectionStubs<IComponent>.Ignore == onAdded)
+            if (Stubs<IComponent>.Ignore == onAdded)
             {
                 return new EmptyOnAddedAndOnRemovedAnonymousCollectionObserver<IComponent>(onError, onCompleted);
             }
@@ -91,11 +91,11 @@ namespace ClassLibrary1
                 }
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
             }
         }
@@ -106,15 +106,15 @@ namespace ClassLibrary1
         /// <typeparam name="T"></typeparam>
         private class Subscribe<T> : ICollectionObserver<T>
         {
-            private readonly Action<T, int> onAdded;
-            private readonly Action<T, int> onRemoved;
+            private readonly Action<T> onAdded;
+            private readonly Action<T> onRemoved;
             private readonly Action<Exception> onError;
             private readonly Action onCompleted;
             private int stopped;
 
             public Subscribe(
-                Action<T, int> onAdded,
-                Action<T, int> onRemoved,
+                Action<T> onAdded,
+                Action<T> onRemoved,
                 Action<Exception> onError,
                 Action onCompleted)
             {
@@ -141,19 +141,19 @@ namespace ClassLibrary1
                 }
             }
 
-            public void OnAdded(T item, int index)
+            public void OnAdded(T item)
             {
                 if (0 == stopped)
                 {
-                    onAdded.Invoke(item, index);
+                    onAdded.Invoke(item);
                 }
             }
 
-            public void OnRemoved(T item, int index)
+            public void OnRemoved(T item)
             {
                 if (0 == stopped)
                 {
-                    onRemoved.Invoke(item, index);
+                    onRemoved.Invoke(item);
                 }
             }
         }

@@ -1,23 +1,24 @@
 ﻿using ClassLibrary1.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ClassLibrary1.Core.Reactive;
 
 namespace ClassLibrary1.Core
 {
     internal class RecursiveChildrenObserver
     {
-        private readonly ICollectionObserver<IComponent> next;
         private readonly Predicate<EntityBase> selector;
-        private EntityBase root;
         private readonly IDictionary<EntityBase, IDisposable> subscriptions;
+        private readonly RefCountCollectionObserver<IComponent> subscriber;
+        private EntityBase root;
 
         public RecursiveChildrenObserver(ICollectionObserver<IComponent> next, Predicate<EntityBase> selector)
         {
-            this.next = next;
             this.selector = selector;
 
             subscriptions = new Dictionary<EntityBase, IDisposable>();
+            subscriber = new RefCountCollectionObserver<IComponent>(next);
         }
 
         public IDisposable Subscribe(EntityBase entity)
@@ -44,69 +45,101 @@ namespace ClassLibrary1.Core
 
         private IDisposable RecursiveChildrenSubscribe(EntityBase entity)
         {
+            Debug.WriteLine($"RecursiveChildrenSubscribe: \'{entity.Path}\'");
             if (subscriptions.TryGetValue(entity, out var subscription))
             {
                 return subscription;
             }
 
+            subscriptions.Add(entity, Disposable.Empty);
+
             subscription = entity.Children.Subscribe(entity, DoChildAdded, DoChildRemoved, DoChildrenCompleted);
 
             if (selector.Invoke(entity))
             {
-                var disposable = entity.Subscribe(entity, DoComponentAdded, DoComponentRemoved);
+                //var observer = CollectionObserver.Create<IComponent>(DoComponentAdded, DoComponentRemoved);
+                //var observer = new RefCountCollectionObserver<IComponent>(next);
+                var disposable = entity.Subscribe(subscriber.GetObserver());
                 subscription = new CompositeDisposable(subscription, disposable);
             }
 
-            subscriptions.Add(entity, subscription);
+            AddEntitySubscription(entity, subscription);
+
+            if (null != entity.Parent)
+            {
+                AddEntitySubscription(entity.Parent, subscription);
+            }
 
             return subscription;
         }
 
-        private void UnsubscribeFromEntity(EntityBase entity)
+        private void AddEntitySubscription(EntityBase entity, IDisposable subscription)
+        {
+            if (false == subscriptions.TryGetValue(entity, out var disposable))
+            {
+                throw new Exception();
+            }
+
+            if (disposable is CompositeDisposable composite)
+            {
+                composite.Add(subscription);
+                return;
+            }
+
+            subscriptions[entity] = ReferenceEquals(Disposable.Empty, disposable)
+                ? subscription
+                : new CompositeDisposable(disposable, subscription);
+        }
+
+        /*private void UnsubscribeFromEntity(EntityBase entity)
         {
             if (subscriptions.Remove(entity, out var subscription))
             {
-                /*if (disposables.Remove(entity, out var disposable))
+                if (disposables.Remove(entity, out var disposable))
                 {
                     disposable.Dispose();
-                }*/
+                }
 
                 entity.Children.ForEach(UnsubscribeFromEntity);
 
                 subscription.Dispose();
             }
-        }
+        }*/
 
-        private void DoChildAdded(EntityBase child, EntityBase entity, int index)
+        private void DoChildAdded(EntityBase child, EntityBase parent)
         {
+            Debug.WriteLine($"Child added: \'{child.Path}\'");
+            //child.Parent
             RecursiveChildrenSubscribe(child);
         }
 
-        private void DoChildRemoved(EntityBase child, EntityBase entity, int index)
+        private void DoChildRemoved(EntityBase child, EntityBase parent)
         {
-            if (subscriptions.TryGetValue(entity, out var subscription))
+            Debug.WriteLine($"Child removing: \'{child.Path}\'");
+            //child.Parent
+            if (subscriptions.Remove(child, out var subscription))
             {
                 if (subscription is CompositeDisposable composite)
                 {
-                    composite.Remove()
+                    //composite.Remove()
                 }
+
+                subscription.Dispose();
             }
-            //UnsubscribeFromEntity(child);
         }
 
-        private void DoChildrenCompleted(EntityBase child)
+        private void DoChildrenCompleted(EntityBase owner)
         {
-            UnsubscribeFromEntity(child);
-        }
+            Debug.WriteLine($"Owner completed: \'{owner.Path}\'");
+            if (subscriptions.Remove(owner, out var subscription))
+            {
+                if (subscription is CompositeDisposable composite)
+                {
+                    //composite.Remove()
+                }
 
-        private void DoComponentAdded(IComponent component, EntityBase entity, int index)
-        {
-            next.OnAdded(component, index);
-        }
-
-        private void DoComponentRemoved(IComponent component, EntityBase entity, int index)
-        {
-            next.OnRemoved(component, index);
+                subscription.Dispose();
+            }
         }
     }
 }

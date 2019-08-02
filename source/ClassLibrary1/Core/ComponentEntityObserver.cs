@@ -14,10 +14,10 @@ namespace ClassLibrary1.Core
             components = new List<IComponent>();
         }
 
-        void ICollectionObserver<IComponent>.OnAdded(IComponent component, int index)
+        void ICollectionObserver<IComponent>.OnAdded(IComponent component)
         {
             components.Add(component);
-            observer.OnAdded(component, index);
+            observer.OnAdded(component);
         }
 
         void ICompletable.OnCompleted()
@@ -30,11 +30,11 @@ namespace ClassLibrary1.Core
             observer.OnError(error);
         }
 
-        void ICollectionObserver<IComponent>.OnRemoved(IComponent component, int index)
+        void ICollectionObserver<IComponent>.OnRemoved(IComponent component)
         {
             if (components.Remove(component))
             {
-                observer.OnRemoved(component, index);
+                observer.OnRemoved(component);
             }
         }
     }

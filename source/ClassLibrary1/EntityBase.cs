@@ -67,7 +67,7 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
-        public virtual EntityPathString Path
+        public EntityPathString Path
         {
             get
             {
