@@ -49,9 +49,20 @@ namespace ClassLibrary1
 
         public EntityBase CreateEntity(EntityState state)
         {
+            return entityCreator.Instantiate(state);
             var instance = new Entity(state.Key);
 
-            foreach(var )
+            foreach (var componentState in state.Components)
+            {
+                var child = Com CreateEntity(childState);
+                instance.Children.Add(child);
+            }
+
+            foreach (var childState in state.Children)
+            {
+                var child = CreateEntity(childState);
+                instance.Children.Add(child);
+            }
 
             return instance;
         }
