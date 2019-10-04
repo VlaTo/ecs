@@ -46,15 +46,15 @@ namespace ClassLibrary1
             }
         }
 
-        /*public Entity(string key, EntityState state)
-            : this(key)
+        /*protected Entity(Entity original)
+            : base(original.Key)
         {
-            foreach (var component in state.Components)
+            foreach (var component in original.Components)
             {
                 Add(component.Clone());
             }
 
-            foreach (var child in prototype.Children)
+            foreach (var child in original.Children)
             {
                 Children.Add(child.Clone());
             }
@@ -249,8 +249,7 @@ namespace ClassLibrary1
         /// <inheritdoc cref="Clone" />
         public override EntityBase Clone()
         {
-
-            return new Entity(this);
+            return new Entity(null, this);
         }
 
         /// <summary>

@@ -12,7 +12,8 @@ namespace ClassLibrary1
         /// <summary>
         /// 
         /// </summary>
-        [DataMember, XmlAttribute]
+        [DataMember]
+        [XmlAttribute(AttributeName = nameof(Alias), Namespace = "http://scheme.ecs.org/elements/entity")]
         public string Alias
         {
             get;
@@ -23,6 +24,7 @@ namespace ClassLibrary1
         /// 
         /// </summary>
         [DataMember, XmlArray]
+        [XmlArrayItem(typeof(PropertyState), ElementName = "Property", Namespace = "http://scheme.ecs.org/elements/entity")]
         public PropertyState[] Properties
         {
             get;

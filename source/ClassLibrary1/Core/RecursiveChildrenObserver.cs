@@ -58,8 +58,6 @@ namespace ClassLibrary1.Core
 
             if (selector.Invoke(entity))
             {
-                //var observer = CollectionObserver.Create<IComponent>(DoComponentAdded, DoComponentRemoved);
-                //var observer = new RefCountCollectionObserver<IComponent>(next);
                 var disposable = entity.Subscribe(subscriber.GetObserver());
                 subscription = new CompositeDisposable(subscription, disposable);
             }
@@ -92,21 +90,6 @@ namespace ClassLibrary1.Core
                 : new CompositeDisposable(disposable, subscription);
         }
 
-        /*private void UnsubscribeFromEntity(EntityBase entity)
-        {
-            if (subscriptions.Remove(entity, out var subscription))
-            {
-                if (disposables.Remove(entity, out var disposable))
-                {
-                    disposable.Dispose();
-                }
-
-                entity.Children.ForEach(UnsubscribeFromEntity);
-
-                subscription.Dispose();
-            }
-        }*/
-
         private void DoChildAdded(EntityBase child, EntityBase parent)
         {
             Debug.WriteLine($"Child added: \'{child.Path}\'");
@@ -122,7 +105,7 @@ namespace ClassLibrary1.Core
             {
                 if (subscription is CompositeDisposable composite)
                 {
-                    //composite.Remove()
+                    //composite.Dispose()
                 }
 
                 subscription.Dispose();
@@ -136,7 +119,7 @@ namespace ClassLibrary1.Core
             {
                 if (subscription is CompositeDisposable composite)
                 {
-                    //composite.Remove()
+                    //composite.Dispose()
                 }
 
                 subscription.Dispose();

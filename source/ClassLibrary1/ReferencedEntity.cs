@@ -112,7 +112,8 @@ namespace ClassLibrary1
             return new EntityState
             {
                 Key = Key,
-                EntityPath = (string) EntityPath
+                EntityPath = (string) EntityPath,
+                IsReference = true
             };
         }
 

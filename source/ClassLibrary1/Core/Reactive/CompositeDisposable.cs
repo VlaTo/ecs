@@ -62,7 +62,7 @@ namespace ClassLibrary1.Core.Reactive
 
         public IEnumerator<IDisposable> GetEnumerator()
         {
-            var res = new List<IDisposable>();
+            var res = new List<IDisposable>(count);
 
             lock (gate)
             {

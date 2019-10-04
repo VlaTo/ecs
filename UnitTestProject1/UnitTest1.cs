@@ -94,6 +94,8 @@ namespace UnitTestProject1
                 child.Remove(testComponent);
             }
 
+            Assert.AreEqual(0, components.Count);
+
             mock.Verify(observer => observer.OnAdded(testComponent), Times.Once);
             mock.Verify(observer => observer.OnRemoved(testComponent), Times.Once);
             mock.Verify(observer => observer.OnCompleted(), Times.Once);
