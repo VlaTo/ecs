@@ -18,5 +18,11 @@ namespace ClassLibrary1.Core.Reactive
 
         public static IDisposable Subscribe<T>(this IObservable<T> source, Action<T> onNext, Action<Exception> onError, Action onCompleted) =>
             source.Subscribe(Observer.CreateSubscribeObserver(onNext, onError, onCompleted));
+        
+        public static IDisposable Subscribe<T, TState>(this IObservable<T> source, TState state, Action<T, TState> onNext) =>
+            source.Subscribe(Observer.CreateSubscribeObserver(state, onNext, Stubs<TState>.Throw, Stubs<TState>.Ignore));
+        
+        public static IDisposable Subscribe<T, TState>(this IObservable<T> source, TState state, Action<T, TState> onNext, Action<TState> onCompleted) =>
+            source.Subscribe(Observer.CreateSubscribeObserver(state, onNext, Stubs<TState>.Throw, Stubs<TState>.Ignore));
     }
 }

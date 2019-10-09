@@ -24,22 +24,22 @@ namespace ClassLibrary1.Core.Path.Extensions
         /// 
         /// </summary>
         /// <param name="segment"></param>
-        /// <param name="str"></param>
+        /// <param name="key"></param>
         /// <returns></returns>
-        public static bool IsString(this EntityPathSegment segment, out EntityPathStringSegment str)
+        public static bool IsEntityKey(this EntityPathSegment segment, out string key)
         {
             if (null == segment)
             {
                 throw new ArgumentNullException(nameof(segment));
             }
 
-            if (segment is EntityPathStringSegment value)
+            if (segment is EntityKeySegment value)
             {
-                str = value;
+                key = value.Key;
                 return true;
             }
 
-            str = null;
+            key = null;
 
             return false;
         }
@@ -48,24 +48,15 @@ namespace ClassLibrary1.Core.Path.Extensions
         /// 
         /// </summary>
         /// <param name="segment"></param>
-        /// <param name="wildcard"></param>
         /// <returns></returns>
-        public static bool IsWildcard(this EntityPathSegment segment, out EntityPathWildCardSegment wildcard)
+        public static bool IsWildcard(this EntityPathSegment segment)
         {
             if (null == segment)
             {
                 throw new ArgumentNullException(nameof(segment));
             }
 
-            if (segment is EntityPathWildCardSegment value)
-            {
-                wildcard = value;
-                return true;
-            }
-
-            wildcard = null;
-
-            return false;
+            return segment is EntityPathWildCardSegment;
         }
     }
 }

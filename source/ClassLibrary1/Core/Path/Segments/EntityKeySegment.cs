@@ -5,22 +5,22 @@ namespace ClassLibrary1.Core.Path.Segments
     /// <summary>
     /// 
     /// </summary>
-    internal sealed class EntityPathStringSegment : EntityPathSegment
+    internal sealed class EntityKeySegment : EntityPathSegment
     {
-        public string Segment
+        public string Key
         {
             get;
         }
 
-        public EntityPathStringSegment(string segment, EntityPathSegment next)
+        public EntityKeySegment(string key, EntityPathSegment next)
             : base(next)
         {
-            Segment = segment;
+            Key = key;
         }
 
         public override string ToString()
         {
-            return Segment;
+            return Key;
         }
 
         public override bool Equals(EntityPathSegment other)
@@ -35,13 +35,13 @@ namespace ClassLibrary1.Core.Path.Segments
                 return true;
             }
 
-            return (other is EntityPathStringSegment str) && String.Equals(Segment, str.Segment)
+            return (other is EntityKeySegment str) && String.Equals(Key, str.Key)
                    || (other is EntityPathWildCardSegment);
         }
 
         public override int GetHashCode()
         {
-            return (null != Segment ? Segment.GetHashCode() : 0);
+            return (null != Key ? Key.GetHashCode() : 0);
         }
     }
 }

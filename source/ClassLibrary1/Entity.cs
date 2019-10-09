@@ -23,6 +23,20 @@ namespace ClassLibrary1
         /// <inheritdoc cref="EntityBase.Components" />
         public override IEnumerable<IComponent> Components => components;
 
+        public override EntityBase Parent
+        {
+            get => base.Parent;
+            set
+            {
+                base.Parent = value;
+
+                if (null == value)
+                {
+                    observers.OnCompleted();
+                }
+            }
+        }
+
         public Entity(string key)
             : base(key)
         {
@@ -265,7 +279,7 @@ namespace ClassLibrary1
             Children.Clear();
         }
 
-        private static EntityBase Create(string key, string entityPath)
+        /*private static EntityBase Create(string key, string entityPath)
         {
             if (String.IsNullOrEmpty(entityPath))
             {
@@ -273,6 +287,6 @@ namespace ClassLibrary1
             }
 
             return new ReferencedEntity(key, entityPath);
-        }
+        }*/
     }
 }

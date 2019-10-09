@@ -5,6 +5,8 @@ namespace ConsoleApp2.Components
 {
     public class CurrentWaveComponent : Component, IDisposable
     {
+        public override string Alias { get; }
+
         public ObservableProperty<TimeSpan> Cooldown
         {
             get;
@@ -25,6 +27,26 @@ namespace ConsoleApp2.Components
         {
             Cooldown.Release();
             Number.Release();
+        }
+
+        public override ComponentState GetState()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IComponent Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void DoAttach()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void DoRelease()
+        {
+            throw new NotImplementedException();
         }
     }
 }

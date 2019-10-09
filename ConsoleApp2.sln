@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary1", "source\Cla
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{97C6BD47-0256-4614-90C1-B413BFC8969C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraProgramming.Dependency.Container", "source\LibraProgramming.Dependency.Container\LibraProgramming.Dependency.Container.csproj", "{074C6E74-4496-416C-A283-08631369FBEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{97C6BD47-0256-4614-90C1-B413BFC8969C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97C6BD47-0256-4614-90C1-B413BFC8969C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97C6BD47-0256-4614-90C1-B413BFC8969C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{074C6E74-4496-416C-A283-08631369FBEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{074C6E74-4496-416C-A283-08631369FBEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{074C6E74-4496-416C-A283-08631369FBEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{074C6E74-4496-416C-A283-08631369FBEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

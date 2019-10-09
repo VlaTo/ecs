@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 
-namespace ClassLibrary1.Core
+namespace ClassLibrary1.Core.Reactive
 {
     /// <summary>
     /// 

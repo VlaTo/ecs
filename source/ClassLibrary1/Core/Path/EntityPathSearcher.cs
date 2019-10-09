@@ -1,4 +1,5 @@
 ﻿using System;
+using ClassLibrary1.Core.Extensions;
 using ClassLibrary1.Core.Path.Extensions;
 using ClassLibrary1.Core.Path.Segments;
 using ClassLibrary1.Extensions;
@@ -40,11 +41,11 @@ namespace ClassLibrary1.Core.Path
         }
     }
 
-    internal sealed class EntityPathFinder
+    internal sealed class EntityPathSearcher
     {
         private readonly EntityBase entity;
 
-        public EntityPathFinder(EntityBase entity)
+        public EntityPathSearcher(EntityBase entity)
         {
             if (null == entity)
             {
@@ -54,29 +55,7 @@ namespace ClassLibrary1.Core.Path
             this.entity = entity;
         }
 
-        /*public FindResult FindOne(EntityPathString path)
-        {
-            if (null == path)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            if (path == EntityPathString.Empty)
-            {
-                return FindResult.Empty;
-            }
-
-            adapter.Reset();
-
-            if (false == adapter.NextSibling())
-            {
-                throw new Exception();
-            }
-
-            Search(path.Entry);
-        }*/
-
-        public SearchResult Search(EntityPath path)
+        public SearchResult Find(EntityPath path)
         {
             if (null == path)
             {
@@ -88,19 +67,19 @@ namespace ClassLibrary1.Core.Path
                 return SearchResult.Empty;
             }
 
-            var current = path.Entry.IsRoot() ? entity.Root : entity;
-            var found = SearchFromCurrent(current, path.Entry.Next);
+            var current = path.IsAbsolute() ? entity.Root : entity;
+            var found = SearchFrom(current, path.Entry.Next);
 
             return SearchResult.Success(found);
         }
 
-        private static EntityBase SearchFromCurrent(EntityBase entity, EntityPathSegment segment)
+        private static EntityBase SearchFrom(EntityBase entity, EntityPathSegment segment)
         {
             while (true)
             {
-                if (segment.IsString(out var str))
+                if (segment.IsEntityKey(out var key))
                 {
-                    var index = entity.Children.FindIndex(current => current == str.Segment);
+                    var index = entity.Children.FindIndex(child => child.Key == key);
 
                     if (0 > index)
                     {
@@ -118,7 +97,7 @@ namespace ClassLibrary1.Core.Path
                     continue;
                 }
 
-                if (segment.IsWildcard(out var wildcard))
+                if (segment.IsWildcard())
                 {
                     if (null == segment.Next)
                     {
@@ -127,7 +106,7 @@ namespace ClassLibrary1.Core.Path
 
                     foreach (var child in entity.Children)
                     {
-                        var temp = SearchFromCurrent(child, segment.Next);
+                        var temp = SearchFrom(child, segment.Next);
 
                         if (null != temp)
                         {

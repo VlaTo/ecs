@@ -295,21 +295,8 @@ namespace UnitTestProject1
             root.Children.Add(new ReferencedEntity("reference", child));
 
             parent.Add(new TestComponent());
-            child.Add(new TestComponent
-            {
-                TestProperty =
-                {
-                    Value = 10
-                }
-            });
-
-            root.Add(new TestComponent
-            {
-                TestProperty =
-                {
-                    Value = 20
-                }
-            });
+            child.Add(new TestComponent());
+            root.Add(new TestComponent());
 
             var state = root.GetState();
             var text = new StringBuilder();

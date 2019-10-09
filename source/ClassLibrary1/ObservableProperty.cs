@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ClassLibrary1.Core;
+using ClassLibrary1.Core.Reactive;
 
 namespace ClassLibrary1
 {

@@ -20,5 +20,20 @@ namespace ClassLibrary1.Core.Extensions
 
             return false == (path.Entry is EntityPathRootSegment);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static bool IsAbsolute(this EntityPath path)
+        {
+            if (null == path)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            return path.Entry is EntityPathRootSegment;
+        }
     }
 }

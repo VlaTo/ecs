@@ -81,7 +81,7 @@ namespace ClassLibrary1
 
                     while (Root != current)
                     {
-                        last = new EntityPathStringSegment(current.Key, last);
+                        last = new EntityKeySegment(current.Key, last);
                         current = current.Parent;
                     }
 
@@ -172,8 +172,8 @@ namespace ClassLibrary1
                 throw new ArgumentNullException(nameof(searchPath));
             }
 
-            var finder = new EntityPathFinder(this);
-            var result = finder.Search(searchPath);
+            var finder = new EntityPathSearcher(this);
+            var result = finder.Find(searchPath);
 
             return result.IsSuccess ? result.Entity : null;
         }
@@ -190,8 +190,8 @@ namespace ClassLibrary1
                 throw new ArgumentNullException(nameof(searchPath));
             }
 
-            var finder = new EntityPathFinder(this);
-            var result = finder.Search(searchPath);
+            var searcher = new EntityPathSearcher(this);
+            var result = searcher.Find(searchPath);
 
             return result.IsSuccess ? new[] {result.Entity} : Enumerable.Empty<EntityBase>();
         }

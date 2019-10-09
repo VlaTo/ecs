@@ -26,7 +26,7 @@
                 return true;
             }
 
-            return (other is EntityPathStringSegment) || (other is EntityPathWildCardSegment);
+            return (other is EntityKeySegment) || (other is EntityPathWildCardSegment);
         }
 
         public override int GetHashCode()

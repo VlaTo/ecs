@@ -3,68 +3,171 @@ using System.Threading;
 
 namespace ClassLibrary1.Core.Reactive.Collections
 {
-    public static class CollectionObserver
+    /// <summary>
+    /// 
+    /// </summary>
+    internal static class CollectionObserver
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="onAdded"></param>
+        /// <param name="onRemoved"></param>
+        /// <returns></returns>
         public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved)
         {
             return Create(onAdded, onRemoved, Stubs.Throw, Stubs.Nop);
-        }
-
-        public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved, Action onCompleted)
-        {
-            return Create(onAdded, onRemoved, Stubs.Throw, onCompleted);
-        }
-
-        public static ICollectionObserver<T> Create<T>(Action onCompleted)
-        {
-            return Create(Stubs<T>.Ignore, Stubs<T>.Ignore, Stubs.Throw, onCompleted);
-        }
-
-        public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved, Action<Exception> onError, Action onCompleted)
-        {
-            if (Stubs<T>.Ignore == onAdded && Stubs<T>.Ignore == onRemoved)
-            {
-                return new EmptyAnonymousObserver<T>(onError, onCompleted);
-            }
-
-            return new AnonymousObserver<T>(onAdded, onRemoved, onError, onCompleted);
-        }
-
-        public static ICollectionObserver<T> Create<T, TState>(TState state, Action<T, TState> onAdded, Action<T, TState> onRemoved)
-        {
-            return Create(state, onAdded, onRemoved, Stubs<TState>.Throw, Stubs<TState>.Ignore);
-        }
-
-        public static ICollectionObserver<T> Create<T, TState>(TState state, Action<T, TState> onAdded, Action<T, TState> onRemoved, Action<Exception, TState> onError, Action<TState> onCompleted)
-        {
-            if (Stubs<T, TState>.Ignore == onAdded && Stubs<T, TState>.Ignore == onRemoved)
-            {
-                return new EmptyAnonymousObserver<T, TState>(state, onError, onCompleted);
-            }
-
-            return new AnonymousObserver<T, TState>(state, onAdded, onRemoved, onError, onCompleted);
-        }
-
-        public static ICollectionObserver<T> Empty<T>()
-        {
-            return EmptyObserver<T>.Instance;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        private class EmptyObserver<T> : ICollectionObserver<T>
+        /// <param name="onAdded"></param>
+        /// <param name="onRemoved"></param>
+        /// <param name="onCompleted"></param>
+        /// <returns></returns>
+        public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved, Action onCompleted)
         {
-            public static readonly EmptyObserver<T> Instance;
+            return Create(onAdded, onRemoved, Stubs.Throw, onCompleted);
+        }
 
-            private EmptyObserver()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="onCompleted"></param>
+        /// <returns></returns>
+        public static ICollectionObserver<T> Create<T>(Action onCompleted)
+        {
+            return Create(Stubs<T>.Ignore, Stubs<T>.Ignore, Stubs.Throw, onCompleted);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="onAdded"></param>
+        /// <param name="onRemoved"></param>
+        /// <param name="onError"></param>
+        /// <param name="onCompleted"></param>
+        /// <returns></returns>
+        public static ICollectionObserver<T> Create<T>(Action<T> onAdded, Action<T> onRemoved, Action<Exception> onError, Action onCompleted)
+        {
+            return CreateSubscribeObserver(onAdded, onRemoved, onError, onCompleted);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TState"></typeparam>
+        /// <param name="state"></param>
+        /// <param name="onAdded"></param>
+        /// <param name="onRemoved"></param>
+        /// <returns></returns>
+        public static ICollectionObserver<T> Create<T, TState>(TState state, Action<T, TState> onAdded, Action<T, TState> onRemoved)
+        {
+            return Create(state, onAdded, onRemoved, Stubs<TState>.Throw, Stubs<TState>.Ignore);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TState"></typeparam>
+        /// <param name="state"></param>
+        /// <param name="onAdded"></param>
+        /// <param name="onRemoved"></param>
+        /// <param name="onCompleted"></param>
+        /// <returns></returns>
+        public static ICollectionObserver<T> Create<T, TState>(TState state, Action<T, TState> onAdded, Action<T, TState> onRemoved, Action<TState> onCompleted)
+        {
+            return Create(state, onAdded, onRemoved, Stubs<TState>.Throw, onCompleted);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TState"></typeparam>
+        /// <param name="state"></param>
+        /// <param name="onAdded"></param>
+        /// <param name="onRemoved"></param>
+        /// <param name="onError"></param>
+        /// <param name="onCompleted"></param>
+        /// <returns></returns>
+        public static ICollectionObserver<T> Create<T, TState>(TState state, Action<T, TState> onAdded, Action<T, TState> onRemoved, Action<Exception, TState> onError, Action<TState> onCompleted)
+        {
+            return CreateSubscribeObserver(state, onAdded, onRemoved, onError, onCompleted);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ICollectionObserver<T> Empty<T>() => EmptyCollectionObserver<T>.Instance;
+
+        internal static ICollectionObserver<T> CreateSubscribeObserver<T>(
+            Action<T> onAdded,
+            Action<T> onRemoved,
+            Action<Exception> onError,
+            Action onCompleted)
+        {
+            if (Stubs<T>.Ignore == onAdded && Stubs<T>.Ignore == onRemoved)
+            {
+                return new EmptyAnonymousCollectionObserver<T>(onError, onCompleted);
+            }
+
+            return new AnonymousCollectionObserver<T>(onAdded, onRemoved, onError, onCompleted);
+        }
+
+        /*internal static ICollectionObserver<T> CreateSubscribeObserver<T, TState>(
+            TState state,
+            Action<T, TState> onAdded,
+            Action<T, TState> onRemoved,
+            Action<TState> onCompleted)
+        {
+            if (Stubs<T, TState>.Ignore == onAdded && Stubs<T, TState>.Ignore == onRemoved)
+            {
+                return new EmptyAnonymousCollectionObserver<T, TState>(state, onError, onCompleted);
+            }
+
+            return new AnonymousCollectionObserver<T, TState>(state, onAdded, onRemoved, onError, onCompleted);
+        }*/
+
+        internal static ICollectionObserver<T> CreateSubscribeObserver<T, TState>(
+            TState state,
+            Action<T, TState> onAdded,
+            Action<T, TState> onRemoved,
+            Action<Exception, TState> onError,
+            Action<TState> onCompleted)
+        {
+            if (Stubs<T, TState>.Ignore == onAdded && Stubs<T, TState>.Ignore == onRemoved)
+            {
+                return new EmptyAnonymousCollectionObserver<T, TState>(state, onError, onCompleted);
+            }
+
+            return new AnonymousCollectionObserver<T, TState>(state, onAdded, onRemoved, onError, onCompleted);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        private sealed class EmptyCollectionObserver<T> : ICollectionObserver<T>
+        {
+            public static readonly EmptyCollectionObserver<T> Instance;
+
+            private EmptyCollectionObserver()
             {
             }
 
-            static EmptyObserver()
+            static EmptyCollectionObserver()
             {
-                Instance = new EmptyObserver<T>();
+                Instance = new EmptyCollectionObserver<T>();
             }
 
             public void OnCompleted()
@@ -88,13 +191,13 @@ namespace ClassLibrary1.Core.Reactive.Collections
         /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        private class EmptyAnonymousObserver<T> : ICollectionObserver<T>
+        private sealed class EmptyAnonymousCollectionObserver<T> : ICollectionObserver<T>
         {
             private readonly Action<Exception> onError;
             private readonly Action onCompleted;
             private int stopped;
 
-            public EmptyAnonymousObserver(Action<Exception> onError, Action onCompleted)
+            public EmptyAnonymousCollectionObserver(Action<Exception> onError, Action onCompleted)
             {
                 this.onError = onError;
                 this.onCompleted = onCompleted;
@@ -131,14 +234,14 @@ namespace ClassLibrary1.Core.Reactive.Collections
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TState"></typeparam>
-        private class EmptyAnonymousObserver<T, TState> : ICollectionObserver<T>
+        private sealed class EmptyAnonymousCollectionObserver<T, TState> : ICollectionObserver<T>
         {
             private readonly TState state;
             private readonly Action<Exception, TState> onError;
             private readonly Action<TState> onCompleted;
             private int stopped;
 
-            public EmptyAnonymousObserver(TState state, Action<Exception, TState> onError, Action<TState> onCompleted)
+            public EmptyAnonymousCollectionObserver(TState state, Action<Exception, TState> onError, Action<TState> onCompleted)
             {
                 this.state = state;
                 this.onError = onError;
@@ -175,7 +278,7 @@ namespace ClassLibrary1.Core.Reactive.Collections
         /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        private class AnonymousObserver<T> : ICollectionObserver<T>
+        private sealed class AnonymousCollectionObserver<T> : ICollectionObserver<T>
         {
             private readonly Action<T> onAdded;
             private readonly Action<T> onRemoved;
@@ -183,7 +286,7 @@ namespace ClassLibrary1.Core.Reactive.Collections
             private readonly Action onCompleted;
             private int stopped;
 
-            public AnonymousObserver(
+            public AnonymousCollectionObserver(
                 Action<T> onAdded,
                 Action<T> onRemoved,
                 Action<Exception> onError,
@@ -234,7 +337,7 @@ namespace ClassLibrary1.Core.Reactive.Collections
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TState"></typeparam>
-        private class AnonymousObserver<T, TState> : ICollectionObserver<T>
+        private sealed class AnonymousCollectionObserver<T, TState> : ICollectionObserver<T>
         {
             private readonly TState state;
             private readonly Action<T, TState> onAdded;
@@ -243,7 +346,7 @@ namespace ClassLibrary1.Core.Reactive.Collections
             private readonly Action<TState> onCompleted;
             private int stopped;
 
-            public AnonymousObserver(
+            public AnonymousCollectionObserver(
                 TState state,
                 Action<T, TState> onAdded,
                 Action<T, TState> onRemoved,

@@ -5,10 +5,12 @@
         private class DefaultEntityCreator : IEntityCreator
         {
             private readonly IComponentCreator componentCreator;
+            private readonly IPrototypeResolver prototypeResolver;
 
-            public DefaultEntityCreator(IComponentCreator componentCreator)
+            public DefaultEntityCreator(IComponentCreator componentCreator, IPrototypeResolver prototypeResolver)
             {
                 this.componentCreator = componentCreator;
+                this.prototypeResolver = prototypeResolver;
             }
 
             public EntityBase Instantiate(EntityState state)

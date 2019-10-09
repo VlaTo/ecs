@@ -2,22 +2,15 @@
 
 namespace UnitTestProject1.Components
 {
-    [Component(Alias = "Test")]
-    public class TestComponent : Component, IComponentStateApply
+    public class TestComponent : Component
     {
         public override string Alias => nameof(TestComponent);
 
-        public ObservableProperty<int> TestProperty
-        {
-            get;
-        }
-
         public TestComponent()
         {
-            TestProperty = new ObservableProperty<int>(this);
         }
 
-        private TestComponent(TestComponent instance)
+        private TestComponent(TestComponent other)
         {
         }
 
@@ -26,20 +19,8 @@ namespace UnitTestProject1.Components
             return new ComponentState
             {
                 Alias = Alias,
-                Properties = new[]
-                {
-                    new PropertyState
-                    {
-                        Name = nameof(TestProperty),
-                        Value = TestProperty.Value.ToString()
-                    }
-                }
+                Properties = new PropertyState[0]
             };
-        }
-
-        public void Apply(ComponentState state)
-        {
-            throw new System.NotImplementedException();
         }
 
         public override IComponent Clone()

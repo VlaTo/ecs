@@ -190,12 +190,8 @@ namespace ClassLibrary1.Extensions
         /// <typeparam name="TComponent"></typeparam>
         /// <param name="entity"></param>
         /// <param name="path"></param>
-        /// <param name="onNext"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe<TComponent>(
-            this EntityBase entity,
-            EntityPath path,
-            Action<TComponent> onNext)
+        public static LiveComponentObserver<TComponent> Subscribe<TComponent>(this EntityBase entity, EntityPath path)
             where TComponent : IComponent
         {
             if (null == entity)
@@ -203,18 +199,12 @@ namespace ClassLibrary1.Extensions
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            if (null == onNext)
+            if (null == path)
             {
-                throw new ArgumentNullException(nameof(onNext));
+                throw new ArgumentNullException(nameof(path));
             }
 
-            /*var match = new EntityPathMatch(path);
-            var entityObserver = new TypedComponentEntityObserver<TComponent>(observer);
-            var collectionObserver = new ChildrenCollectionObserver(entityObserver, match.IsMet);
-
-            return collectionObserver.SubscribeTo(entity);*/
-
-            throw new NotImplementedException();
+            return LiveComponentObserver<TComponent>.Subscribe(entity, path);
         }
     }
 }

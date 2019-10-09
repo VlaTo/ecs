@@ -11,8 +11,17 @@ namespace ClassLibrary1.Core
     /// </summary>
     public interface IEntityCollection : IList<EntityBase>, IObservableCollection<EntityBase>
     {
-        int FindIndex(Predicate<string> condition);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        int FindIndex(Predicate<EntityBase> filter);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action"></param>
         void ForEach(Action<EntityBase> action);
     }
 
@@ -106,7 +115,7 @@ namespace ClassLibrary1.Core
             return GetEnumerator();
         }
 
-        public int FindIndex(Predicate<string> condition)
+        /*public int FindIndex(Predicate<string> condition)
         {
             if (null == condition)
             {
@@ -118,6 +127,26 @@ namespace ClassLibrary1.Core
                 var entity = (EntityBase) items[index];
 
                 if (condition.Invoke(entity.Key))
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }*/
+
+        public int FindIndex(Predicate<EntityBase> filter)
+        {
+            if (null == filter)
+            {
+                throw new ArgumentNullException(nameof(filter));
+            }
+
+            for (var index = 0; index < items.Count; index++)
+            {
+                var entity = (EntityBase) items[index];
+
+                if (filter.Invoke(entity))
                 {
                     return index;
                 }

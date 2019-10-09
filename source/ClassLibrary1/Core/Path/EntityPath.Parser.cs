@@ -45,7 +45,7 @@ namespace ClassLibrary1.Core.Path
                 if (token.IsSegment(out var segment))
                 {
                     var next = ParseDelimiter(tokenizer);
-                    return new EntityPathStringSegment(segment, next);
+                    return new EntityKeySegment(segment, next);
                 }
 
                 throw new Exception();
@@ -87,7 +87,7 @@ namespace ClassLibrary1.Core.Path
                 if (token.IsSegment(out var segment))
                 {
                     var next = ParseDelimiter(tokenizer);
-                    return new EntityPathStringSegment(segment, next);
+                    return new EntityKeySegment(segment, next);
                 }
 
                 throw new Exception();

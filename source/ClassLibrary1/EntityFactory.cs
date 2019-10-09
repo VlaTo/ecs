@@ -35,15 +35,22 @@ namespace ClassLibrary1
         {
             var componentRegistry = new DefaultComponentRegistry();
             var componentCreator = new DefaultComponentCreator(componentRegistry);
-            var entityCreator = new DefaultEntityCreator(componentCreator);
             var prototypeResolver = new DefaultPrototypeResolver();
+            var entityCreator = new DefaultEntityCreator(componentCreator, prototypeResolver);
 
             Default = new EntityFactory(entityCreator, prototypeResolver, componentRegistry);
         }
 
         public EntityBase CreateEntity(string key, EntityPath prototypePath)
         {
+            if (null == prototypePath)
+            {
+                var instance = new Entity(key);
+                return instance;
+            }
+
             var prototype = PrototypeResolver.Resolve(prototypePath);
+
             return CreateEntity(key, prototype);
         }
 
