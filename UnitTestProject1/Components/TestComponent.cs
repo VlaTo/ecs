@@ -1,11 +1,10 @@
 ﻿using ClassLibrary1;
+using LibraProgramming.Ecs;
 
 namespace UnitTestProject1.Components
 {
     public class TestComponent : Component
     {
-        public override string Alias => nameof(TestComponent);
-
         public TestComponent()
         {
         }
@@ -18,7 +17,6 @@ namespace UnitTestProject1.Components
         {
             return new ComponentState
             {
-                Alias = Alias,
                 Properties = new PropertyState[0]
             };
         }

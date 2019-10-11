@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using ClassLibrary1;
-using ClassLibrary1.Extensions;
+using LibraProgramming.Ecs;
+using LibraProgramming.Ecs.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTestProject1.Components;
 

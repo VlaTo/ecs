@@ -16,7 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\source\ClassLibrary1\ClassLibrary1.csproj" />
+    <ProjectReference Include="..\source\LibraProgramming.Dependency.Container\LibraProgramming.Dependency.Container.csproj" />
+    <ProjectReference Include="..\source\LibraProgramming.Ecs\LibraProgramming.Ecs.csproj" />
   </ItemGroup>
 
 </Project>

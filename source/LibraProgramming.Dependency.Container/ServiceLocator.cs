@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
+using System.Linq;
 using System.Reflection;
 
 namespace LibraProgramming.Dependency.Container
@@ -32,22 +35,10 @@ namespace LibraProgramming.Dependency.Container
 
         #region Service Locator implementation
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serviceType"></param>
-        /// <returns></returns>
-        public object GetService(Type serviceType)
-        {
-            return GetInstance(serviceType);
-        }
+        /// <inheritdoc cref="IServiceProvider.GetService" />
+        public object GetService(Type serviceType) => GetInstance(serviceType);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serviceType"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IServiceLocator.GetInstance" />
         public object GetInstance(Type serviceType, string key = null)
         {
             if (null == serviceType)
@@ -60,40 +51,69 @@ namespace LibraProgramming.Dependency.Container
             return GetInstanceInternal(queue, serviceType, key);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="serviceType"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IInstanceProvider.GetInstance" />
         object IInstanceProvider.GetInstance(Queue<ServiceTypeReference> queue, Type serviceType, string key)
+            => GetInstanceInternal(queue, serviceType, key);
+
+        /// <inheritdoc cref="IServiceLocator.GetInstance{TService}" />
+        public TService GetInstance<TService>(string key = null) => (TService) GetInstance(typeof(TService), key);
+
+        /// <inheritdoc cref="IServiceLocator.GetInstances" />
+        public IEnumerable<object> GetInstances(Type serviceType)
         {
-            return GetInstanceInternal(queue, serviceType, key);
+            if (null == serviceType)
+            {
+                Throw.ArgumentNull(nameof(serviceType));
+            }
+
+            lock (sync)
+            {
+                if (false == registration.TryGetValue(serviceType, out var collection))
+                {
+                    Throw.MissingServiceRegistration(serviceType, nameof(serviceType));
+                }
+
+                var instances = new Collection<object>();
+
+                foreach (var lifetime in collection)
+                {
+                    var queue = new Queue<ServiceTypeReference>();
+                    instances.Add(lifetime.ResolveInstance(queue));
+                }
+
+                return instances.AsEnumerable();
+            }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TService"></typeparam>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public TService GetInstance<TService>(string key = null)
+        /// <inheritdoc cref="IServiceLocator.CreateInstance" />
+        public object CreateInstance(Type serviceType)
         {
-            return (TService) GetInstance(typeof (TService), key);
+            if (null == serviceType)
+            {
+                Throw.ArgumentNull(nameof(serviceType));
+            }
+
+            lock (sync)
+            {
+                var factory = new TypeFactory(this, serviceType);
+                var manager = InstanceLifetime.CreateNew.Invoke(factory);
+                var queue = new Queue<ServiceTypeReference>();
+
+                return manager.ResolveInstance(queue);
+            }
+        }
+
+        /// <inheritdoc cref="IServiceLocator.CreateInstance{TService}" />
+        public TService CreateInstance<TService>() where TService : class
+        {
+            return (TService) CreateInstance(typeof(TService));
         }
 
         #endregion
 
         #region Service Registration
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="service"></param>
-        /// <param name="lifetime"></param>
-        /// <param name="key"></param>
-        /// <param name="createimmediate"></param>
+        /// <inheritdoc cref="IServiceRegistry.Register(Type, Func{Factory, InstanceLifetime}, string, bool)" />
         public void Register(Type service, Func<Factory, InstanceLifetime> lifetime = null, string key = null, bool createimmediate = false)
         {
             if (null == service)
@@ -101,9 +121,9 @@ namespace LibraProgramming.Dependency.Container
                 Throw.ArgumentNull(nameof(service));
             }
 
-            var ti = service.GetTypeInfo();
+            var typeInfo = service.GetTypeInfo();
 
-            if (ti.IsAbstract || ti.IsInterface)
+            if (typeInfo.IsAbstract || typeInfo.IsInterface)
             {
                 Throw.UnsupportedServiceType(service);
             }
@@ -111,14 +131,7 @@ namespace LibraProgramming.Dependency.Container
             RegisterService(service, new TypeFactory(this, service), lifetime, key, createimmediate);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="service"></param>
-        /// <param name="impl"></param>
-        /// <param name="lifetime"></param>
-        /// <param name="key"></param>
-        /// <param name="createimmediate"></param>
+        /// <inheritdoc cref="IServiceRegistry.Register(Type, Type, Func{Factory, InstanceLifetime}, string, bool)" />
         public void Register(Type service, Type impl, Func<Factory, InstanceLifetime> lifetime = null, string key = null, bool createimmediate = false)
         {
             if (null == service)
@@ -126,9 +139,9 @@ namespace LibraProgramming.Dependency.Container
                 Throw.ArgumentNull(nameof(service));
             }
 
-            var ti = service.GetTypeInfo();
+            var typeInfo = service.GetTypeInfo();
 
-            if (!ti.IsAbstract && !ti.IsInterface)
+            if (!typeInfo.IsAbstract && !typeInfo.IsInterface)
             {
                 Throw.UnsupportedServiceType(service);
             }
@@ -138,9 +151,9 @@ namespace LibraProgramming.Dependency.Container
                 Throw.ArgumentNull(nameof(impl));
             }
 
-            ti = impl.GetTypeInfo();
+            typeInfo = impl.GetTypeInfo();
 
-            if (ti.IsAbstract || ti.IsInterface)
+            if (typeInfo.IsAbstract || typeInfo.IsInterface)
             {
                 Throw.UnsupportedServiceType(impl);
             }
@@ -191,9 +204,7 @@ namespace LibraProgramming.Dependency.Container
         {
             lock (sync)
             {
-                InstanceCollection collection;
-
-                if (!registration.TryGetValue(serviceType, out collection))
+                if (!registration.TryGetValue(serviceType, out var collection))
                 {
                     Throw.MissingServiceRegistration(serviceType, nameof(serviceType));
                 }
@@ -208,9 +219,7 @@ namespace LibraProgramming.Dependency.Container
         {
             lock (sync)
             {
-                InstanceCollection collection;
-
-                if (!registration.TryGetValue(service, out collection))
+                if (false == registration.TryGetValue(service, out var collection))
                 {
                     collection = new InstanceCollection();
                     registration.Add(service, collection);
@@ -222,7 +231,7 @@ namespace LibraProgramming.Dependency.Container
 
                 var manager = lifetime ?? InstanceLifetime.Singleton;
 
-                collection[key] = manager(factory);
+                collection[key] = manager.Invoke(factory);
 
                 if (createimmediate)
                 {

@@ -1,5 +1,4 @@
 using ClassLibrary1;
-using ClassLibrary1.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -7,10 +6,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using ClassLibrary1.Core.Path;
-using ClassLibrary1.Core.Reactive.Collections;
+using LibraProgramming.Ecs;
+using LibraProgramming.Ecs.Core.Reactive.Collections;
+using LibraProgramming.Ecs.Extensions;
 using UnitTestProject1.Components;
-using IComponent = ClassLibrary1.IComponent;
+using EntityPath = LibraProgramming.Ecs.Core.Path.EntityPath;
+using IComponent = LibraProgramming.Ecs.IComponent;
 
 namespace UnitTestProject1
 {

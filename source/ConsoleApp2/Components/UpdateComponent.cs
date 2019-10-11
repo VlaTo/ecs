@@ -1,37 +1,30 @@
 ﻿using System;
-using ClassLibrary1;
+using LibraProgramming.Ecs;
 
 namespace ConsoleApp2.Components
 {
-    public class UpdateComponent : Component, IDisposable
+    [Component(Alias = nameof(UpdateComponent))]
+    public class UpdateComponent : Component
     {
-        public override string Alias => nameof(UpdateComponent);
-
-        public ObservableProperty<TimeSpan> Elapsed
+        public TimeSpan Elapsed
         {
             get;
+            set;
         }
 
         public UpdateComponent()
         {
-            Elapsed = new ObservableProperty<TimeSpan>(this);
+            Elapsed = TimeSpan.Zero;
         }
 
-        public void Dispose()
+        private UpdateComponent(UpdateComponent instance)
         {
-            Elapsed.Release();
+            Elapsed = instance.Elapsed;
         }
-
-        public override ComponentState GetState() =>
-            new ComponentState
-            {
-                Alias = Alias,
-                Properties = new PropertyState[0]
-            };
 
         public override IComponent Clone()
         {
-            return new UpdateComponent();
+            return new UpdateComponent(this);
         }
 
         protected override void DoAttach()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LibraProgramming.Dependency.Container
 {
@@ -22,5 +23,26 @@ namespace LibraProgramming.Dependency.Container
         /// <param name="key"></param>
         /// <returns></returns>
         TService GetInstance<TService>(string key = null);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceType"></param>
+        /// <returns></returns>
+        IEnumerable<object> GetInstances(Type serviceType);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceType"></param>
+        /// <returns></returns>
+        object CreateInstance(Type serviceType);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TService"></typeparam>
+        /// <returns></returns>
+        TService CreateInstance<TService>() where TService : class;
     }
 }

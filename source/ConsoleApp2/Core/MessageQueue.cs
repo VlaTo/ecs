@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using ClassLibrary1;
-using ClassLibrary1.Core;
-using ClassLibrary1.Core.Reactive;
+using LibraProgramming.Ecs.Core.Reactive;
 
 namespace ConsoleApp2.Core
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class MessageQueue : IDisposable
     {
         private readonly IDictionary<Type, object> messages;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public MessageQueue()
         {
             messages = new Dictionary<Type, object>();

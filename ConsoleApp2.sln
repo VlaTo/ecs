@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29006.145
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp2", "source\ConsoleApp2\ConsoleApp2.csproj", "{7F2F4BE9-E0CC-45CA-B129-F140ABCCF2A0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary1", "source\ClassLibrary1\ClassLibrary1.csproj", "{6BD9A3DD-16E1-4761-AEBB-D49FC8C4CA1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraProgramming.Ecs", "source\LibraProgramming.Ecs\LibraProgramming.Ecs.csproj", "{6BD9A3DD-16E1-4761-AEBB-D49FC8C4CA1E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{97C6BD47-0256-4614-90C1-B413BFC8969C}"
 EndProject
