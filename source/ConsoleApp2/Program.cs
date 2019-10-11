@@ -30,6 +30,7 @@ namespace ConsoleApp2
                         () => new GameTimer(TimeSpan.FromSeconds(1.0d)),
                         InstanceLifetime.Singleton
                     );
+                    ServiceLocator.Current.Register<IRenderer, GameRenderer>(InstanceLifetime.Singleton);
 
                     var world = new World(new DependencyProviderAdapter(ServiceLocator.Current));
                     var waves = new Entity("Waves");
@@ -42,6 +43,7 @@ namespace ConsoleApp2
 
                     world.RegisterSystem<UpdateEnemiesSystem>();
                     world.RegisterSystem<MoveEnemiesSystem>();
+                    world.RegisterSystem<RenderEnemiesSystem>();
 
                     // build initial entities
                     world.Root.Add(new ViewportComponent
@@ -110,6 +112,7 @@ namespace ConsoleApp2
             {
                 var enemy = new Entity("Enemy");
 
+                enemy.Add(new RenderComponent());
                 enemy.Add(new UpdateComponent());
                 enemy.Add(new MoveComponent
                 {
