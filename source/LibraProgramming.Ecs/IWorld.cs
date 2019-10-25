@@ -11,7 +11,7 @@ namespace LibraProgramming.Ecs
         /// <summary>
         /// 
         /// </summary>
-        EntityBase Root { get; }
+        Entity Root { get; }
 
         /// <summary>
         /// 

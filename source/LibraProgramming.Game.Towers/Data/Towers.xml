@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Entity xmlns="http://scheme.ecs.org/elements/entity">
+  <Children>
+    <Entity Key="Waves">
+      <Components>
+      </Components>
+      <Children>
+        <Entity Key="Wave1">
+          <Components>
+            <Component Alias="WaveComponent">
+              <Properties>
+                <Property Name="Number">1</Property>
+              </Properties>
+            </Component>
+          </Components>
+          <Children>
+            <Entity Key="Enemies">
+              <Children>
+                <Entity Key="Enemy1">
+                  <Components>
+                    <Component Alias="UpdateComponent" />
+                    <Component Alias="MoveComponent">
+                      <Properties>
+                        <Property Name="Position">2.0 2.0</Property>
+                        <Property Name="Speed">0.75 1.25</Property>
+                      </Properties>
+                    </Component>
+                  </Components>
+                </Entity>
+              </Children>
+            </Entity>
+          </Children>
+        </Entity>
+        <Entity Key="Wave2">
+          <Components>
+            <Component Alias="WaveComponent">
+              <Properties>
+                <Property Name="Number">2</Property>
+              </Properties>
+            </Component>
+          </Components>
+        </Entity>
+      </Children>
+    </Entity>
+    <Entity Key="CurrentWave">
+      <Components>
+        <Component Alias="WaveComponent">
+          <Properties>
+            <Property Name="Number">1</Property>
+          </Properties>
+        </Component>
+      </Components>
+      <Children>
+        <Entity Key="Enemies">
+          <Children>
+            <Entity Key="Enemy1">
+              <Components>
+                <Component Alias="RenderComponent" />
+                <Component Alias="UpdateComponent" />
+                <Component Alias="MoveComponent">
+                  <Properties>
+                    <Property Name="Position">2.0 2.0</Property>
+                    <Property Name="Speed">1.0 2.0</Property>
+                  </Properties>
+                </Component>
+              </Components>
+            </Entity>
+            <Entity Key="Enemy2">
+              <Components>
+                <Component Alias="RenderComponent" />
+                <Component Alias="UpdateComponent" />
+                <Component Alias="MoveComponent">
+                  <Properties>
+                    <Property Name="Position">10.0 10.0</Property>
+                    <Property Name="Speed">0.5 2.75</Property>
+                  </Properties>
+                </Component>
+              </Components>
+            </Entity>
+            <Entity Key="Enemy3">
+              <Components>
+                <Component Alias="RenderComponent" />
+                <Component Alias="UpdateComponent" />
+                <Component Alias="MoveComponent">
+                  <Properties>
+                    <Property Name="Position">15.0 15.0</Property>
+                    <Property Name="Speed">1.75 1.25</Property>
+                  </Properties>
+                </Component>
+              </Components>
+            </Entity>
+          </Children>
+        </Entity>
+      </Children>
+    </Entity>
+  </Children>
+</Entity>

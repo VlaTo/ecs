@@ -184,7 +184,7 @@ namespace LibraProgramming.Ecs.Extensions
         /// <param name="entity"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static LiveComponentObserver<TComponent> Subscribe<TComponent>(this EntityBase entity, EntityPath path)
+        public static LiveComponentObserver Subscribe<TComponent>(this EntityBase entity, EntityPath path)
             where TComponent : IComponent
         {
             if (null == entity)
@@ -197,7 +197,59 @@ namespace LibraProgramming.Ecs.Extensions
                 throw new ArgumentNullException(nameof(path));
             }
 
-            return LiveComponentObserver<TComponent>.Subscribe(entity, path);
+            return LiveComponentObserver.Subscribe<TComponent>(entity, path);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent1"></typeparam>
+        /// <typeparam name="TComponent2"></typeparam>
+        /// <param name="entity"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static LiveComponentObserver Subscribe<TComponent1, TComponent2>(this EntityBase entity, EntityPath path)
+            where TComponent1 : IComponent
+            where TComponent2 : IComponent
+        {
+            if (null == entity)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (null == path)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            return LiveComponentObserver.Subscribe<TComponent1, TComponent2>(entity, path);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TComponent1"></typeparam>
+        /// <typeparam name="TComponent2"></typeparam>
+        /// <typeparam name="TComponent3"></typeparam>
+        /// <param name="entity"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static LiveComponentObserver Subscribe<TComponent1, TComponent2, TComponent3>(this EntityBase entity, EntityPath path)
+            where TComponent1 : IComponent
+            where TComponent2 : IComponent
+            where TComponent3 : IComponent
+        {
+            if (null == entity)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (null == path)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            return LiveComponentObserver.Subscribe<TComponent1, TComponent2, TComponent3>(entity, path);
         }
     }
 }

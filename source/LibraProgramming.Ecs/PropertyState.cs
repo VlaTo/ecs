@@ -19,5 +19,15 @@ namespace LibraProgramming.Ecs
             get;
             set;
         }
+
+        public PropertyState()
+        {
+        }
+
+        public PropertyState(string name, string value)
+        {
+            Name = name;
+            Value = value;
+        }
     }
 }

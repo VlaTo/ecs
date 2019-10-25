@@ -16,7 +16,7 @@ namespace LibraProgramming.Ecs
         private readonly List<Type> systemTypes;
 
         /// <inheritdoc cref="IWorld.Root" />
-        public EntityBase Root
+        public Entity Root
         {
             get;
         }

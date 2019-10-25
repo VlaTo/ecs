@@ -24,13 +24,13 @@ namespace LibraProgramming.Ecs
         /// <summary>
         /// 
         /// </summary>
-        internal EntityBase Entity => entity ??= ResolveEntity();
+        internal EntityBase Entity => entity ?? (entity = Find(EntityPath));
 
         /// <inheritdoc cref="Children" />
-        public override IEntityCollection Children => entity.Children;
+        public override IEntityCollection Children => Entity.Children;
 
         /// <inheritdoc cref="Entity.Components" />
-        public override IEnumerable<IComponent> Components => entity.Components;
+        public override IEnumerable<IComponent> Components => Entity.Components;
 
         /// <summary>
         /// 
@@ -91,6 +91,11 @@ namespace LibraProgramming.Ecs
             return Entity.GetAll<TComponent>();
         }
 
+        public override void RemoveAll()
+        {
+            throw new NotSupportedException();
+        }
+
         /*public override IEnumerable<EntityBase> Find(EntityPathString path)
         {
             return Entity.Find(path);
@@ -106,8 +111,7 @@ namespace LibraProgramming.Ecs
             return Entity.Has<TComponent>();
         }
 
-        /// <inheritdoc cref="GetState" />
-        public override EntityState GetState()
+        /*public override EntityState GetState()
         {
             return new EntityState
             {
@@ -115,17 +119,10 @@ namespace LibraProgramming.Ecs
                 EntityPath = (string) EntityPath,
                 IsReference = true
             };
-        }
+        }*/
 
         public override EntityBase Clone()
         {
-            throw new NotImplementedException();
-        }
-
-        private EntityBase ResolveEntity()
-        {
-            //var match = new EntityPathMatch(EntityPath, this);
-            //return match.IsMet()
             throw new NotImplementedException();
         }
     }

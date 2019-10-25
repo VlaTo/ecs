@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Reflection;
 
 namespace LibraProgramming.Ecs
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class Component : IComponent
+    public abstract class Component : IComponent, IStateProvider<ComponentState>, IStateConsumer<ComponentState>
     {
         /// <inheritdoc />
         public EntityBase Entity
@@ -54,17 +55,88 @@ namespace LibraProgramming.Ecs
             DoRelease();
         }
 
+        public virtual ComponentState GetState()
+        {
+            var state = new ComponentState
+            {
+                Alias = GetComponentAlias(GetType())
+            };
+
+            DoFillState(state);
+
+            return state;
+        }
+
+        public void ApplyState(ComponentState state)
+        {
+            if (null == state)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            var expectedAlias = GetComponentAlias(GetType());
+
+            if (false == String.Equals(state.Alias, expectedAlias))
+            {
+                throw new InvalidOperationException();
+            }
+
+            DoApplyState(state);
+        }
+
         /// <inheritdoc cref="ICloneable{T}.Clone" />
         public abstract IComponent Clone();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        protected abstract void DoAttach();
+        internal static string GetComponentAlias(Type componentType)
+        {
+            if (null == componentType)
+            {
+                throw new ArgumentNullException(nameof(componentType));
+            }
+
+            var attribute = componentType.GetCustomAttribute<ComponentAttribute>();
+            var componentName = componentType.Name;
+
+            if (null == attribute)
+            {
+                return componentName;
+            }
+
+            if (String.IsNullOrEmpty(attribute.Alias))
+            {
+                const string suffix = nameof(Component);
+                return componentName.EndsWith(suffix)
+                    ? componentName.Substring(0, componentName.Length - suffix.Length)
+                    : componentName;
+            }
+
+            return attribute.Alias;
+        }
 
         /// <summary>
         /// 
         /// </summary>
-        protected abstract void DoRelease();
+        protected virtual void DoAttach()
+        {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected virtual void DoRelease()
+        {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        protected abstract void DoFillState(ComponentState state);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        protected abstract void DoApplyState(ComponentState state);
     }
 }

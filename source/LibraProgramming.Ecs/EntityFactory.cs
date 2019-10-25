@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using LibraProgramming.Ecs.Core;
 using LibraProgramming.Ecs.Core.Path;
 
 namespace LibraProgramming.Ecs
@@ -8,49 +10,37 @@ namespace LibraProgramming.Ecs
     /// </summary>
     public partial class EntityFactory
     {
-        private readonly IEntityCreator entityCreator;
+        //private readonly IEntityCreator entityCreator;
 
         /// <summary>
         /// 
         /// </summary>
-        public static readonly LibraProgramming.Ecs.EntityFactory Default;
+        /*public IPrototypeResolver PrototypeResolver
+        {
+            get;
+        }*/
 
         /// <summary>
         /// 
         /// </summary>
-        public IPrototypeResolver PrototypeResolver
+        public IComponentResolver ComponentResolver
         {
             get;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public IComponentRegistry ComponentRegistry
+        public EntityFactory(
+            /*IEntityCreator entityCreator,
+            IPrototypeResolver prototypeResolver,*/
+            IComponentResolver componentResolver)
         {
-            get;
-        }
-
-        private EntityFactory(IEntityCreator entityCreator, IPrototypeResolver prototypeResolver, IComponentRegistry componentRegistry)
-        {
-            if (null == entityCreator)
+            if (null == componentResolver)
             {
-                throw new ArgumentNullException(nameof(entityCreator));
+                throw new ArgumentNullException(nameof(componentResolver));
             }
 
-            this.entityCreator = entityCreator;
-            PrototypeResolver = prototypeResolver;
-            ComponentRegistry = componentRegistry;
-        }
-
-        static EntityFactory()
-        {
-            var componentRegistry = new DefaultComponentRegistry();
-            var componentCreator = new DefaultComponentCreator(componentRegistry);
-            var prototypeResolver = new DefaultPrototypeResolver();
-            var entityCreator = new DefaultEntityCreator(componentCreator, prototypeResolver);
-
-            Default = new LibraProgramming.Ecs.EntityFactory(entityCreator, prototypeResolver, componentRegistry);
+            //this.entityCreator = entityCreator;
+            //PrototypeResolver = prototypeResolver;
+            ComponentResolver = componentResolver;
         }
 
         /// <summary>
@@ -59,7 +49,7 @@ namespace LibraProgramming.Ecs
         /// <param name="key"></param>
         /// <param name="prototypePath"></param>
         /// <returns></returns>
-        public EntityBase CreateEntity(string key, EntityPath prototypePath)
+        /*public EntityBase CreateEntity(string key, EntityPath prototypePath)
         {
             if (null == prototypePath)
             {
@@ -70,6 +60,21 @@ namespace LibraProgramming.Ecs
             var prototype = PrototypeResolver.Resolve(prototypePath);
 
             return CreateEntity(key, prototype);
+        }*/
+
+        public void LoadEntity(EntityBase entity, EntityState state)
+        {
+            foreach (var componentState in state.Components)
+            {
+                var component = CreateComponent(componentState);
+                entity.Add(component);
+            }
+
+            foreach (var childState in state.Children)
+            {
+                var child = CreateEntity(childState);
+                entity.Children.Add(child);
+            }
         }
 
         /// <summary>
@@ -79,26 +84,24 @@ namespace LibraProgramming.Ecs
         /// <returns></returns>
         public EntityBase CreateEntity(EntityState state)
         {
-            return entityCreator.Instantiate(state);
-
-            /*var instance = new Entity(state.Key);
+            var entity = InstantiateEntity(state);
 
             foreach (var componentState in state.Components)
             {
-                var child = CreateEntity(childState);
-                instance.Children.Add(child);
+                var component = CreateComponent(componentState);
+                entity.Add(component);
             }
 
             foreach (var childState in state.Children)
             {
                 var child = CreateEntity(childState);
-                instance.Children.Add(child);
+                entity.Children.Add(child);
             }
 
-            return instance;*/
+            return entity;
         }
 
-        private EntityBase CreateEntity(string key, EntityBase prototype)
+        /*private EntityBase CreateEntity(string key, EntityBase prototype)
         {
             if (null == prototype)
             {
@@ -108,6 +111,31 @@ namespace LibraProgramming.Ecs
             var instance = new Entity(key, prototype);
 
             return instance;
+        }*/
+
+        private IComponent CreateComponent(ComponentState state)
+        {
+            var component = (Component) ComponentResolver.Resolve(state.Alias);
+            
+            component.ApplyState(state);
+            
+            return component;
+        }
+
+        private EntityBase InstantiateEntity(EntityState entityState)
+        {
+            if (false == String.IsNullOrEmpty(entityState.EntityPath))
+            {
+                if (entityState.IsReference)
+                {
+                    return new ReferencedEntity(entityState.Key, entityState.EntityPath);
+                }
+                
+                //return new Entity(entityState.Key, entityState.EntityPath);
+                throw new NotSupportedException();
+            }
+
+            return new Entity(entityState.Key);
         }
     }
 }

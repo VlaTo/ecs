@@ -10,7 +10,7 @@ namespace LibraProgramming.Ecs
     /// <summary>
     /// 
     /// </summary>
-    public sealed class Entity : EntityBase
+    public class Entity : EntityBase
     {
         private readonly EntityCollection children;
         private readonly Collection<IComponent> components;
@@ -184,6 +184,36 @@ namespace LibraProgramming.Ecs
             return new ReadOnlyCollection<TComponent>(result);
         }
 
+        public override void RemoveAll()
+        {
+            foreach (var kvp in cache)
+            {
+                var collection = kvp.Value;
+
+                for (var index = collection.Count - 1; index >= 0; index--)
+                {
+                    var component = collection[index];
+
+                    try
+                    {
+                        if (false == collection.Remove(component))
+                        {
+                            continue;
+                        }
+
+                        observers.OnRemoved(component);
+                        components.Remove(component);
+
+                        component.Release();
+                    }
+                    catch (Exception)
+                    {
+                        ;
+                    }
+                }
+            }
+        }
+
         /// <inheritdoc cref="Has" />
         public override bool Has(IComponent component)
         {
@@ -215,15 +245,14 @@ namespace LibraProgramming.Ecs
             return collection.Any();
         }
 
-        /// <inheritdoc cref="GetState" />
-        public override EntityState GetState()
+        /*protected override void DoFillState(EntityState state)
         {
-            var states = new Collection<ComponentState>();
+            var componentStates = new Collection<ComponentState>();
             var entities = new Collection<EntityState>();
 
             foreach (var component in Components)
             {
-                //states.Add(component.GetState());
+                componentStates.Add(component.GetState());
             }
 
             foreach (var child in Children)
@@ -231,14 +260,15 @@ namespace LibraProgramming.Ecs
                 entities.Add(child.GetState());
             }
 
-            return new EntityState
-            {
-                Key = Key,
-                EntityPath = null,
-                Components = states.ToArray(),
-                Children = entities.ToArray()
-            };
+            state.EntityPath = null;
+            state.Components = componentStates.ToArray();
+            state.Children = entities.ToArray();
         }
+
+        protected override void DoApplyState(EntityState state)
+        {
+            throw new NotImplementedException();
+        }*/
 
         /// <inheritdoc cref="AbstractEntity.SetState" />
         /*public override void SetState(EntityState state)

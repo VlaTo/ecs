@@ -28,10 +28,8 @@ namespace LibraProgramming.Dependency.Container
             {
             }
 
-            public override object ResolveInstance(Queue<ServiceTypeReference> queue)
-            {
-                return instance ??= Factory.Create(queue);
-            }
+            public override object ResolveInstance(Queue<ServiceTypeReference> queue) =>
+                instance ?? (instance = Factory.Create(queue));
         }
     }
 }

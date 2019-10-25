@@ -11,7 +11,7 @@ namespace LibraProgramming.Ecs
     /// <summary>
     /// 
     /// </summary>
-    public abstract class EntityBase : IEntity, IObservableCollection<IComponent>, IStateProvider<EntityState>, ICloneable<EntityBase>
+    public abstract class EntityBase : IEntity, IObservableCollection<IComponent>, ICloneable<EntityBase>
     {
         private EntityBase parent;
         private EntityPath path;
@@ -164,6 +164,11 @@ namespace LibraProgramming.Ecs
         /// <summary>
         /// 
         /// </summary>
+        public abstract void RemoveAll();
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="searchPath"></param>
         /// <returns></returns>
         public virtual EntityBase Find(EntityPath searchPath)
@@ -173,8 +178,8 @@ namespace LibraProgramming.Ecs
                 throw new ArgumentNullException(nameof(searchPath));
             }
 
-            var finder = new EntityPathSearcher(this);
-            var result = finder.Find(searchPath);
+            var searcher = new EntityPathSearcher(this);
+            var result = searcher.Find(searchPath);
 
             return result.IsSuccess ? result.Entity : null;
         }
@@ -210,9 +215,6 @@ namespace LibraProgramming.Ecs
         /// <typeparam name="TComponent"></typeparam>
         /// <returns></returns>
         public abstract bool Has<TComponent>() where TComponent : IComponent;
-
-        /// <inheritdoc cref="IStateProvider{TState}.GetState" />
-        public abstract EntityState GetState();
 
         /// <inheritdoc cref="ICloneable{T}.Clone" />
         public abstract EntityBase Clone();

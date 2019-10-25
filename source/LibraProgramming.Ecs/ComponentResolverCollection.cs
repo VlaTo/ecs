@@ -7,7 +7,7 @@ namespace LibraProgramming.Ecs
     /// <summary>
     /// 
     /// </summary>
-    public sealed class ComponentResolverCollection : IComponentResolverCollection
+    /*public sealed class ComponentResolverCollection : IComponentResolverCollection
     {
         private readonly IDictionary<string, ComponentResolver> resolvers;
 
@@ -26,5 +26,5 @@ namespace LibraProgramming.Ecs
 
             return resolver.GetComponent();
         }
-    }
+    }*/
 }

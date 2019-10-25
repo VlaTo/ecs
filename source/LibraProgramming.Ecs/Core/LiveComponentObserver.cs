@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using LibraProgramming.Ecs.Core.Extensions;
 using LibraProgramming.Ecs.Core.Path;
 using LibraProgramming.Ecs.Core.Path.Extensions;
@@ -13,12 +14,10 @@ namespace LibraProgramming.Ecs.Core
     /// <summary>
     /// 
     /// </summary>
-    /// <typeparam name="TComponent"></typeparam>
-    public class LiveComponentObserver<TComponent> : IEnumerable<TComponent>, IDisposable
-        where TComponent : IComponent
+    public class LiveComponentObserver : IEnumerable<EntityBase>, IDisposable
     {
         private readonly LiveEntityCollectionWatcher watcher;
-        private readonly IList<TComponent> components;
+        private readonly IList<EntityBase> entities;
         private bool disposed;
 
         /// <summary>
@@ -27,7 +26,8 @@ namespace LibraProgramming.Ecs.Core
         /// <param name="entity"></param>
         /// <param name="entityPath"></param>
         /// <returns></returns>
-        public static LiveComponentObserver<TComponent> Subscribe(EntityBase entity, EntityPath entityPath)
+        public static LiveComponentObserver Subscribe<TComponent>(EntityBase entity, EntityPath entityPath)
+            where TComponent : IComponent
         {
             if (null == entity)
             {
@@ -39,13 +39,13 @@ namespace LibraProgramming.Ecs.Core
                 throw new ArgumentNullException(nameof(entityPath));
             }
 
-            var components = new List<TComponent>();
+            /*var entities = new List<EntityBase>();
 
             void OnComponentAdded(IComponent item)
             {
                 if (item is TComponent component)
                 {
-                    components.Add(component);
+                    entities.Add(component.Entity);
                 }
             }
 
@@ -53,32 +53,130 @@ namespace LibraProgramming.Ecs.Core
             {
                 if (item is TComponent component)
                 {
-                    if (components.Remove(component))
+                    if (entities.Remove(component.Entity))
                     {
                         ;
                     }
                 }
             }
 
-            var temp = CollectionObserver.Create<IComponent>(OnComponentAdded, OnComponentRemoved);
-            var observer = SubscribeInternal(entityPath.Entry, temp);
-            var componentObserver = new LiveComponentObserver<TComponent>(observer, components);
+            var temp = CollectionObserver.Create<IComponent>(OnComponentAdded, OnComponentRemoved);*/
+
+            var collector = new FilteredEntityCollector<TComponent>();
+            var observer = SubscribeInternal(entityPath.Entry, collector);
+            var componentObserver = new LiveComponentObserver(observer, collector.Entities);
 
             observer.Subscribe(entityPath.IsAbsolute() ? entity.Root : entity);
 
             return componentObserver;
         }
 
-        private LiveComponentObserver(LiveEntityCollectionWatcher watcher, IList<TComponent> components)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="entityPath"></param>
+        /// <returns></returns>
+        public static LiveComponentObserver Subscribe<TComponent1, TComponent2>(EntityBase entity, EntityPath entityPath)
+            where TComponent1 : IComponent
+            where TComponent2 : IComponent
         {
-            this.watcher = watcher;
-            this.components = components;
+            if (null == entity)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (null == entityPath)
+            {
+                throw new ArgumentNullException(nameof(entityPath));
+            }
+
+            /*var entities = new List<EntityBase>();
+
+            void OnComponentAdded(IComponent item)
+            {
+                var target = item.Entity;
+
+                
+                if (target.Has<TComponent1>())
+                {
+                    entities.Add(target);
+                }
+            }
+
+            void OnComponentRemoved(IComponent item)
+            {
+                var target = item.Entity;
+
+                if (entities.Contains(target))
+                {
+                    if (item is TComponent1)
+                    {
+                        if (entities.Remove(target))
+                        {
+                            ;
+                        }
+                    }
+
+                    if (item is TComponent2)
+                    {
+                        if (entities.Remove(target))
+                        {
+                            ;
+                        }
+                    }
+                }
+            }*/
+
+            //var temp = CollectionObserver.Create<IComponent>(OnComponentAdded, OnComponentRemoved);
+
+            var collector = new FilteredEntityCollector<TComponent1, TComponent2>();
+            var observer = SubscribeInternal(entityPath.Entry, collector);
+            var componentObserver = new LiveComponentObserver(observer, collector.Entities);
+
+            observer.Subscribe(entityPath.IsAbsolute() ? entity.Root : entity);
+
+            return componentObserver;
         }
 
-        public IEnumerator<TComponent> GetEnumerator()
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="entityPath"></param>
+        /// <returns></returns>
+        public static LiveComponentObserver Subscribe<TComponent1, TComponent2, TComponent3>(EntityBase entity, EntityPath entityPath)
+            where TComponent1 : IComponent
+            where TComponent2 : IComponent
+            where TComponent3 : IComponent
         {
-            return components.GetEnumerator();
+            if (null == entity)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (null == entityPath)
+            {
+                throw new ArgumentNullException(nameof(entityPath));
+            }
+
+            var collector = new FilteredEntityCollector<TComponent1, TComponent2, TComponent3>();
+            var observer = SubscribeInternal(entityPath.Entry, collector);
+            var componentObserver = new LiveComponentObserver(observer, collector.Entities);
+
+            observer.Subscribe(entityPath.IsAbsolute() ? entity.Root : entity);
+
+            return componentObserver;
         }
+
+        private LiveComponentObserver(LiveEntityCollectionWatcher watcher, IList<EntityBase> entities)
+        {
+            this.watcher = watcher;
+            this.entities = entities;
+        }
+
+        public IEnumerator<EntityBase> GetEnumerator() => entities.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -217,12 +315,99 @@ namespace LibraProgramming.Ecs.Core
         /// <summary>
         /// 
         /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        private class FilteredEntityCollector<TComponent> : ICollectionObserver<IComponent>
+            where TComponent : IComponent
+        {
+            public IList<EntityBase> Entities
+            {
+                get;
+            }
+
+            public FilteredEntityCollector()
+            {
+                Entities = new List<EntityBase>();
+            }
+
+            public void OnError(Exception error)
+            {
+                throw error;
+            }
+
+            public void OnCompleted()
+            {
+                ;
+            }
+
+            public void OnAdded(IComponent item)
+            {
+                var target = item.Entity;
+
+                if (Entities.Contains(target))
+                {
+                    return;
+                }
+
+                if (FilterEntity(target))
+                {
+                    Entities.Add(target);
+                }
+            }
+
+            public void OnRemoved(IComponent item)
+            {
+                var target = item.Entity;
+
+                if (false == Entities.Contains(target))
+                {
+                    return;
+                }
+
+                if (false == FilterEntity(target))
+                {
+                    if (Entities.Remove(target))
+                    {
+                        ;
+                    }
+                }
+            }
+
+            protected virtual bool FilterEntity(EntityBase entity) => entity.Has<TComponent>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class FilteredEntityCollector<TComponent1, TComponent2> : FilteredEntityCollector<TComponent1>
+            where TComponent1 : IComponent
+            where TComponent2 : IComponent
+        {
+            protected override bool FilterEntity(EntityBase entity) =>
+                base.FilterEntity(entity) && entity.Has<TComponent2>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class FilteredEntityCollector<TComponent1, TComponent2, TComponent3> : FilteredEntityCollector<TComponent1, TComponent2>
+            where TComponent1 : IComponent
+            where TComponent2 : IComponent
+            where TComponent3 : IComponent
+        {
+            protected override bool FilterEntity(EntityBase entity) =>
+                base.FilterEntity(entity) && entity.Has<TComponent3>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private class RootEntityCollectionWatcher : LiveEntityCollectionWatcher
         {
             private IDisposable disposable;
             private IDisposable subscription;
 
-            public RootEntityCollectionWatcher(LiveEntityCollectionWatcher next, ICollectionObserver<IComponent> observer)
+            public RootEntityCollectionWatcher(LiveEntityCollectionWatcher next,
+                ICollectionObserver<IComponent> observer)
                 : base(next, observer)
             {
                 disposable = Disposable.Empty;

@@ -21,7 +21,7 @@ namespace LibraProgramming.Ecs.Core.Reactive.Schedulers
             /// </summary>
             public static IScheduler ConstantTimeOperations
             {
-                get => constantTime ??= Scheduler.Immediate;
+                get => constantTime ?? (constantTime = Scheduler.Immediate);
                 set => constantTime = value;
             }
 
@@ -30,7 +30,7 @@ namespace LibraProgramming.Ecs.Core.Reactive.Schedulers
             /// </summary>
             public static IScheduler TailRecursion
             {
-                get => tailRecursion ??= Scheduler.Immediate;
+                get => tailRecursion ?? (tailRecursion = Scheduler.Immediate);
                 set => tailRecursion = value;
             }
 
@@ -39,7 +39,7 @@ namespace LibraProgramming.Ecs.Core.Reactive.Schedulers
             /// </summary>
             public static IScheduler Iteration
             {
-                get => iteration ??= CurrentThread;
+                get => iteration ?? (iteration = CurrentThread);
                 set => iteration = value;
             }
 
