@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.UI;
 
 namespace LibraProgramming.Game.Towers.Core
@@ -76,9 +77,14 @@ namespace LibraProgramming.Game.Towers.Core
                     }
                 }
 
-                var sizeInPixels = renderTarget.SizeInPixels;
-                
-                enemyBitmap = CanvasBitmap.CreateFromBytes(resourceCreator, renderTarget.GetPixelBytes(), (int) sizeInPixels.Width, (int) sizeInPixels.Height, renderTarget.Format);
+                var size = renderTarget.SizeInPixels;
+                enemyBitmap = CanvasBitmap.CreateFromBytes(
+                    resourceCreator,
+                    renderTarget.GetPixelBytes(),
+                    (int) size.Width,
+                    (int) size.Height,
+                    renderTarget.Format
+                );
             }
 
             return Task.CompletedTask;
