@@ -1,19 +1,70 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Numerics;
 using LibraProgramming.Ecs;
 using LibraProgramming.Game.Towers.Extensions;
 
 namespace LibraProgramming.Game.Towers.Components
 {
-    [Component(Alias = nameof(ViewportComponent))]
-    public sealed class ViewportComponent : Component
+    public struct Limits
     {
-        public float Width
+        public float Min
         {
-            get;
+            get; 
             set;
         }
 
-        public float Height
+        public float Max
+        {
+            get; 
+            set;
+        }
+
+        public string ToString(string format)
+        {
+            switch (format)
+            {
+                case "F":
+                {
+                    var culture = CultureInfo.InvariantCulture;
+                    return $"{Min:F,culture} {Max:F,culture}";
+                }
+            }
+
+            return ToString();
+        }
+
+        public static Limits Parse(string value)
+        {
+            var values = value.Split(' ', ',', StringSplitOptions.RemoveEmptyEntries);
+            var culture = CultureInfo.InvariantCulture;
+            var temp = values
+                .Select(val => System.Single.Parse(val, culture))
+                .ToArray();
+
+            if (2 == temp.Length)
+            {
+                return new Limits
+                {
+                    Min = temp[0],
+                    Max = temp[1]
+                };
+            }
+
+            throw new InvalidOperationException();
+        }
+    }
+
+    [Component(Alias = nameof(ViewportComponent))]
+    public sealed class ViewportComponent : Component
+    {
+        public Limits Horizontal
+        {
+            get; 
+            set;
+        }
+        public Limits Vertical
         {
             get; 
             set;
@@ -25,8 +76,14 @@ namespace LibraProgramming.Game.Towers.Components
 
         private ViewportComponent(ViewportComponent instance)
         {
-            Width = instance.Width;
-            Height = instance.Height;
+            /*Horizontal = new Limits
+            {
+                Min = instance.Horizontal.Min, 
+                Max = instance.Horizontal.Max
+            };*/
+
+            Horizontal = instance.Horizontal;
+            Vertical = instance.Vertical;
         }
         
         public override IComponent Clone()
@@ -36,18 +93,17 @@ namespace LibraProgramming.Game.Towers.Components
 
         protected override void DoFillState(ComponentState state)
         {
-            var culture = CultureInfo.InvariantCulture;
             state.Properties = new[]
             {
-                new PropertyState(nameof(Width), Width.ToString(culture)),
-                new PropertyState(nameof(Height), Height.ToString(culture))
+                new PropertyState(nameof(Horizontal), Horizontal.ToString("F")),
+                new PropertyState(nameof(Vertical), Vertical.ToString("F"))
             };
         }
 
         protected override void DoApplyState(ComponentState state)
         {
-            Width = state.Properties.GetValue<float>(nameof(Width));
-            Height = state.Properties.GetValue<float>(nameof(Height));
+            Horizontal = state.Properties.GetValue<Limits>(nameof(Horizontal), Limits.Parse);
+            Vertical = state.Properties.GetValue<Limits>(nameof(Vertical), Limits.Parse);
         }
     }
 }

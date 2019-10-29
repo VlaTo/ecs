@@ -24,7 +24,8 @@ namespace LibraProgramming.Game.Towers.Extensions
         public static TValue GetValue<TValue>(
             this PropertyState[] propertyStates, 
             string propertyName, 
-            Converter<string, TValue> converter = null)
+            Converter<string, TValue> converter = null,
+            IFormatProvider formatProvider = null)
         {
             var propertyState = Array.Find(
                 propertyStates,
@@ -38,7 +39,15 @@ namespace LibraProgramming.Game.Towers.Extensions
 
             if (null == converter)
             {
-                converter = value => (TValue) Convert.ChangeType(value, typeof(TValue));
+                if (null == formatProvider)
+                {
+                    converter = value => (TValue)Convert.ChangeType(value, typeof(TValue));
+
+                }
+                else
+                {
+                    converter = value => (TValue) Convert.ChangeType(value, typeof(TValue), formatProvider);
+                }
             }
 
             //return (TValue)Convert.ChangeType(propertyState.Value, typeof(TValue));

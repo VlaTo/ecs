@@ -52,7 +52,7 @@ namespace LibraProgramming.Game.Towers.Systems
                 var transform = GetTransform(entity);
                 var position = Vector2.Transform(moveComponent.Position, transform);
 
-                gameRenderContext.RenderEnemy(position, entity);
+                gameRenderContext.RenderEnemy(position);
             }
         }
 

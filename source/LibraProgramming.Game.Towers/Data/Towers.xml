@@ -1,5 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Entity xmlns="http://scheme.ecs.org/elements/entity">
+  <Components>
+    <Component Alias="ViewportComponent">
+      <Properties>
+        <Property Name="Horizontal">-300 +300</Property>
+        <Property Name="Vertical">-250 +250</Property>
+      </Properties>
+    </Component>
+    <Component Alias="TransformComponent">
+      <Properties>
+        <Property Name="Transform">1.0 0.0 0.0 1.0 300.0 250.0</Property>
+      </Properties>
+    </Component>
+  </Components>
   <Children>
     <Entity Key="Waves">
       <Components>
@@ -22,7 +35,8 @@
                     <Component Alias="MoveComponent">
                       <Properties>
                         <Property Name="Position">2.0 2.0</Property>
-                        <Property Name="Speed">0.75 1.25</Property>
+                        <Property Name="Speed">1.25</Property>
+                        <Property Name="Angle">1.03</Property>
                       </Properties>
                     </Component>
                   </Components>
@@ -59,8 +73,9 @@
                 <Component Alias="UpdateComponent" />
                 <Component Alias="MoveComponent">
                   <Properties>
-                    <Property Name="Position">2.0 2.0</Property>
-                    <Property Name="Speed">1.0 2.0</Property>
+                    <Property Name="Position">0 0</Property>
+                    <Property Name="Speed">20.0</Property>
+                    <Property Name="Angle">3.141529</Property>
                   </Properties>
                 </Component>
               </Components>
@@ -71,20 +86,9 @@
                 <Component Alias="UpdateComponent" />
                 <Component Alias="MoveComponent">
                   <Properties>
-                    <Property Name="Position">10.0 10.0</Property>
-                    <Property Name="Speed">0.5 2.75</Property>
-                  </Properties>
-                </Component>
-              </Components>
-            </Entity>
-            <Entity Key="Enemy3">
-              <Components>
-                <Component Alias="RenderComponent" />
-                <Component Alias="UpdateComponent" />
-                <Component Alias="MoveComponent">
-                  <Properties>
-                    <Property Name="Position">15.0 15.0</Property>
-                    <Property Name="Speed">1.75 1.25</Property>
+                    <Property Name="Position">8.0 8.0</Property>
+                    <Property Name="Speed">16.0</Property>
+                    <Property Name="Angle">3.0529</Property>
                   </Properties>
                 </Component>
               </Components>

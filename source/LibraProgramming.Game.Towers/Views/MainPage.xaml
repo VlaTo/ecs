@@ -12,7 +12,7 @@
     <ScrollViewer>
         <canvas:CanvasAnimatedControl
             x:Name="AnimatedControl"
-            ClearColor="Black"
+            ClearColor="DarkSlateGray"
             Paused="False"
             Width="600"
             Height="500"

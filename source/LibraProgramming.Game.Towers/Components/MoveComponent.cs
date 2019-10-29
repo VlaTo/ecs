@@ -1,8 +1,8 @@
-﻿using System.Numerics;
-using Windows.Services.Store;
-using LibraProgramming.Ecs;
+﻿using LibraProgramming.Ecs;
 using LibraProgramming.Game.Towers.Core;
 using LibraProgramming.Game.Towers.Extensions;
+using System.Globalization;
+using System.Numerics;
 
 namespace LibraProgramming.Game.Towers.Components
 {
@@ -15,9 +15,15 @@ namespace LibraProgramming.Game.Towers.Components
             set;
         }
 
-        public Vector2 Speed
+        public float Speed
         {
             get; 
+            set;
+        }
+
+        public float Angle
+        {
+            get;
             set;
         }
 
@@ -29,6 +35,7 @@ namespace LibraProgramming.Game.Towers.Components
         {
             Position = instance.Position;
             Speed = instance.Speed;
+            Angle = instance.Angle;
         }
 
         public override IComponent Clone()
@@ -38,18 +45,23 @@ namespace LibraProgramming.Game.Towers.Components
 
         protected override void DoFillState(ComponentState state)
         {
-            var str = Position.ToString();
+            var culture = CultureInfo.InvariantCulture;
+            
             state.Properties = new[]
             {
-                new PropertyState(nameof(Position), str),
-                new PropertyState(nameof(Speed), Speed.ToString())
+                new PropertyState(nameof(Position), Position.ToString()),
+                new PropertyState(nameof(Speed), Speed.ToString("F", culture)),
+                new PropertyState(nameof(Angle), Angle.ToString("F", culture))
             };
         }
 
         protected override void DoApplyState(ComponentState state)
         {
+            var culture = CultureInfo.InvariantCulture;
+
             Position = state.Properties.GetValue(nameof(Position), VectorConverter.FromString);
-            Speed = state.Properties.GetValue(nameof(Speed), VectorConverter.FromString);
+            Speed = state.Properties.GetValue<float>(nameof(Speed), formatProvider: culture);
+            Angle = state.Properties.GetValue<float>(nameof(Angle), formatProvider: culture);
         }
     }
 }

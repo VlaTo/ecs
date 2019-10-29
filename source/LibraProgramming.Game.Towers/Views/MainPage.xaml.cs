@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Numerics;
+using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
 using Windows.UI.Xaml;
@@ -40,6 +41,10 @@ namespace LibraProgramming.Game.Towers.Views
             world.RegisterSystem<RenderEnemiesSystem>();
 
             LoadWorld(world, CreateEntityFactory());
+
+            //var temp = Matrix3x2.CreateTranslation(300.0f, 250.0f);
+            //var str = temp.ToString();
+
 
             world.ExecuteAsync(CancellationToken.None).RunAndForget();
         }

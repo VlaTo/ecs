@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
 using LibraProgramming.Dependency.Container;
 using LibraProgramming.Ecs;
 using LibraProgramming.Ecs.Core;
@@ -64,20 +65,28 @@ namespace LibraProgramming.Game.Towers.Systems
 
         private static void UpdatePosition(MoveComponent component, float duration)
         {
-            var distance = Vector2.Multiply(component.Speed, duration);
+            var distance = new Vector2(MathF.Cos(component.Angle), MathF.Sin(component.Angle)) * (component.Speed * duration);
             var position = component.Position + distance;
             var viewport = GetViewport(component.Entity);
 
             if (null != viewport)
             {
-                if (position.X > viewport.Width)
+                if (position.X < viewport.Horizontal.Min)
                 {
-                    position.X = 0.0f;
+                    position.X = viewport.Horizontal.Max;
+                }
+                else if (position.X > viewport.Horizontal.Max)
+                {
+                    position.X = viewport.Horizontal.Min;
                 }
 
-                if (position.Y > viewport.Height)
+                if (position.Y < viewport.Vertical.Min)
                 {
-                    position.Y = 0.0f;
+                    position.Y = viewport.Vertical.Max;
+                }
+                else if (position.Y > viewport.Vertical.Max)
+                {
+                    position.Y = viewport.Vertical.Min;
                 }
             }
 
