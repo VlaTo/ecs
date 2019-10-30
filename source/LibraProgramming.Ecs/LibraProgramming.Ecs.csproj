@@ -134,7 +134,11 @@
     <Compile Include="Core\ICancelable.cs" />
     <Compile Include="Core\ICondition.cs" />
     <Compile Include="Core\IDependencyProvider.cs" />
+    <Compile Include="Core\IScopedCollectionObserver.cs" />
     <Compile Include="Core\LiveComponentObserver.cs" />
+    <Compile Include="Core\LiveComponentObserver.Collectors.cs" />
+    <Compile Include="Core\LiveComponentObserver.Watchers.cs" />
+    <Compile Include="Core\LiveComponentObserver.MutualEntityEnumerator.cs" />
     <Compile Include="Core\Path\EntityPath.Comparer.cs" />
     <Compile Include="Core\Path\EntityPath.cs" />
     <Compile Include="Core\Path\EntityPath.Parser.cs" />
@@ -222,6 +226,7 @@
     <Compile Include="IStateProvider.cs" />
     <Compile Include="ISystem.cs" />
     <Compile Include="IWorld.cs" />
+    <Compile Include="Core\LiveComponentObserver.LiveEntityCollectionWatcher.cs" />
     <Compile Include="ObservableProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyState.cs" />

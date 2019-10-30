@@ -39,12 +39,9 @@ namespace LibraProgramming.Game.Towers.Views
             world.RegisterSystem<UpdateEnemiesSystem>();
             world.RegisterSystem<MoveEnemiesSystem>();
             world.RegisterSystem<RenderEnemiesSystem>();
+            world.RegisterSystem<EnemyInstantiateSystem>();
 
             LoadWorld(world, CreateEntityFactory());
-
-            //var temp = Matrix3x2.CreateTranslation(300.0f, 250.0f);
-            //var str = temp.ToString();
-
 
             world.ExecuteAsync(CancellationToken.None).RunAndForget();
         }
@@ -65,7 +62,7 @@ namespace LibraProgramming.Game.Towers.Views
             }
         }
 
-        private EntityFactory CreateEntityFactory()
+        private static EntityFactory CreateEntityFactory()
         {
             var assemblies = new[]
             {
