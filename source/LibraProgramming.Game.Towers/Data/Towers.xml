@@ -14,6 +14,17 @@
     </Component>
   </Components>
   <Children>
+    <Entity Key="Route">
+      <Cmponents>
+        <Component Alias="WayPointsComponent">
+          <Properties>
+            <Property Name="WayPoints">10.0 10.0; 10.0 10.0; 10.0 10.0; 10.0 10.0</Property>
+          </Properties>
+        </Component>
+      </Cmponents>
+      <Children>
+      </Children>
+    </Entity>
     <Entity Key="Waves">
       <Components>
       </Components>
