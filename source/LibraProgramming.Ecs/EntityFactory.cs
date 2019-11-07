@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using LibraProgramming.Ecs.Core;
 using LibraProgramming.Ecs.Core.Path;
@@ -43,12 +44,6 @@ namespace LibraProgramming.Ecs
             ComponentResolver = componentResolver;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="prototypePath"></param>
-        /// <returns></returns>
         /*public EntityBase CreateEntity(string key, EntityPath prototypePath)
         {
             if (null == prototypePath)
@@ -62,21 +57,31 @@ namespace LibraProgramming.Ecs
             return CreateEntity(key, prototype);
         }*/
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
         public void LoadEntity(EntityBase entity, EntityState state)
         {
-            foreach (var componentState in state.Components)
-            {
-                var component = CreateComponent(componentState);
-                entity.Add(component);
-            }
+            var deferred = new Dictionary<EntityBase, IList<EntityState>>();
 
             foreach (var childState in state.Children)
             {
-                var child = CreateEntity(childState);
-                entity.Children.Add(child);
+                LoadEntityCore(entity, childState, deferred);
+            }
+
+            foreach (var (parent, states) in deferred)
+            {
+                foreach (var childState in states)
+                {
+                    LoadLinkedEntity(parent, childState);
+                }
             }
         }
 
+        /*
         /// <summary>
         /// 
         /// </summary>
@@ -99,7 +104,78 @@ namespace LibraProgramming.Ecs
             }
 
             return entity;
+        }*/
+
+        private void LoadEntityCore(EntityBase parent, EntityState state,
+            IDictionary<EntityBase, IList<EntityState>> deferred)
+        {
+            if (false == String.IsNullOrEmpty(state.EntityPath))
+            {
+                if (false == deferred.TryGetValue(parent, out var children))
+                {
+                    children = new List<EntityState>();
+                    deferred.Add(parent, children);
+                }
+
+                children.Add(state);
+
+                return;
+            }
+
+            var entity = new Entity(state.Key);
+
+            LoadComponents(entity, state.Components);
+
+            foreach (var childState in state.Children)
+            {
+                LoadEntityCore(entity, childState, deferred);
+            }
+
+            parent.Children.Add(entity);
         }
+
+        private void LoadLinkedEntity(EntityBase parent, EntityState state)
+        {
+            if (String.IsNullOrEmpty(state.EntityPath))
+            {
+                throw new EntityException();
+            }
+
+            if (state.IsReference)
+            {
+                parent.Children.Add(new LinkedEntity(state.Key, state.EntityPath));
+                return;
+            }
+
+            var prototype = parent.Find(state.EntityPath);
+
+            if (null == prototype)
+            {
+                throw new EntityException();
+            }
+
+            var entity = new Entity(state.Key);
+            
+            foreach (var component in prototype.Components)
+            {
+                entity.Add(component.Clone());
+            }
+
+            foreach (var child in prototype.Children)
+            {
+                entity.Children.Add(child.Clone());
+            }
+
+            /*LoadComponents(entity, state.Components);
+
+            foreach (var childState in state.Children)
+            {
+                LoadLinkedEntity(entity, childState);
+            }*/
+
+            parent.Children.Add(entity);
+        }
+
 
         /*private EntityBase CreateEntity(string key, EntityBase prototype)
         {
@@ -122,20 +198,28 @@ namespace LibraProgramming.Ecs
             return component;
         }
 
-        private EntityBase InstantiateEntity(EntityState entityState)
+        private void LoadComponents(EntityBase entity, ComponentState[] componentStates)
+        {
+            foreach (var state in componentStates)
+            {
+                var component = CreateComponent(state);
+                entity.Add(component);
+            }
+        }
+
+        /*private EntityBase InstantiateEntity(EntityState entityState)
         {
             if (false == String.IsNullOrEmpty(entityState.EntityPath))
             {
                 if (entityState.IsReference)
                 {
-                    return new ReferencedEntity(entityState.Key, entityState.EntityPath);
+                    return new LinkedEntity(entityState.Key, entityState.EntityPath);
                 }
                 
-                //return new Entity(entityState.Key, entityState.EntityPath);
-                throw new NotSupportedException();
+                return new Entity(entityState.Key, entityState);
             }
 
             return new Entity(entityState.Key);
-        }
+        }*/
     }
 }

@@ -11,16 +11,16 @@ using LibraProgramming.Game.Towers.Core;
 
 namespace LibraProgramming.Game.Towers.Systems
 {
-    public class EnemyInstantiateSystem : SystemBase, IDisposable
+    public class EnemyWaveSystem : SystemBase, IDisposable
     {
         private readonly IWorld world;
         private readonly IGameTimer timer;
         private LiveComponentObserver observer;
         private IDisposable disposable;
-        private EntityBase currentWaveEnemies;
+        private EntityBase container;
 
         [PrefferedConstructor]
-        public EnemyInstantiateSystem(IWorld world, IGameTimer timer)
+        public EnemyWaveSystem(IWorld world, IGameTimer timer)
         {
             this.world = world;
             this.timer = timer;
@@ -28,8 +28,8 @@ namespace LibraProgramming.Game.Towers.Systems
 
         public override Task InitializeAsync()
         {
-            observer = world.Root.Subscribe<DelayComponent>("//CurrentWave/Portions/*");
-            currentWaveEnemies = world.Root.Find("//CurrentWave/Enemies");
+            observer = world.Root.Subscribe<DelayComponent>("//CurrentWave/Enemies/*");
+            container = world.Root.Find("//Scene/Enemies");
             disposable = timer.Subscribe(DoUpdate);
 
             return Task.CompletedTask;
@@ -59,7 +59,7 @@ namespace LibraProgramming.Game.Towers.Systems
 
                 foreach (var enemy in children)
                 {
-                    currentWaveEnemies.Children.Add(enemy);
+                    container.Children.Add(enemy);
                 }
 
                 var collection = portion.Parent.Children;

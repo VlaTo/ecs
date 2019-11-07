@@ -9,7 +9,7 @@ namespace LibraProgramming.Ecs
     /// <summary>
     /// 
     /// </summary>
-    public sealed class ReferencedEntity : EntityBase
+    public sealed class LinkedEntity : EntityBase
     {
         private EntityBase entity;
 
@@ -37,7 +37,7 @@ namespace LibraProgramming.Ecs
         /// </summary>
         /// <param name="key"></param>
         /// <param name="entityPath"></param>
-        public ReferencedEntity(string key, EntityPath entityPath)
+        public LinkedEntity(string key, EntityPath entityPath)
             : base(key)
         {
             EntityPath = entityPath;
@@ -48,7 +48,7 @@ namespace LibraProgramming.Ecs
         /// </summary>
         /// <param name="key"></param>
         /// <param name="entity"></param>
-        public ReferencedEntity(string key, EntityBase entity)
+        public LinkedEntity(string key, EntityBase entity)
             : base(key)
         {
             EntityPath = entity.Path;
@@ -58,7 +58,7 @@ namespace LibraProgramming.Ecs
         /// 
         /// </summary>
         /// <param name="instance"></param>
-        public ReferencedEntity(ReferencedEntity instance)
+        public LinkedEntity(LinkedEntity instance)
             : this(instance.Key, instance.EntityPath)
         {
         }

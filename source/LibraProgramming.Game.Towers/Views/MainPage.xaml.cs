@@ -39,7 +39,7 @@ namespace LibraProgramming.Game.Towers.Views
             world.RegisterSystem<UpdateEnemiesSystem>();
             world.RegisterSystem<MoveEnemiesSystem>();
             world.RegisterSystem<RenderEnemiesSystem>();
-            world.RegisterSystem<EnemyInstantiateSystem>();
+            world.RegisterSystem<EnemyWaveSystem>();
 
             LoadWorld(world, CreateEntityFactory());
 

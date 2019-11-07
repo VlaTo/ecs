@@ -28,7 +28,7 @@ namespace LibraProgramming.Game.Towers.Systems
         public override Task InitializeAsync()
         {
             disposable = gameRenderer.Subscribe(DoRender);
-            observer = world.Root.Subscribe<RenderComponent, MoveComponent>("//CurrentWave/Enemies/*");
+            observer = world.Root.Subscribe<RenderComponent, MoveComponent>("//Scene/Enemies/*");
 
             return base.InitializeAsync();
         }

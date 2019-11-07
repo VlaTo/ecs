@@ -1,35 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Entity xmlns="http://scheme.ecs.org/elements/entity">
-  <Components>
-    <Component Alias="ViewportComponent">
-      <Properties>
-        <Property Name="Horizontal">-300 +300</Property>
-        <Property Name="Vertical">-250 +250</Property>
-      </Properties>
-    </Component>
-    <Component Alias="TransformComponent">
-      <Properties>
-        <Property Name="Transform">1.0 0.0 0.0 1.0 300.0 250.0</Property>
-      </Properties>
-    </Component>
-  </Components>
   <Children>
-    <Entity Key="Route">
-      <Cmponents>
-        <Component Alias="WayPointsComponent">
+    <Entity Key="Scene">
+      <Components>
+        <Component Alias="ViewportComponent">
           <Properties>
-            <Property Name="WayPoints">10.0 10.0; 10.0 10.0; 10.0 10.0; 10.0 10.0</Property>
+            <Property Name="Horizontal">-300 +300</Property>
+            <Property Name="Vertical">-250 +250</Property>
           </Properties>
         </Component>
-      </Cmponents>
+        <Component Alias="TransformComponent">
+          <Properties>
+            <Property Name="Transform">1.0 0.0 0.0 1.0 300.0 250.0</Property>
+          </Properties>
+        </Component>
+      </Components>
       <Children>
+        <Entity Key="Enemies" />
       </Children>
     </Entity>
+    <Entity Key="CurrentWave" Path="//Waves/1" />
     <Entity Key="Waves">
       <Components>
       </Components>
       <Children>
-        <Entity Key="Wave1">
+        <Entity Key="1">
           <Components>
             <Component Alias="WaveComponent">
               <Properties>
@@ -40,23 +35,148 @@
           <Children>
             <Entity Key="Enemies">
               <Children>
-                <Entity Key="Enemy1">
+                <Entity Key="0">
                   <Components>
-                    <Component Alias="UpdateComponent" />
-                    <Component Alias="MoveComponent">
+                    <Component Alias="DelayComponent">
                       <Properties>
-                        <Property Name="Position">2.0 2.0</Property>
-                        <Property Name="Speed">1.25</Property>
-                        <Property Name="Angle">1.03</Property>
+                        <Property Name="Duration">0:00:00.5</Property>
                       </Properties>
                     </Component>
                   </Components>
+                  <Children>
+                    <Entity Key="1">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">0 0</Property>
+                            <Property Name="Speed">20.0</Property>
+                            <Property Name="Angle">3.141529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                    <Entity Key="2">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">8.0 8.0</Property>
+                            <Property Name="Speed">16.0</Property>
+                            <Property Name="Angle">3.0529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                    <Entity Key="3">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">10.0 10.0</Property>
+                            <Property Name="Speed">16.0</Property>
+                            <Property Name="Angle">3.0529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                  </Children>
+                </Entity>
+                <Entity Key="1">
+                  <Components>
+                    <Component Alias="DelayComponent">
+                      <Properties>
+                        <Property Name="Duration">0:00:3.0</Property>
+                      </Properties>
+                    </Component>
+                  </Components>
+                  <Children>
+                    <Entity Key="1">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">0 0</Property>
+                            <Property Name="Speed">20.0</Property>
+                            <Property Name="Angle">3.141529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                    <Entity Key="2">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">8.0 8.0</Property>
+                            <Property Name="Speed">16.0</Property>
+                            <Property Name="Angle">3.0529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                  </Children>
+                </Entity>
+                <Entity Key="2">
+                  <Components>
+                    <Component Alias="DelayComponent">
+                      <Properties>
+                        <Property Name="Duration">0:00:5.0</Property>
+                      </Properties>
+                    </Component>
+                  </Components>
+                  <Children>
+                    <Entity Key="1">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">0 0</Property>
+                            <Property Name="Speed">20.0</Property>
+                            <Property Name="Angle">3.141529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                    <Entity Key="2">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">8.0 8.0</Property>
+                            <Property Name="Speed">16.0</Property>
+                            <Property Name="Angle">3.0529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                    <Entity Key="3">
+                      <Components>
+                        <Component Alias="RenderComponent" />
+                        <Component Alias="UpdateComponent" />
+                        <Component Alias="MoveComponent">
+                          <Properties>
+                            <Property Name="Position">12.0 12.0</Property>
+                            <Property Name="Speed">16.0</Property>
+                            <Property Name="Angle">3.0529</Property>
+                          </Properties>
+                        </Component>
+                      </Components>
+                    </Entity>
+                  </Children>
                 </Entity>
               </Children>
             </Entity>
           </Children>
         </Entity>
-        <Entity Key="Wave2">
+        <Entity Key="2">
           <Components>
             <Component Alias="WaveComponent">
               <Properties>
@@ -67,8 +187,7 @@
         </Entity>
       </Children>
     </Entity>
-    <Entity Key="CurrentWave">
-      <Components>
+      <!--<Components>
         <Component Alias="WaveComponent">
           <Properties>
             <Property Name="Number">1</Property>
@@ -76,10 +195,20 @@
         </Component>
       </Components>
       <Children>
+        <Entity Key="Route">
+          <Cmponents>
+            <Component Alias="WayPointsComponent">
+              <Properties>
+                <Property Name="WayPoints">10.0 10.0; 10.0 10.0; 10.0 10.0; 10.0 10.0</Property>
+              </Properties>
+            </Component>
+          </Cmponents>
+          <Children>
+          </Children>
+        </Entity>
         <Entity Key="Enemies" />
         <Entity Key="Portions">
           <Children>
-            <!-- first portion of enemies -->
             <Entity Key="Portion0">
               <Components>
                 <Component Alias="DelayComponent">
@@ -130,7 +259,6 @@
                 </Entity>
               </Children>
             </Entity>
-            <!-- second portion of enemies -->
             <Entity Key="Portion1">
               <Components>
                 <Component Alias="DelayComponent">
@@ -168,7 +296,6 @@
                 </Entity>
               </Children>
             </Entity>
-            <!-- third portion of enemies -->
             <Entity Key="Portion2">
               <Components>
                 <Component Alias="DelayComponent">
@@ -221,7 +348,6 @@
             </Entity>
           </Children>
         </Entity>
-      </Children>
-    </Entity>
+      </Children>-->
   </Children>
 </Entity>

@@ -51,7 +51,7 @@ namespace LibraProgramming.Ecs
             observers = new CollectionSubject<IComponent>();
         }
 
-        public Entity(string key, EntityBase prototype)
+        /*public Entity(string key, EntityBase prototype)
             : this(key)
         {
             foreach (var component in prototype.Components)
@@ -63,7 +63,7 @@ namespace LibraProgramming.Ecs
             {
                 Children.Add(child.Clone());
             }
-        }
+        }*/
 
         /*protected Entity(Entity original)
             : base(original.Key)
@@ -298,7 +298,19 @@ namespace LibraProgramming.Ecs
         /// <inheritdoc cref="Clone" />
         public override EntityBase Clone()
         {
-            return new Entity(Key, this);
+            var clone = new Entity(Key);
+            
+            foreach (var component in Components)
+            {
+                clone.Add(component.Clone());
+            }
+
+            foreach (var child in Children)
+            {
+                clone.Children.Add(child.Clone());
+            }
+
+            return clone;
         }
 
         /// <summary>
