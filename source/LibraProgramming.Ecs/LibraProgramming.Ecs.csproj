@@ -151,7 +151,7 @@
     <Compile Include="Core\Path\Segments\EntityPathRootSegment.cs" />
     <Compile Include="Core\Path\Segments\EntityPathSegment.cs" />
     <Compile Include="Core\Path\Segments\EntityPathWildCardSegment.cs" />
-    <Compile Include="Core\Path\SegmentToken.cs" />
+    <Compile Include="Core\Path\NameToken.cs" />
     <Compile Include="Core\Path\TerminalToken.cs" />
     <Compile Include="Core\PredicateEntityObserver.cs" />
     <Compile Include="Core\PriorityQueue.cs" />

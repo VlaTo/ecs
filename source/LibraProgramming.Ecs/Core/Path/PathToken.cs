@@ -20,6 +20,6 @@
         /// <summary>
         /// 
         /// </summary>
-        public static PathToken String(string segment) => new SegmentToken(segment);
+        public static PathToken String(string segment) => new NameToken(segment);
     }
 }

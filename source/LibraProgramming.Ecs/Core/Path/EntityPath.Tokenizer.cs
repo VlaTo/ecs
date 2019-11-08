@@ -40,7 +40,7 @@ namespace LibraProgramming.Ecs.Core.Path
 
                     switch (ch)
                     {
-                        case LibraProgramming.Ecs.Core.Path.EntityPath.PathDelimiter:
+                        case PathDelimiter:
                         {
                             if (0 == token.Length)
                             {

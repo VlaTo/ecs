@@ -7,6 +7,7 @@ using App1;
 using LibraProgramming.Dependency.Container;
 using LibraProgramming.Ecs;
 using LibraProgramming.Ecs.Core;
+using LibraProgramming.Ecs.Core.Path;
 using LibraProgramming.Game.Towers.Core;
 using LibraProgramming.Game.Towers.Extensions;
 using LibraProgramming.Game.Towers.Systems;
@@ -18,6 +19,7 @@ namespace LibraProgramming.Game.Towers.Views
         public MainPage()
         {
             InitializeComponent();
+            EntityPath.Parse("//**/*");
         }
 
         private void OnPageLoaded(object sender, RoutedEventArgs e)

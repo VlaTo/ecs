@@ -86,7 +86,7 @@ namespace LibraProgramming.Ecs.Core.Path
             }
 
             var parser = new EntityPathParser();
-            var top = parser.ParsePath(path);
+            var top = parser.Parse(path);
 
             if (null == top)
             {

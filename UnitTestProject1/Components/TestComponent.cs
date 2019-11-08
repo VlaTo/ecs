@@ -1,9 +1,8 @@
-﻿using ClassLibrary1;
-using LibraProgramming.Ecs;
+﻿using System.ComponentModel;
 
 namespace UnitTestProject1.Components
 {
-    public class TestComponent : Component
+    /*public class TestComponent : Component
     {
         public TestComponent()
         {
@@ -33,5 +32,5 @@ namespace UnitTestProject1.Components
         protected override void DoRelease()
         {
         }
-    }
+    }*/
 }

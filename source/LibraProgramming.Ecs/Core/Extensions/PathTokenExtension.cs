@@ -54,22 +54,22 @@ namespace LibraProgramming.Ecs.Core.Extensions
         /// 
         /// </summary>
         /// <param name="token"></param>
-        /// <param name="segment"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public static bool IsSegment(this PathToken token, out string segment)
+        public static bool IsName(this PathToken token, out string name)
         {
             if (null == token)
             {
                 throw new ArgumentNullException(nameof(token));
             }
 
-            if (token is SegmentToken segmentToken)
+            if (token is NameToken nameToken)
             {
-                segment = segmentToken.Segment;
+                name = nameToken.Name;
                 return true;
             }
 
-            segment = null;
+            name = null;
 
             return false;
         }

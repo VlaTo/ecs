@@ -20,17 +20,17 @@ namespace LibraProgramming.Ecs.Core.Path
             /// </summary>
             /// <param name="path"></param>
             /// <returns></returns>
-            public EntityPathSegment ParsePath(string path)
+            public EntityPathSegment Parse(string path)
             {
                 var reader = new StringReader(path);
 
                 using (var tokenizer = new EntityPathTokenizer(reader))
                 {
-                    return ParseFromBegin(tokenizer);
+                    return ParsePath(tokenizer);
                 }
             }
 
-            private EntityPathSegment ParseFromBegin(EntityPathTokenizer tokenizer)
+            private EntityPathSegment ParsePath(EntityPathTokenizer tokenizer)
             {
                 var token = tokenizer.GetNextToken();
 
@@ -50,10 +50,10 @@ namespace LibraProgramming.Ecs.Core.Path
                     return ParseFromRoot(tokenizer);
                 }
 
-                if (token.IsSegment(out var segment))
+                if (token.IsName(out var key))
                 {
                     var next = ParseDelimiter(tokenizer);
-                    return new EntityKeySegment(segment, next);
+                    return new EntityKeySegment(key, next);
                 }
 
                 throw new Exception();
@@ -70,14 +70,14 @@ namespace LibraProgramming.Ecs.Core.Path
 
                 if (token.IsPathDelimiter())
                 {
-                    var next = ParseWildCardOrString(tokenizer);
+                    var next = ParseWildCardOrName(tokenizer);
                     return new EntityPathRootSegment(next);
                 }
 
                 throw new Exception();
             }
 
-            private EntityPathSegment ParseWildCardOrString(EntityPathTokenizer tokenizer)
+            private EntityPathSegment ParseWildCardOrName(EntityPathTokenizer tokenizer)
             {
                 var token = tokenizer.GetNextToken();
 
@@ -88,17 +88,22 @@ namespace LibraProgramming.Ecs.Core.Path
 
                 if (token.IsWildCard())
                 {
-                    EnsureTail(tokenizer);
-                    return new EntityPathWildCardSegment();
+                    return ParseAnyLevelOrTail(tokenizer);
                 }
 
-                if (token.IsSegment(out var segment))
+                if (token.IsName(out var key))
                 {
                     var next = ParseDelimiter(tokenizer);
-                    return new EntityKeySegment(segment, next);
+                    return new EntityKeySegment(key, next);
                 }
 
                 throw new Exception();
+            }
+
+            private EntityPathSegment ParseAnyLevelOrTail(EntityPathTokenizer tokenizer)
+            {
+                EnsureTail(tokenizer);
+                return new EntityPathWildCardSegment();
             }
 
             private EntityPathSegment ParseDelimiter(EntityPathTokenizer tokenizer)
@@ -112,7 +117,7 @@ namespace LibraProgramming.Ecs.Core.Path
 
                 if (token.IsPathDelimiter())
                 {
-                    return ParseWildCardOrString(tokenizer);
+                    return ParseWildCardOrName(tokenizer);
                 }
 
                 throw new Exception();
