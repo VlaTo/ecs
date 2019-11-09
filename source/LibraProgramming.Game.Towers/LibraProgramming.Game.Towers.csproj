@@ -191,11 +191,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibraProgramming.Dependency.Container\LibraProgramming.Dependency.Container.csproj">
-      <Project>{5126e1a8-3163-4241-a387-118c64dc2c00}</Project>
+      <Project>{c3154038-9ce5-47d3-80da-93e9e792624a}</Project>
       <Name>LibraProgramming.Dependency.Container</Name>
     </ProjectReference>
     <ProjectReference Include="..\LibraProgramming.Ecs\LibraProgramming.Ecs.csproj">
-      <Project>{c71d1819-8dec-4bcf-8374-18a8ab38bd37}</Project>
+      <Project>{d68b4773-42ef-4b3b-a805-b722ecff7aa1}</Project>
       <Name>LibraProgramming.Ecs</Name>
     </ProjectReference>
   </ItemGroup>

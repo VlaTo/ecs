@@ -1,6 +1,7 @@
 ﻿using LibraProgramming.Ecs.Core.Reactive;
 using System;
 using System.Collections.Generic;
+using LibraProgramming.Ecs.Core.Extensions;
 
 namespace LibraProgramming.Ecs.Core
 {
@@ -13,7 +14,6 @@ namespace LibraProgramming.Ecs.Core
         {
             private readonly Dictionary<EntityBase, IDisposable> entities;
             private RefCountDisposable subscription;
-            //private IDisposable subscription;
 
             public RootEntityCollectionWatcher(LiveEntityCollectionWatcher next,
                 IScopedCollectionObserver<IComponent, EntityBase> observer)

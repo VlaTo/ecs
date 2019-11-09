@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Windows.Gaming.Input;
-using Windows.Web.Http.Headers;
 using LibraProgramming.Ecs.Core.Reactive.Collections;
 
 namespace LibraProgramming.Ecs.Core

@@ -72,11 +72,11 @@ namespace LibraProgramming.Ecs
                 LoadEntityCore(entity, childState, deferred);
             }
 
-            foreach (var (parent, states) in deferred)
+            foreach (var kvp in deferred)
             {
-                foreach (var childState in states)
+                foreach (var childState in kvp.Value)
                 {
-                    LoadLinkedEntity(parent, childState);
+                    LoadLinkedEntity(kvp.Key, childState);
                 }
             }
         }

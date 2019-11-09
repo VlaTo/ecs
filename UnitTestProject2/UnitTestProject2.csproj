@@ -162,16 +162,6 @@
       <Version>1.4.0</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\source\LibraProgramming.Dependency.Container\LibraProgramming.Dependency.Container.csproj">
-      <Project>{5126e1a8-3163-4241-a387-118c64dc2c00}</Project>
-      <Name>LibraProgramming.Dependency.Container</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\source\LibraProgramming.Ecs\LibraProgramming.Ecs.csproj">
-      <Project>{c71d1819-8dec-4bcf-8374-18a8ab38bd37}</Project>
-      <Name>LibraProgramming.Ecs</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
