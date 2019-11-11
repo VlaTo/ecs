@@ -125,7 +125,7 @@ namespace LibraProgramming.Ecs.Core.Path
                     continue;
                 }
 
-                if (segment.IsWildcard())
+                if (segment.IsAnyKey())
                 {
                     if (null == segment.Next)
                     {

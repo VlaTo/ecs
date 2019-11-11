@@ -36,7 +36,7 @@ namespace LibraProgramming.Ecs.Core.Path.Segments
             }
 
             return (other is EntityKeySegment str) && String.Equals(Key, str.Key)
-                   || (other is EntityPathWildCardSegment);
+                   || (other is EntityKeyWildCardSegment);
         }
 
         public override int GetHashCode()

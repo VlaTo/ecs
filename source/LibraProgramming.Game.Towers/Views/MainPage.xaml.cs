@@ -1,4 +1,6 @@
-﻿using App1;
+﻿using System.Composition;
+using System.Composition.Hosting;
+using App1;
 using LibraProgramming.Dependency.Container;
 using LibraProgramming.Ecs;
 using LibraProgramming.Ecs.Core;
@@ -32,11 +34,21 @@ namespace LibraProgramming.Game.Towers.Views
 
             var world = new World(new DependencyProviderAdapter(ServiceLocator.Current));
 
+            /*var containerConfiguration = new ContainerConfiguration()
+                .WithAssembly(typeof(ISystem).Assembly)
+                .WithAssembly(typeof(App).Assembly);
+
+            containerConfiguration.WithPart<IWorld>(new )
+
+            var container = containerConfiguration.CreateContainer();
+
+            container.SatisfyImports(world);*/
+
             ServiceLocator.Current.Register<IWorld>(() => world, InstanceLifetime.Singleton);
 
             // register systems
             world.RegisterSystem<UpdateEnemiesSystem>();
-            world.RegisterSystem<MoveEnemiesSystem>();
+            world.RegisterSystem<MoveEntitySystem>();
             world.RegisterSystem<RenderEnemiesSystem>();
             world.RegisterSystem<EnemyWaveSystem>();
 

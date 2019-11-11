@@ -275,5 +275,104 @@ namespace LibraProgramming.Ecs.Core
                 }
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private class AnyPathLevelEntityCollectionWatcher : LiveEntityCollectionWatcher
+        {
+            private readonly Dictionary<EntityBase, IDisposable> entities;
+            private readonly Dictionary<EntityBase, RefCountDisposable> subscriptions;
+
+            public AnyPathLevelEntityCollectionWatcher(
+                LiveEntityCollectionWatcher next,
+                IScopedCollectionObserver<IComponent, EntityBase> observer)
+                : base(next, observer)
+            {
+                entities = new Dictionary<EntityBase, IDisposable>();
+                subscriptions = new Dictionary<EntityBase, RefCountDisposable>();
+            }
+
+            public override IDisposable Subscribe(EntityBase entity)
+            {
+                EnsureNotDisposed();
+
+                if (null == entity)
+                {
+                    throw new ArgumentNullException(nameof(entity));
+                }
+
+                if (false == subscriptions.TryGetValue(entity, out var subscription))
+                {
+                    var disposable = new CompositeDisposable(
+                        entity.Subscribe(Observer.CreateScope(entity)),
+                        Disposable.CreateWithState(entity, DoUnsubscribe)
+                    );
+
+                    if (null != Next)
+                    {
+                        disposable.Add(entity.Children.Subscribe(this));
+                    }
+
+                    subscription = new RefCountDisposable(disposable);
+
+                    subscriptions.Add(entity, subscription);
+                }
+
+                return subscription.GetDisposable();
+            }
+
+            protected override void DoAdded(EntityBase entity)
+            {
+                EnsureNotDisposed();
+
+                if (false == entities.ContainsKey(entity))
+                {
+                    var disposable = Next.Subscribe(entity);
+
+                    if (Disposable.Empty.Equals(disposable))
+                    {
+                        disposable = Subscribe(entity);
+                    }
+
+                    entities.Add(entity, disposable);
+                }
+            }
+
+            protected override void DoRemoved(EntityBase entity)
+            {
+                EnsureNotDisposed();
+
+                if (entities.Remove(entity, out var disposable))
+                {
+                    disposable.Dispose();
+                }
+            }
+
+            protected override void OnDispose()
+            {
+                foreach (var entity in entities)
+                {
+                    ;
+                }
+
+                foreach (var kvp in subscriptions)
+                {
+                    kvp.Value.Dispose();
+                }
+
+                base.OnDispose();
+            }
+
+            private void DoUnsubscribe(EntityBase entity)
+            {
+                EnsureNotDisposed();
+
+                if (subscriptions.Remove(entity, out var subscription))
+                {
+                    ;
+                }
+            }
+        }
     }
 }

@@ -1,15 +1,9 @@
 ﻿namespace LibraProgramming.Ecs.Core.Path.Segments
 {
-    /// <summary>
-    /// 
-    /// </summary>
     internal sealed class EntityPathWildCardSegment : EntityPathSegment
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public EntityPathWildCardSegment()
-            : base(null)
+        public EntityPathWildCardSegment(EntityPathSegment next)
+            : base(next)
         {
         }
 
@@ -28,14 +22,11 @@
             return (other is EntityKeySegment) || (other is EntityPathWildCardSegment);
         }
 
-        public override int GetHashCode()
-        {
-            return '*'.GetHashCode();
-        }
+        public override int GetHashCode() => ToString().GetHashCode();
 
         public override string ToString()
         {
-            return new string('*', 1);
+            return new string('*', 2);
         }
     }
 }

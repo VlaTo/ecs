@@ -28,7 +28,7 @@ namespace LibraProgramming.Game.Towers.Systems
         public override Task InitializeAsync()
         {
             disposable = gameRenderer.Subscribe(DoRender);
-            observer = world.Root.Subscribe<RenderComponent, MoveComponent>("//Scene/Enemies/*");
+            observer = world.Root.Subscribe<RenderComponent, PositionComponent>("//Scene/Enemies/*");
 
             return base.InitializeAsync();
         }
@@ -48,9 +48,9 @@ namespace LibraProgramming.Game.Towers.Systems
         {
             foreach (var entity in observer)
             {
-                var moveComponent = entity.Get<MoveComponent>();
+                var positionComponent = entity.Get<PositionComponent>();
                 var transform = GetTransform(entity);
-                var position = Vector2.Transform(moveComponent.Position, transform);
+                var position = Vector2.Transform(positionComponent.Position, transform);
 
                 gameRenderContext.RenderEnemy(position);
             }

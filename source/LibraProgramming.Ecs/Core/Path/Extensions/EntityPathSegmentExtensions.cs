@@ -49,7 +49,22 @@ namespace LibraProgramming.Ecs.Core.Path.Extensions
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static bool IsWildcard(this EntityPathSegment segment)
+        public static bool IsAnyKey(this EntityPathSegment segment)
+        {
+            if (null == segment)
+            {
+                throw new ArgumentNullException(nameof(segment));
+            }
+
+            return segment is EntityKeyWildCardSegment;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static bool IsAnyPathLevel(this EntityPathSegment segment)
         {
             if (null == segment)
             {

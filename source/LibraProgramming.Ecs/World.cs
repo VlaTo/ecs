@@ -1,6 +1,7 @@
 ﻿using LibraProgramming.Ecs.Core;
 using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace LibraProgramming.Ecs
     /// <summary>
     /// 
     /// </summary>
+    [Export(typeof(IWorld))]
     public sealed class World : IWorld
     {
         private readonly IDependencyProvider dependencyProvider;
@@ -21,6 +23,20 @@ namespace LibraProgramming.Ecs
             get;
         }
 
+        //[ImportMany]
+        public IList<ISystem> Systems
+        {
+            get;
+            set;
+        }
+
+        /*[ImportingConstructor]
+        public World()
+        {
+            Systems = new List<ISystem>();
+            Root = new Entity(nameof(Root));
+        }*/
+
         /// <summary>
         /// 
         /// </summary>
@@ -30,6 +46,7 @@ namespace LibraProgramming.Ecs
             this.dependencyProvider = dependencyProvider;
             systemTypes = new List<Type>();
 
+            Systems = new List<ISystem>();
             Root = new Entity(nameof(Root));
         }
 

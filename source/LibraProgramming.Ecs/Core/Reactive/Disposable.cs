@@ -32,7 +32,7 @@ namespace LibraProgramming.Ecs.Core.Reactive
         /// <summary>
         /// 
         /// </summary>
-        private class EmptyDisposable : IDisposable
+        private class EmptyDisposable : IDisposable, IEquatable<IDisposable>
         {
             public static readonly EmptyDisposable Instance;
 
@@ -47,6 +47,19 @@ namespace LibraProgramming.Ecs.Core.Reactive
 
             public void Dispose()
             {
+            }
+
+            public bool Equals(IDisposable other) => ReferenceEquals(Instance, other);
+
+            /// <inheritdoc cref="object.Equals(object)" />
+            public override bool Equals(object obj)
+            {
+                return obj is IDisposable disposable ? Equals(disposable) : base.Equals(obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LibraProgramming.Ecs
@@ -12,6 +13,12 @@ namespace LibraProgramming.Ecs
         /// 
         /// </summary>
         Entity Root { get; }
+
+        IList<ISystem> Systems
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// 

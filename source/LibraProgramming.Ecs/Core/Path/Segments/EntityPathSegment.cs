@@ -55,5 +55,11 @@ namespace LibraProgramming.Ecs.Core.Path.Segments
 
             throw new NotSupportedException();
         }
+
+        /// <inheritdoc cref="object.GetHashCode" />
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
