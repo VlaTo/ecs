@@ -162,12 +162,12 @@ namespace LibraProgramming.Ecs
                 return null;
             }
 
-            if (1 < collection.Count)
+            if (0 < collection.Count)
             {
-                throw new EntityException();
+                return (TComponent) collection[0];
             }
 
-            return (TComponent)collection[0];
+            return default;
         }
 
         /// <inheritdoc cref="GetAll{TComponent}" />

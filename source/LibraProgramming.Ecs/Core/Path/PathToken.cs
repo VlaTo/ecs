@@ -20,6 +20,11 @@
         /// <summary>
         /// 
         /// </summary>
+        public static PathToken UpLevel { get; } = new TerminalToken(PathTerminal.UpLevel);
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static PathToken String(string segment) => new NameToken(segment);
     }
 }

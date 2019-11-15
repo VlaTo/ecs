@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using LibraProgramming.Dependency.Container;
 using LibraProgramming.Ecs;
 using LibraProgramming.Ecs.Core;
+using LibraProgramming.Ecs.Core.Path;
 using LibraProgramming.Ecs.Extensions;
 using LibraProgramming.Game.Towers.Components;
 using LibraProgramming.Game.Towers.Core;
+using Microsoft.Extensions.Logging;
 
 namespace LibraProgramming.Game.Towers.Systems
 {
@@ -15,15 +18,25 @@ namespace LibraProgramming.Game.Towers.Systems
     {
         private readonly IWorld world;
         private readonly IGameTimer timer;
+        private readonly IEnemyMoveStrategy enemyMove;
+        private readonly ILogger logger;
+        private readonly EntityPath pathNodePath;
         private LiveComponentObserver observer;
         private IDisposable disposable;
         private EntityBase container;
 
         [PrefferedConstructor]
-        public EnemyWaveSystem(IWorld world, IGameTimer timer)
+        public EnemyWaveSystem(
+            IWorld world,
+            IGameTimer timer,
+            IEnemyMoveStrategy enemyMove,
+            ILogger logger)
         {
             this.world = world;
             this.timer = timer;
+            this.enemyMove = enemyMove;
+            this.logger = logger;
+            pathNodePath = "../../../Path";
         }
 
         public override Task InitializeAsync()
@@ -45,26 +58,52 @@ namespace LibraProgramming.Game.Towers.Systems
         
         private void DoUpdate(TimeSpan elapsed)
         {
-            foreach (var portion in observer)
+            foreach (var group in observer)
             {
-                var component = portion.Get<DelayComponent>();
+                var delayComponent = group.Get<DelayComponent>();
 
-                if (TimeSpan.Zero < component.Duration)
+                if (TimeSpan.Zero < delayComponent.Duration)
                 {
-                    component.Duration -= elapsed;
+                    delayComponent.Duration -= elapsed;
                     continue;
                 }
 
-                var children = portion.Children.ToArray();
+                PresentEnemyGroupToScene(group);
 
-                foreach (var enemy in children)
+                var parent = group.Parent;
+
+                parent.Children.Remove(group);
+            }
+        }
+
+        private void PresentEnemyGroupToScene(EntityBase enemies)
+        {
+            var children = enemies.Children.ToArray();
+
+            foreach (var child in children)
+            {
+                var points = child.Find(pathNodePath);
+                var pathComponent = points.Get<PathComponent>();
+                var positionComponent = child.Get<PositionComponent>();
+                var moveComponent = child.Get<MoveComponent>();
+
+                if (null == positionComponent)
                 {
-                    container.Children.Add(enemy);
+                    positionComponent = new PositionComponent();
+                    child.Add(positionComponent);
                 }
 
-                var collection = portion.Parent.Children;
+                if (null == moveComponent)
+                {
+                    moveComponent = new MoveComponent();
+                    child.Add(moveComponent);
+                }
 
-                collection.Remove(portion);
+                positionComponent.Position = enemyMove.GetOrigin(pathComponent);
+                //moveComponent.Angle = positionProvider.CalculateAngle(origin, Vector2.One);
+
+                container.Children.Add(child);
+                logger.LogDebug($"Adding enemy \'{child.Key}\'");
             }
         }
     }

@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using System.Text;
+using Windows.Networking.NetworkOperators;
 
 namespace LibraProgramming.Game.Towers.Core
 {
@@ -9,16 +11,20 @@ namespace LibraProgramming.Game.Towers.Core
     {
         public static Vector2 FromString(string value)
         {
-            var values = value.Split(' ', ',', StringSplitOptions.RemoveEmptyEntries);
+            return FromString(value, CultureInfo.InvariantCulture);
+        }
+
+        public static Vector2 FromString(string value, IFormatProvider formatProvider)
+        {
+            var values = value.Split(new[] {' ', ','}, StringSplitOptions.RemoveEmptyEntries);
 
             if (0 == values.Length)
             {
                 return Vector2.Zero;
             }
 
-            var culture = CultureInfo.InvariantCulture;
             var temp = values
-                .Select(val => System.Single.Parse(val, culture))
+                .Select(val => System.Single.Parse(val, formatProvider))
                 .ToArray();
 
             if (1 == temp.Length)
@@ -32,6 +38,15 @@ namespace LibraProgramming.Game.Towers.Core
             }
 
             throw new InvalidOperationException();
+        }
+
+        public static string ToString(Vector2 value, IFormatProvider formatProvider)
+        {
+            return new StringBuilder()
+                .AppendFormat(formatProvider, "F", value.X)
+                .Append(',')
+                .AppendFormat(formatProvider, "F", value.Y)
+                .ToString();
         }
     }
 }

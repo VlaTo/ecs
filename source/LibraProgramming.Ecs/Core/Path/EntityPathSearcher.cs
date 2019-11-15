@@ -96,7 +96,7 @@ namespace LibraProgramming.Ecs.Core.Path
             }
 
             var current = path.IsAbsolute() ? entity.Root : entity;
-            var found = SearchFrom(current, path.Entry.Next);
+            var found = SearchFrom(current, path.IsAbsolute() ? path.Entry.Next : path.Entry);
 
             return SearchResult.Success(found);
         }
@@ -125,7 +125,7 @@ namespace LibraProgramming.Ecs.Core.Path
                     continue;
                 }
 
-                if (segment.IsAnyKey())
+                if (segment.IsWildCard())
                 {
                     if (null == segment.Next)
                     {
@@ -145,8 +145,20 @@ namespace LibraProgramming.Ecs.Core.Path
                     return null;
                 }
 
+                if (segment.IsUpLevel())
+                {
+                    if (null == entity.Parent)
+                    {
+                        throw new Exception();
+                    }
+
+                    entity = entity.Parent;
+                    segment = segment.Next;
+
+                    continue;
+                }
+
                 throw new NotImplementedException();
-                //break;
             }
         }
     }

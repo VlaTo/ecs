@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Composition;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ using LibraProgramming.Game.Towers.Core;
 
 namespace LibraProgramming.Game.Towers.Systems
 {
+    [Export(typeof(ISystem))]
+    [ExportMetadata("Type", nameof(RenderEnemiesSystem))]
     public sealed class RenderEnemiesSystem : SystemBase, IDisposable
     {
         private readonly IWorld world;

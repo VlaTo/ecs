@@ -6,13 +6,13 @@ namespace LibraProgramming.Ecs.Core.Path.Segments
     /// 
     /// </summary>
     [DebuggerDisplay("//")]
-    internal sealed class EntityPathRootSegment : EntityPathSegment
+    internal sealed class PathRoot : EntityPathSegment
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="next"></param>
-        public EntityPathRootSegment(EntityPathSegment next) 
+        public PathRoot(EntityPathSegment next) 
             : base(next)
         {
         }
@@ -30,7 +30,7 @@ namespace LibraProgramming.Ecs.Core.Path.Segments
                 return true;
             }
 
-            return other is EntityPathRootSegment;
+            return other is PathRoot;
         }
 
         /// <inheritdoc cref="object.GetHashCode" />

@@ -18,7 +18,7 @@ namespace LibraProgramming.Ecs.Core.Extensions
                 throw new ArgumentNullException(nameof(path));
             }
 
-            return false == (path.Entry is EntityPathRootSegment);
+            return false == (path.Entry is PathRoot);
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace LibraProgramming.Ecs.Core.Extensions
                 throw new ArgumentNullException(nameof(path));
             }
 
-            return path.Entry is EntityPathRootSegment;
+            return path.Entry is PathRoot;
         }
     }
 }

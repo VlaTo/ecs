@@ -3,12 +3,12 @@
     /// <summary>
     /// 
     /// </summary>
-    internal sealed class EntityKeyWildCardSegment : EntityPathSegment
+    internal sealed class EntityKeyWildCard : EntityPathSegment
     {
         /// <summary>
         /// 
         /// </summary>
-        public EntityKeyWildCardSegment()
+        public EntityKeyWildCard()
             : base(null)
         {
         }
@@ -25,7 +25,7 @@
                 return true;
             }
 
-            return (other is EntityKeySegment) || (other is EntityKeyWildCardSegment);
+            return (other is EntityKey) || (other is EntityKeyWildCard);
         }
 
         public override int GetHashCode()

@@ -11,6 +11,8 @@ using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
 using Windows.UI.Xaml;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
 
 namespace LibraProgramming.Game.Towers.Views
 {
@@ -31,6 +33,20 @@ namespace LibraProgramming.Game.Towers.Views
                 () => new GameRenderer(AnimatedControl),
                 InstanceLifetime.Singleton
             );
+            ServiceLocator.Current.Register(
+                () =>
+                {
+                    var loggerFactory = new LoggerFactory(
+                        new[]
+                        {
+                            new DebugLoggerProvider()
+                        }
+                    );
+                    return loggerFactory.CreateLogger("Debug");
+                },
+                InstanceLifetime.Singleton
+            );
+            ServiceLocator.Current.Register<IEnemyMoveStrategy, EnemyMoveByPathStrategy>(InstanceLifetime.Singleton);
 
             var world = new World(new DependencyProviderAdapter(ServiceLocator.Current));
 
@@ -48,7 +64,8 @@ namespace LibraProgramming.Game.Towers.Views
 
             // register systems
             world.RegisterSystem<UpdateEnemiesSystem>();
-            world.RegisterSystem<MoveEntitySystem>();
+            world.RegisterSystem<MoveEnemySystem>();
+            //world.RegisterSystem<MoveEntitySystem>();
             world.RegisterSystem<RenderEnemiesSystem>();
             world.RegisterSystem<EnemyWaveSystem>();
 

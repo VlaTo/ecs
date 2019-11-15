@@ -19,7 +19,20 @@
         <Entity Key="Enemies" />
       </Children>
     </Entity>
-    <Entity Key="CurrentWave" Path="//Waves/1" />
+    <Entity Key="CurrentWave" Path="//Waves/1" Link="true" />
+    <Entity Key="Paths">
+      <Children>
+        <Entity Key="0">
+          <Components>
+            <Component Alias="PathComponent">
+              <Properties>
+                <Property Name="WayPoints">20.0, 20.0; 300.0, 20.0; 300.0, 200.0; 20.0, 300.0</Property>
+              </Properties>
+            </Component>
+          </Components>
+        </Entity>
+      </Children>
+    </Entity>
     <Entity Key="Waves">
       <Components>
       </Components>
@@ -33,6 +46,7 @@
             </Component>
           </Components>
           <Children>
+            <Entity Key="Path" Path="//Paths/0" Link="true" />
             <Entity Key="Enemies">
               <Children>
                 <Entity Key="0">
@@ -48,15 +62,14 @@
                       <Components>
                         <Component Alias="RenderComponent" />
                         <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
+                        <!--<Component Alias="WayPointComponent">
                           <Properties>
-                            <Property Name="Position">0 0</Property>
                           </Properties>
-                        </Component>
+                        </Component>-->
                         <Component Alias="MoveComponent">
                           <Properties>
                             <Property Name="Speed">20.0</Property>
-                            <Property Name="Angle">3.141529</Property>
+                            <Property Name="Angle">1.3141529</Property>
                           </Properties>
                         </Component>
                       </Components>
@@ -65,15 +78,10 @@
                       <Components>
                         <Component Alias="RenderComponent" />
                         <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
-                          <Properties>
-                            <Property Name="Position">8.0 8.0</Property>
-                          </Properties>
-                        </Component>
                         <Component Alias="MoveComponent">
                           <Properties>
-                            <Property Name="Speed">16.0</Property>
-                            <Property Name="Angle">3.0529</Property>
+                            <Property Name="Speed">12.3</Property>
+                            <Property Name="Angle">1.0529</Property>
                           </Properties>
                         </Component>
                       </Components>
@@ -82,122 +90,10 @@
                       <Components>
                         <Component Alias="RenderComponent" />
                         <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
-                          <Properties>
-                            <Property Name="Position">10.0 10.0</Property>
-                          </Properties>
-                        </Component>
                         <Component Alias="MoveComponent">
                           <Properties>
                             <Property Name="Speed">16.0</Property>
-                            <Property Name="Angle">3.0529</Property>
-                          </Properties>
-                        </Component>
-                      </Components>
-                    </Entity>
-                  </Children>
-                </Entity>
-                <Entity Key="1">
-                  <Components>
-                    <Component Alias="DelayComponent">
-                      <Properties>
-                        <Property Name="Duration">0:00:3.0</Property>
-                      </Properties>
-                    </Component>
-                  </Components>
-                  <Children>
-                    <Entity Key="1">
-                      <Components>
-                        <Component Alias="RenderComponent" />
-                        <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
-                          <Properties>
-                            <Property Name="Position">0 0</Property>
-                          </Properties>
-                        </Component>
-                        <Component Alias="MoveComponent">
-                          <Properties>
-                            <Property Name="Speed">20.0</Property>
-                            <Property Name="Angle">3.141529</Property>
-                          </Properties>
-                        </Component>
-                      </Components>
-                    </Entity>
-                    <Entity Key="2">
-                      <Components>
-                        <Component Alias="RenderComponent" />
-                        <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
-                          <Properties>
-                            <Property Name="Position">8.0 8.0</Property>
-                          </Properties>
-                        </Component>
-                        <Component Alias="MoveComponent">
-                          <Properties>
-                            <Property Name="Speed">16.0</Property>
-                            <Property Name="Angle">3.0529</Property>
-                          </Properties>
-                        </Component>
-                      </Components>
-                    </Entity>
-                  </Children>
-                </Entity>
-                <Entity Key="2">
-                  <Components>
-                    <Component Alias="DelayComponent">
-                      <Properties>
-                        <Property Name="Duration">0:00:5.0</Property>
-                      </Properties>
-                    </Component>
-                  </Components>
-                  <Children>
-                    <Entity Key="1">
-                      <Components>
-                        <Component Alias="RenderComponent" />
-                        <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
-                          <Properties>
-                            <Property Name="Position">0 0</Property>
-                          </Properties>
-                        </Component>
-                        <Component Alias="MoveComponent">
-                          <Properties>
-                            <Property Name="Speed">20.0</Property>
-                            <Property Name="Angle">3.141529</Property>
-                          </Properties>
-                        </Component>
-                      </Components>
-                    </Entity>
-                    <Entity Key="2">
-                      <Components>
-                        <Component Alias="RenderComponent" />
-                        <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
-                          <Properties>
-                            <Property Name="Position">8.0 8.0</Property>
-                          </Properties>
-                        </Component>
-                        <Component Alias="MoveComponent">
-                          <Properties>
-                            <Property Name="Speed">16.0</Property>
-                            <Property Name="Angle">3.0529</Property>
-                          </Properties>
-                        </Component>
-                      </Components>
-                    </Entity>
-                    <Entity Key="3">
-                      <Components>
-                        <Component Alias="RenderComponent" />
-                        <Component Alias="UpdateComponent" />
-                        <Component Alias="PositionComponent">
-                          <Properties>
-                            <Property Name="Position">12.0 12.0</Property>
-                          </Properties>
-                        </Component>
-                        <Component Alias="MoveComponent">
-                          <Properties>
-                            <Property Name="Speed">16.0</Property>
-                            <Property Name="Angle">3.0529</Property>
+                            <Property Name="Angle">1.0529</Property>
                           </Properties>
                         </Component>
                       </Components>

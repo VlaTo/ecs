@@ -17,7 +17,7 @@ namespace LibraProgramming.Ecs.Core.Path.Extensions
                 throw new ArgumentNullException(nameof(segment));
             }
 
-            return segment is EntityPathRootSegment;
+            return segment is PathRoot;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace LibraProgramming.Ecs.Core.Path.Extensions
                 throw new ArgumentNullException(nameof(segment));
             }
 
-            if (segment is EntityKeySegment value)
+            if (segment is EntityKey value)
             {
                 key = value.Key;
                 return true;
@@ -49,14 +49,14 @@ namespace LibraProgramming.Ecs.Core.Path.Extensions
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static bool IsAnyKey(this EntityPathSegment segment)
+        public static bool IsWildCard(this EntityPathSegment segment)
         {
             if (null == segment)
             {
                 throw new ArgumentNullException(nameof(segment));
             }
 
-            return segment is EntityKeyWildCardSegment;
+            return segment is EntityKeyWildCard;
         }
 
         /// <summary>
@@ -71,7 +71,22 @@ namespace LibraProgramming.Ecs.Core.Path.Extensions
                 throw new ArgumentNullException(nameof(segment));
             }
 
-            return segment is EntityPathWildCardSegment;
+            return segment is PathWildCard;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static bool IsUpLevel(this EntityPathSegment segment)
+        {
+            if (null == segment)
+            {
+                throw new ArgumentNullException(nameof(segment));
+            }
+
+            return segment is UpLevel;
         }
     }
 }

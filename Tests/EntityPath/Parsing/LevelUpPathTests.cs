@@ -3,11 +3,11 @@
 namespace Tests.EntityPath.Parsing
 {
     [TestClass]
-    public class ParsingWildcardPathTests : ParsingContext
+    public class LevelUpPathTests : ParsingContext
     {
         public override void Act()
         {
-            EntityPath = LibraProgramming.Ecs.Core.Path.EntityPath.Parse("//**/*");
+            EntityPath = LibraProgramming.Ecs.Core.Path.EntityPath.Parse("../../Test");
         }
 
         [TestMethod]

@@ -42,18 +42,25 @@ namespace LibraProgramming.Ecs.Core.Path
                 if (token.IsWildCard())
                 {
                     EnsureTail(tokenizer);
-                    return new EntityKeyWildCardSegment();
+                    return new EntityKeyWildCard();
                 }
 
                 if (token.IsPathDelimiter())
                 {
+                    //var next = ParseDelimiter(tokenizer);
                     return ParseFromRoot(tokenizer);
                 }
 
                 if (token.IsName(out var key))
                 {
                     var next = ParseDelimiter(tokenizer);
-                    return new EntityKeySegment(key, next);
+                    return new EntityKey(key, next);
+                }
+
+                if (token.IsUpLevel())
+                {
+                    var next = ParseDelimiter(tokenizer);
+                    return new UpLevel(next);
                 }
 
                 throw new Exception();
@@ -71,7 +78,7 @@ namespace LibraProgramming.Ecs.Core.Path
                 if (token.IsPathDelimiter())
                 {
                     var next = ParseWildCardOrName(tokenizer);
-                    return new EntityPathRootSegment(next);
+                    return new PathRoot(next);
                 }
 
                 throw new Exception();
@@ -94,7 +101,13 @@ namespace LibraProgramming.Ecs.Core.Path
                 if (token.IsName(out var key))
                 {
                     var next = ParseDelimiter(tokenizer);
-                    return new EntityKeySegment(key, next);
+                    return new EntityKey(key, next);
+                }
+
+                if (token.IsUpLevel())
+                {
+                    var next = ParseDelimiter(tokenizer);
+                    return new UpLevel(next);
                 }
 
                 throw new Exception();
@@ -108,13 +121,13 @@ namespace LibraProgramming.Ecs.Core.Path
                 {
                     EnsureTail(tokenizer);
 
-                    return new EntityKeyWildCardSegment();
+                    return new EntityKeyWildCard();
                 }
 
                 if (token.IsWildCard())
                 {
                     var next = ParseDelimiter(tokenizer);
-                    return new EntityPathWildCardSegment(next);
+                    return new PathWildCard(next);
                 }
 
                 throw new Exception();

@@ -6,6 +6,12 @@ using LibraProgramming.Ecs.Core.Path;
 
 namespace LibraProgramming.Ecs
 {
+    public enum EntityCreateStage
+    {
+        Creating,
+        PostCreating
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -20,6 +26,12 @@ namespace LibraProgramming.Ecs
         {
             get;
         }*/
+
+        public EntityCreateStage CreateStage
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// 
@@ -42,6 +54,7 @@ namespace LibraProgramming.Ecs
             //this.entityCreator = entityCreator;
             //PrototypeResolver = prototypeResolver;
             ComponentResolver = componentResolver;
+            CreateStage = EntityCreateStage.Creating;
         }
 
         /*public EntityBase CreateEntity(string key, EntityPath prototypePath)
@@ -65,19 +78,23 @@ namespace LibraProgramming.Ecs
         /// <returns></returns>
         public void LoadEntity(EntityBase entity, EntityState state)
         {
-            var deferred = new Dictionary<EntityBase, IList<EntityState>>();
+            CreateStage = EntityCreateStage.Creating;
+
+            //var deferred = new Dictionary<EntityBase, IList<EntityState>>();
+            var deferred = new Queue<(EntityBase, EntityState)>();
 
             foreach (var childState in state.Children)
             {
                 LoadEntityCore(entity, childState, deferred);
             }
 
-            foreach (var kvp in deferred)
+            CreateStage = EntityCreateStage.PostCreating;
+
+            while (0 < deferred.Count)
             {
-                foreach (var childState in kvp.Value)
-                {
-                    LoadLinkedEntity(kvp.Key, childState);
-                }
+                var (parent, state1) = deferred.Dequeue();
+
+                LoadLinkedEntity(parent, state1, deferred);
             }
         }
 
@@ -106,18 +123,19 @@ namespace LibraProgramming.Ecs
             return entity;
         }*/
 
-        private void LoadEntityCore(EntityBase parent, EntityState state,
-            IDictionary<EntityBase, IList<EntityState>> deferred)
+        private void LoadEntityCore(EntityBase parent, EntityState state, Queue<(EntityBase, EntityState)> deferred)
         {
             if (false == String.IsNullOrEmpty(state.EntityPath))
             {
-                if (false == deferred.TryGetValue(parent, out var children))
+                deferred.Enqueue((parent, state));
+
+                /*if (false == deferred.TryGetValue(parent, out var children))
                 {
                     children = new List<EntityState>();
                     deferred.Add(parent, children);
                 }
 
-                children.Add(state);
+                children.Add(state);*/
 
                 return;
             }
@@ -134,20 +152,28 @@ namespace LibraProgramming.Ecs
             parent.Children.Add(entity);
         }
 
-        private void LoadLinkedEntity(EntityBase parent, EntityState state)
+        private static void LoadLinkedEntity(EntityBase parent, EntityState state, Queue<(EntityBase, EntityState)> deferred)
         {
             if (String.IsNullOrEmpty(state.EntityPath))
             {
                 throw new EntityException();
             }
 
+            var prototype = parent.Find(state.EntityPath);
+
             if (state.IsReference)
             {
-                parent.Children.Add(new LinkedEntity(state.Key, state.EntityPath));
+                if (null == prototype)
+                {
+                    deferred.Enqueue((parent, state));
+                }
+                else
+                {
+                    parent.Children.Add(new LinkedEntity(state.Key, prototype));
+                }
+
                 return;
             }
-
-            var prototype = parent.Find(state.EntityPath);
 
             if (null == prototype)
             {
@@ -165,13 +191,6 @@ namespace LibraProgramming.Ecs
             {
                 entity.Children.Add(child.Clone());
             }
-
-            /*LoadComponents(entity, state.Components);
-
-            foreach (var childState in state.Children)
-            {
-                LoadLinkedEntity(entity, childState);
-            }*/
 
             parent.Children.Add(entity);
         }

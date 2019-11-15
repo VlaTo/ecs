@@ -11,6 +11,9 @@ namespace LibraProgramming.Ecs.Core.Path
         /// </summary>
         private sealed class EntityPathTokenizer : IDisposable
         {
+            private const char WildCard = '*';
+            private const char Dot = '.';
+
             private readonly TextReader reader;
             private bool isEndOfStream;
             private char? lastSymbol;
@@ -47,17 +50,34 @@ namespace LibraProgramming.Ecs.Core.Path
                                 return PathToken.Delimiter;
                             }
 
-                            lastSymbol = ch;
+                            QueueNext(ch);
                             done = true;
 
                             break;
                         }
 
-                        case '*':
+                        case WildCard:
                         {
                             if (0 == token.Length)
                             {
                                 return PathToken.WildCard;
+                            }
+
+                            throw new Exception();
+                        }
+
+                        case Dot:
+                        {
+                            if (0 == token.Length)
+                            {
+                                token.Append(Dot);
+                                continue;
+                            }
+
+                            if (1 == token.Length && token[0] == Dot)
+                            {
+                                token.Clear();
+                                return PathToken.UpLevel;
                             }
 
                             throw new Exception();
@@ -110,6 +130,16 @@ namespace LibraProgramming.Ecs.Core.Path
                 symbol = (char) ch;
 
                 return true;
+            }
+
+            private void QueueNext(char symbol)
+            {
+                if (lastSymbol.HasValue)
+                {
+                    throw new Exception();
+                }
+
+                lastSymbol = symbol;
             }
         }
     }

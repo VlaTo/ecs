@@ -5,14 +5,14 @@ namespace LibraProgramming.Ecs.Core.Path.Segments
     /// <summary>
     /// 
     /// </summary>
-    internal sealed class EntityKeySegment : EntityPathSegment
+    internal sealed class EntityKey : EntityPathSegment
     {
         public string Key
         {
             get;
         }
 
-        public EntityKeySegment(string key, EntityPathSegment next)
+        public EntityKey(string key, EntityPathSegment next)
             : base(next)
         {
             Key = key;
@@ -35,8 +35,8 @@ namespace LibraProgramming.Ecs.Core.Path.Segments
                 return true;
             }
 
-            return (other is EntityKeySegment str) && String.Equals(Key, str.Key)
-                   || (other is EntityKeyWildCardSegment);
+            return (other is EntityKey str) && String.Equals(Key, str.Key)
+                   || (other is EntityKeyWildCard);
         }
 
         public override int GetHashCode()

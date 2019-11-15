@@ -73,5 +73,20 @@ namespace LibraProgramming.Ecs.Core.Extensions
 
             return false;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static bool IsUpLevel(this PathToken token)
+        {
+            if (null == token)
+            {
+                throw new ArgumentNullException(nameof(token));
+            }
+
+            return token is TerminalToken term && PathTerminal.UpLevel == term.Terminal;
+        }
     }
 }

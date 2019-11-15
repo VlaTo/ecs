@@ -140,7 +140,7 @@ namespace LibraProgramming.Ecs.Core
                 return new KeyEntityCollectionWatcher(next, observer, key);
             }
 
-            if (path.IsAnyKey())
+            if (path.IsWildCard())
             {
                 return new WildcardEntityCollectionWatcher(next, observer);
             }

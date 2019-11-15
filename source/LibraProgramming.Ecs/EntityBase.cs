@@ -82,13 +82,13 @@ namespace LibraProgramming.Ecs
 
                     while (Root != current)
                     {
-                        last = new EntityKeySegment(current.Key, last);
+                        last = new EntityKey(current.Key, last);
                         current = current.Parent;
                     }
 
                     if (Root == current)
                     {
-                        last = new EntityPathRootSegment(last);
+                        last = new PathRoot(last);
                     }
 
                     path = new EntityPath(last);

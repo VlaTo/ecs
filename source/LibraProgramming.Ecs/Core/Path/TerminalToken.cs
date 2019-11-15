@@ -4,7 +4,8 @@
     {
         EndOfStream,
         PathDelimiter,
-        WildCard
+        WildCard,
+        UpLevel
     }
 
     internal sealed class TerminalToken : PathToken
