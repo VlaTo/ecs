@@ -16,6 +16,34 @@
         </Component>
       </Components>
       <Children>
+        <Entity Key="Map">
+          <Components>
+            <Component Alias="SpriteSheetComponent">
+              <Properties>
+                <Property Name="Source">Ground.png</Property>
+                <Property Name="TileSize">32, 32</Property>
+                <Property Name="TilesCount">16</Property>
+              </Properties>
+            </Component>
+            <Component Alias="MapComponent">
+              <Properties>
+                <Property Name="Size">10, 10</Property>
+                <Property Name="Tiles">
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                  1 1 1 1 1 1 1 1 1 1
+                </Property>
+              </Properties>
+            </Component>
+          </Components>
+        </Entity>
         <Entity Key="Enemies" />
       </Children>
     </Entity>
@@ -49,10 +77,12 @@
             <Entity Key="Path" Path="//Paths/0" Link="true" />
             <Entity Key="Enemies">
               <Children>
+                <!-- Group 1 -->
                 <Entity Key="0">
                   <Components>
                     <Component Alias="DelayComponent">
                       <Properties>
+                        <!-- Start after 0.5 sec -->
                         <Property Name="Duration">0:00:00.5</Property>
                       </Properties>
                     </Component>
@@ -62,14 +92,9 @@
                       <Components>
                         <Component Alias="RenderComponent" />
                         <Component Alias="UpdateComponent" />
-                        <!--<Component Alias="WayPointComponent">
+                        <Component Alias="SpeedComponent">
                           <Properties>
-                          </Properties>
-                        </Component>-->
-                        <Component Alias="MoveComponent">
-                          <Properties>
-                            <Property Name="Speed">20.0</Property>
-                            <Property Name="Angle">1.3141529</Property>
+                            <Property Name="Value">20.0</Property>
                           </Properties>
                         </Component>
                       </Components>

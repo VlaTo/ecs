@@ -1,16 +1,12 @@
-﻿using System;
-using System.Numerics;
-using LibraProgramming.Ecs;
-using LibraProgramming.Game.Towers.Components;
+﻿using LibraProgramming.Ecs;
+using System;
 
 namespace LibraProgramming.Game.Towers.Core
 {
     public interface IEnemyMoveStrategy
     {
-        Vector2 GetOrigin(PathComponent component);
+        void PlaceEnemy(EntityBase enemy);
 
-        float CalculateAngle(Vector2 origin, Vector2 next);
-
-        void Move(EntityBase entity, TimeSpan duration);
+        void MoveEnemy(EntityBase entity, TimeSpan duration);
     }
 }

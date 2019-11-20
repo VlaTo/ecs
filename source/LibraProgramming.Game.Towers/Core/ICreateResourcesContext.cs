@@ -3,9 +3,9 @@ using Microsoft.Graphics.Canvas;
 
 namespace LibraProgramming.Game.Towers.Core
 {
-    public interface IGameRenderContext
+    public interface ICreateResourcesContext
     {
-        CanvasDrawingSession DrawingSession
+        ICanvasResourceCreatorWithDpi Creator
         {
             get;
         }

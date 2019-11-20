@@ -12,12 +12,14 @@ namespace LibraProgramming.Ecs
         /// <summary>
         /// 
         /// </summary>
-        Entity Root { get; }
-
-        IList<ISystem> Systems
+        Entity Root
         {
             get;
-            set;
+        }
+
+        IReadOnlyList<ISystem> Systems
+        {
+            get;
         }
 
         /// <summary>

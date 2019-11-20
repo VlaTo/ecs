@@ -4,17 +4,16 @@ using LibraProgramming.Ecs.Core;
 using LibraProgramming.Ecs.Extensions;
 using LibraProgramming.Game.Towers.Components;
 using LibraProgramming.Game.Towers.Core;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Composition;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace LibraProgramming.Game.Towers.Systems
 {
-    [Export(typeof(ISystem))]
-    [ExportMetadata("Type", nameof(MoveEnemySystem))]
-    public sealed class MoveEnemySystem : SystemBase, IDisposable
+    public class StartEnemyWaveSystem : SystemBase, IDisposable
     {
         private readonly IWorld world;
         private readonly IGameTimer timer;
@@ -22,10 +21,10 @@ namespace LibraProgramming.Game.Towers.Systems
         private readonly ILogger logger;
         private LiveComponentObserver observer;
         private IDisposable disposable;
+        private EntityBase container;
 
-        [ImportingConstructor]
         [PrefferedConstructor]
-        public MoveEnemySystem(
+        public StartEnemyWaveSystem(
             IWorld world,
             IGameTimer timer,
             IEnemyMoveStrategy moveStrategy,
@@ -39,10 +38,11 @@ namespace LibraProgramming.Game.Towers.Systems
 
         public override Task InitializeAsync()
         {
-            disposable = timer.Subscribe(DoUpdateComponents);
-            observer = world.Root.Subscribe<PositionComponent, WayPointComponent>("//Scene/Enemies/*");
+            observer = world.Root.Subscribe<DelayComponent>("//CurrentWave/Enemies/*");
+            container = world.Root.Find("//Scene/Enemies");
+            disposable = timer.Subscribe(DoUpdate);
 
-            return base.InitializeAsync();
+            return Task.CompletedTask;
         }
 
         public override Task ExecuteAsync(CancellationToken cancellationToken) => cancellationToken.AsTask();
@@ -52,23 +52,37 @@ namespace LibraProgramming.Game.Towers.Systems
             disposable.Dispose();
             observer.Dispose();
         }
-
-        private void DoUpdateComponents(TimeSpan elapsed)
+        
+        private void DoUpdate(TimeSpan elapsed)
         {
-            try
+            foreach (var group in observer)
             {
-                foreach (var entity in observer)
-                {
-                    moveStrategy.MoveEnemy(entity, elapsed);
+                var delayComponent = group.Get<DelayComponent>();
 
-                    /*var position = entity.Get<PositionComponent>();
-                    var move = entity.Get<MoveComponent>();
-                    UpdatePosition(position, move, duration);*/
+                if (TimeSpan.Zero < delayComponent.Duration)
+                {
+                    delayComponent.Duration -= elapsed;
+                    continue;
                 }
+
+                PresentEnemiesToScene(group.Children);
+
+                var parent = group.Parent;
+
+                parent.Children.Remove(group);
             }
-            finally
+        }
+
+        private void PresentEnemiesToScene(IEnumerable<EntityBase> enemies)
+        {
+            var children = enemies.ToArray();
+
+            foreach (var child in children)
             {
-                ;
+                moveStrategy.PlaceEnemy(child);
+                container.Children.Add(child);
+
+                logger.LogDebug($"Adding enemy \'{child.Key}\'");
             }
         }
     }

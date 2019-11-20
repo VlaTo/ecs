@@ -50,8 +50,8 @@ namespace LibraProgramming.Game.Towers.Components
         {
             var culture = CultureInfo.InvariantCulture;
 
-            Speed = state.Properties.GetValue<float>(nameof(Speed), formatProvider: culture);
-            Angle = state.Properties.GetValue<float>(nameof(Angle), formatProvider: culture);
+            Speed = state.Properties.GetValue(nameof(Speed), value => System.Single.Parse(value, culture));
+            Angle = state.Properties.GetValue(nameof(Angle), value => System.Single.Parse(value, culture));
         }
     }
 }

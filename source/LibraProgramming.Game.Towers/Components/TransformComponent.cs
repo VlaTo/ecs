@@ -31,16 +31,15 @@ namespace LibraProgramming.Game.Towers.Components
 
         protected override void DoFillState(ComponentState state)
         {
-            var str = Transform.ToString();
             state.Properties = new[]
             {
-                new PropertyState(nameof(Transform), str)
+                new PropertyState(nameof(Transform), Transform.ToString())
             };
         }
 
         protected override void DoApplyState(ComponentState state)
         {
-            Transform = state.Properties.GetValue(nameof(Transform), MatrixConverter.FromString);
+            Transform = state.Properties.GetValue(nameof(Transform), Converters.Matrix3x2);
         }
     }
 }

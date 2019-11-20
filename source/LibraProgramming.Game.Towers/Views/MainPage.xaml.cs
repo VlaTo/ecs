@@ -29,6 +29,10 @@ namespace LibraProgramming.Game.Towers.Views
                 () => new GameTimer(AnimatedControl),
                 InstanceLifetime.Singleton
             );
+            ServiceLocator.Current.Register<IGameResourcesCreator>(
+                () => new GameResourcesCreator(AnimatedControl), 
+                InstanceLifetime.Singleton
+            );
             ServiceLocator.Current.Register<IGameRenderer>(
                 () => new GameRenderer(AnimatedControl),
                 InstanceLifetime.Singleton
@@ -46,7 +50,14 @@ namespace LibraProgramming.Game.Towers.Views
                 },
                 InstanceLifetime.Singleton
             );
-            ServiceLocator.Current.Register<IEnemyMoveStrategy, EnemyMoveByPathStrategy>(InstanceLifetime.Singleton);
+            ServiceLocator.Current.Register<IFileProvider>(
+                () => new EmbeddedResourceFileProvider("LibraProgramming.Game.Towers.Data.", Assembly.GetExecutingAssembly()),
+                InstanceLifetime.Singleton
+            );
+            ServiceLocator.Current.Register<IEnemyMoveStrategy>(
+                () => new EnemyMoveByPathStrategy("../../../Path"),
+                InstanceLifetime.Singleton
+            );
 
             var world = new World(new DependencyProviderAdapter(ServiceLocator.Current));
 
@@ -65,19 +76,17 @@ namespace LibraProgramming.Game.Towers.Views
             // register systems
             world.RegisterSystem<UpdateEnemiesSystem>();
             world.RegisterSystem<MoveEnemySystem>();
-            //world.RegisterSystem<MoveEntitySystem>();
+            world.RegisterSystem<RenderMapSystem>();
             world.RegisterSystem<RenderEnemiesSystem>();
-            world.RegisterSystem<EnemyWaveSystem>();
+            world.RegisterSystem<StartEnemyWaveSystem>();
 
-            LoadWorld(world, CreateEntityFactory());
+            LoadWorld(world, ServiceLocator.Current.GetInstance<IFileProvider>(), CreateEntityFactory());
 
             world.ExecuteAsync(CancellationToken.None).RunAndForget();
         }
 
-        private static void LoadWorld(IWorld world, EntityFactory entityFactory)
+        private static void LoadWorld(IWorld world, IFileProvider fileProvider, EntityFactory entityFactory)
         {
-            var fileProvider = new EmbeddedResourceFileProvider("LibraProgramming.Game.Towers.Data.", Assembly.GetExecutingAssembly());
-
             using (var file = fileProvider.GetFile("Towers.xml"))
             {
                 using (var stream = file.OpenRead())

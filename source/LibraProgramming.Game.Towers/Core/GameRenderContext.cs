@@ -1,25 +1,25 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿
+using Windows.Foundation;
+using Microsoft.Graphics.Canvas;
 
 namespace LibraProgramming.Game.Towers.Core
 {
     public class GameRenderContext : IGameRenderContext
     {
-        private readonly IList<Vector2> renderList;
-
-        public GameRenderContext(IList<Vector2> renderList)
+        public CanvasDrawingSession DrawingSession
         {
-            this.renderList = renderList;
+            get;
         }
 
-        public void RenderEnemy(Vector2 position)
+        public Size CanvasSize
         {
-            renderList.Add(position);
-            /*using (var outline = new CanvasSolidColorBrush(session, Colors.Gray))
-            {
-                session.FillCircle(position, 8.0f, outline);
-                session.DrawCircle(position, 8.0f, Colors.AntiqueWhite, 0.4f);
-            }*/
+            get;
+        }
+
+        public GameRenderContext(CanvasDrawingSession drawingSession, Size canvasSize)
+        {
+            DrawingSession = drawingSession;
+            CanvasSize = canvasSize;
         }
     }
 }

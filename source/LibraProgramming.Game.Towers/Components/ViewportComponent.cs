@@ -21,38 +21,43 @@ namespace LibraProgramming.Game.Towers.Components
             set;
         }
 
-        public string ToString(string format)
+        public string ToString() => ToString("F");
+
+        public string ToString(string format) => ToString(format, CultureInfo.InvariantCulture);
+
+        public string ToString(string format, IFormatProvider formatProvider)
         {
             switch (format)
             {
                 case "F":
                 {
-                    var culture = CultureInfo.InvariantCulture;
-                    return $"{Min:F,culture} {Max:F,culture}";
+                    return $"{Min:F,formatProvider} {Max:F,formatProvider}";
                 }
             }
 
             return ToString();
         }
 
-        public static Limits Parse(string value)
+        public static Limits Parse(string value) => Parse(value, CultureInfo.InvariantCulture);
+
+        public static Limits Parse(string value, IFormatProvider formatProvider)
         {
             var values = value.Split(' ', ',', StringSplitOptions.RemoveEmptyEntries);
-            var culture = CultureInfo.InvariantCulture;
-            var temp = values
-                .Select(val => System.Single.Parse(val, culture))
+            var numbers = values
+                .Select(number => System.Single.Parse(number, formatProvider))
                 .ToArray();
 
-            if (2 == temp.Length)
+            if (2 == numbers.Length)
             {
                 return new Limits
                 {
-                    Min = temp[0],
-                    Max = temp[1]
+                    Min = numbers[0],
+                    Max = numbers[1]
                 };
             }
 
             throw new InvalidOperationException();
+
         }
     }
 
@@ -76,12 +81,6 @@ namespace LibraProgramming.Game.Towers.Components
 
         private ViewportComponent(ViewportComponent instance)
         {
-            /*Horizontal = new Limits
-            {
-                Min = instance.Horizontal.Min, 
-                Max = instance.Horizontal.Max
-            };*/
-
             Horizontal = instance.Horizontal;
             Vertical = instance.Vertical;
         }
@@ -95,15 +94,15 @@ namespace LibraProgramming.Game.Towers.Components
         {
             state.Properties = new[]
             {
-                new PropertyState(nameof(Horizontal), Horizontal.ToString("F")),
-                new PropertyState(nameof(Vertical), Vertical.ToString("F"))
+                new PropertyState(nameof(Horizontal), Horizontal.ToString()),
+                new PropertyState(nameof(Vertical), Vertical.ToString())
             };
         }
 
         protected override void DoApplyState(ComponentState state)
         {
-            Horizontal = state.Properties.GetValue<Limits>(nameof(Horizontal), Limits.Parse);
-            Vertical = state.Properties.GetValue<Limits>(nameof(Vertical), Limits.Parse);
+            Horizontal = state.Properties.GetValue(nameof(Horizontal), Limits.Parse);
+            Vertical = state.Properties.GetValue(nameof(Vertical), Limits.Parse);
         }
     }
 }

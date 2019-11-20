@@ -31,18 +31,15 @@ namespace LibraProgramming.Game.Towers.Components
 
         protected override void DoFillState(ComponentState state)
         {
-            var culture = CultureInfo.InvariantCulture;
-
             state.Properties = new[]
             {
-                new PropertyState(nameof(Position), Position.ToString("G", culture))
+                new PropertyState(nameof(Position), Position.ToString(CultureInfo.InvariantCulture))
             };
         }
 
         protected override void DoApplyState(ComponentState state)
         {
-            var culture = CultureInfo.InvariantCulture;
-            Position = state.Properties.GetValue(nameof(Position), VectorConverter.FromString);
+            Position = state.Properties.GetValue(nameof(Position), Converters.Vector2);
         }
     }
 }

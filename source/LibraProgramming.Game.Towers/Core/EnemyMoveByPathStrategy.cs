@@ -2,18 +2,45 @@
 using System.Numerics;
 using LibraProgramming.Dependency.Container;
 using LibraProgramming.Ecs;
+using LibraProgramming.Ecs.Core.Path;
 using LibraProgramming.Game.Towers.Components;
 
 namespace LibraProgramming.Game.Towers.Core
 {
     internal sealed class EnemyMoveByPathStrategy : IEnemyMoveStrategy
     {
+        private readonly EntityPath pathHolderEntityPath;
+
         [PrefferedConstructor]
-        public EnemyMoveByPathStrategy()
+        public EnemyMoveByPathStrategy(EntityPath pathHolderEntityPath)
         {
+            this.pathHolderEntityPath = pathHolderEntityPath;
         }
 
-        public Vector2 GetOrigin(PathComponent component)
+        public void PlaceEnemy(EntityBase enemy)
+        {
+            var points = enemy.Find(pathHolderEntityPath);
+            var pathComponent = points.Get<PathComponent>();
+
+            var positionComponent = enemy.Get<PositionComponent>();
+            var moveComponent = enemy.Get<MoveComponent>();
+
+            if (null == positionComponent)
+            {
+                positionComponent = new PositionComponent();
+                enemy.Add(positionComponent);
+            }
+
+            if (null == moveComponent)
+            {
+                moveComponent = new MoveComponent();
+                enemy.Add(moveComponent);
+            }
+
+            positionComponent.Position = GetOrigin(pathComponent);
+        }
+
+        private Vector2 GetOrigin(PathComponent component)
         {
             if (0 == component.WayPoints.Length)
             {
@@ -28,7 +55,7 @@ namespace LibraProgramming.Game.Towers.Core
             return Vector2.Dot(origin, next);
         }
 
-        public void Move(EntityBase entity, TimeSpan duration)
+        public void MoveEnemy(EntityBase entity, TimeSpan duration)
         {
             var position = entity.Get<PositionComponent>();
             var move = entity.Get<MoveComponent>();

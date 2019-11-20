@@ -16,6 +16,7 @@ namespace LibraProgramming.Ecs
     {
         private readonly IDependencyProvider dependencyProvider;
         private readonly List<Type> systemTypes;
+        private readonly List<ISystem> systems;
 
         /// <inheritdoc cref="IWorld.Root" />
         public Entity Root
@@ -24,11 +25,7 @@ namespace LibraProgramming.Ecs
         }
 
         //[ImportMany]
-        public IList<ISystem> Systems
-        {
-            get;
-            set;
-        }
+        public IReadOnlyList<ISystem> Systems => systems;
 
         /*[ImportingConstructor]
         public World()
@@ -46,7 +43,7 @@ namespace LibraProgramming.Ecs
             this.dependencyProvider = dependencyProvider;
             systemTypes = new List<Type>();
 
-            Systems = new List<ISystem>();
+            systems = new List<ISystem>();
             Root = new Entity(nameof(Root));
         }
 
@@ -66,7 +63,7 @@ namespace LibraProgramming.Ecs
         /// <inheritdoc cref="IWorld.ExecuteAsync" />
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var systems = new List<ISystem>();
+            systems.Clear();
 
             foreach (var systemType in systemTypes)
             {
@@ -74,7 +71,7 @@ namespace LibraProgramming.Ecs
                 systems.Add(system);
             }
 
-            await InvokeSystems(systems, system => system.InitializeAsync());
+            await InvokeSystems(system => system.InitializeAsync());
 
             try
             {
@@ -90,7 +87,7 @@ namespace LibraProgramming.Ecs
 
                 using (cancellationToken.Register(CancellationRequested))
                 {
-                    await InvokeSystems(systems, system =>
+                    await InvokeSystems(system =>
                     {
                         var cts = new CancellationTokenSource();
 
@@ -111,7 +108,7 @@ namespace LibraProgramming.Ecs
             }
         }
 
-        private static Task InvokeSystems(IReadOnlyList<ISystem> systems, Func<ISystem, Task> action)
+        private Task InvokeSystems(Func<ISystem, Task> action)
         {
             var tasks = new Task[systems.Count];
 

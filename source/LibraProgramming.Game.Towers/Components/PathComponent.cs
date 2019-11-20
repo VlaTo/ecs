@@ -1,7 +1,7 @@
 ﻿using LibraProgramming.Ecs;
 using LibraProgramming.Game.Towers.Core;
+using LibraProgramming.Game.Towers.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Composition;
 using System.Globalization;
 using System.Linq;
@@ -38,33 +38,16 @@ namespace LibraProgramming.Game.Towers.Components
         protected override void DoFillState(ComponentState state)
         {
             var culture = CultureInfo.InvariantCulture;
-            var points = String.Join(',', WayPoints.Select(point => VectorConverter.ToString(point, culture)));
 
             state.Properties = new[]
             {
-                new PropertyState(nameof(WayPoints), points)
+                new PropertyState(nameof(WayPoints), WayPoints.ToString(culture))
             };
         }
 
         protected override void DoApplyState(ComponentState state)
         {
-            var value = Array.Find(state.Properties, info => info.Name.Equals(nameof(WayPoints)));
-
-            if (null == value)
-            {
-                throw new Exception();
-            }
-
-            var culture = CultureInfo.InvariantCulture;
-            var values = value.Value.Split(';', StringSplitOptions.RemoveEmptyEntries);
-            var list = new List<Vector2>();
-
-            foreach (var str in values)
-            {
-                list.Add(VectorConverter.FromString(str, culture));
-            }
-
-            WayPoints = list.ToArray();
+            WayPoints = state.Properties.GetValue(nameof(WayPoints), Converters.Vectors);
         }
     }
 }

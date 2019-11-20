@@ -50,8 +50,6 @@ namespace LibraProgramming.Game.Towers.Extensions
                 }
             }
 
-            //return (TValue)Convert.ChangeType(propertyState.Value, typeof(TValue));
-
             return converter.Invoke(propertyState.Value);
         }
     }
