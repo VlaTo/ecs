@@ -183,6 +183,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Data\Towers.xml" />
     <EmbeddedResource Include="Data\Ground.png" />
+    <None Include="Data\GroundTiles.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -228,6 +229,9 @@
       <Project>{d68b4773-42ef-4b3b-a805-b722ecff7aa1}</Project>
       <Name>LibraProgramming.Ecs</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\Ground.pdn" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
