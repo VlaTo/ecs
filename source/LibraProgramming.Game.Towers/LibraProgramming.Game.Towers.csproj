@@ -134,6 +134,7 @@
     <Compile Include="Components\WayPointComponent.cs" />
     <Compile Include="Core\AsyncObservableExtensions.cs" />
     <Compile Include="Core\Converters.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\Int32ArrayExtensions.cs" />
     <Compile Include="Core\GameResourcesCreator.cs" />
     <Compile Include="Core\DependencyProviderAdapter.cs" />

@@ -107,18 +107,18 @@ namespace LibraProgramming.Game.Towers.Systems
 
         private Task<CanvasBitmap> CreateEnemySpriteAsync(ICanvasResourceCreatorWithDpi resourceCreator)
         {
-            using (var renderTarget = new CanvasRenderTarget(resourceCreator, 20.0f, 20.0f))
+            using (var renderTarget = new CanvasRenderTarget(resourceCreator, 64.0f, 64.0f))
             {
                 using (var session = renderTarget.CreateDrawingSession())
                 {
-                    var origin = new Vector2(10.0f, 10.0f);
+                    var origin = new Vector2(32.0f, 32.0f);
 
                     session.Clear(Colors.Transparent);
 
                     using (var outline = new CanvasSolidColorBrush(session, Colors.Gray))
                     {
-                        session.FillCircle(origin, 8.0f, outline);
-                        session.DrawCircle(origin, 8.0f, Colors.AntiqueWhite, 0.4f);
+                        session.FillCircle(origin, 28.0f, outline);
+                        session.DrawCircle(origin, 28.0f, Colors.AntiqueWhite, 2.4f);
                     }
                 }
 

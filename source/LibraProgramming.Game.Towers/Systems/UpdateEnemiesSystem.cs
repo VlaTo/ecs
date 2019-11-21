@@ -16,15 +16,20 @@ namespace LibraProgramming.Game.Towers.Systems
     public class UpdateEnemiesSystem : SystemBase, IDisposable
     {
         private readonly IGameTimer timer;
+        private readonly IEnemyMoveStrategy moveStrategy;
         private readonly IWorld world;
         private LiveComponentObserver observer;
         private IDisposable disposable;
 
         [PrefferedConstructor]
-        public UpdateEnemiesSystem(IWorld world, IGameTimer timer)
+        public UpdateEnemiesSystem(
+            IWorld world,
+            IGameTimer timer,
+            IEnemyMoveStrategy moveStrategy)
         {
-            this.timer = timer;
             this.world = world;
+            this.timer = timer;
+            this.moveStrategy = moveStrategy;
         }
 
         public override Task InitializeAsync()
@@ -47,9 +52,7 @@ namespace LibraProgramming.Game.Towers.Systems
         {
             foreach (var entity in observer)
             {
-                var component = entity.Get<UpdateComponent>();
-                //Debug.WriteLine($"[UpdateSystem.DoUpdateComponent] (\'{component.Entity.Key}\') Set UpdateComponent.Elapsed = {elapsed:g}");
-                component.Elapsed = elapsed;
+                moveStrategy.MoveEnemy(entity, elapsed);
             }
         }
     }

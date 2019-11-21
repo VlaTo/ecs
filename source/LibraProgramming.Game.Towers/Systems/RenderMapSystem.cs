@@ -140,8 +140,8 @@ namespace LibraProgramming.Game.Towers.Systems
             var mapTiles = new MapTiles(spriteSheetComponent, spriteSheet);
             var tilePosition = 0;
 
-            //Colors.Red.
-            //Vector4.Transform()
+            var tint = Colors.Red.ToVector4();
+
             for (var y = 0.0f; y < mapSize.Y; y += mapTileSize.Y)
             {
                 ;
@@ -155,7 +155,7 @@ namespace LibraProgramming.Game.Towers.Systems
 
                     if (1 == tileIndex)
                     {
-                        batch.DrawFromSpriteSheet(spriteSheet, translation, sourceRect, Vector4.Zero);
+                        batch.DrawFromSpriteSheet(spriteSheet, translation, sourceRect, tint);
                     }
                     else
                     {
