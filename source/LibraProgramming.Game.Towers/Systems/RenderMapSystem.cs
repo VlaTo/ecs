@@ -1,13 +1,4 @@
-﻿using System;
-using System.Composition;
-using System.IO;
-using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Graphics.Imaging;
-using Windows.Storage.Streams;
-using LibraProgramming.Dependency.Container;
+﻿using LibraProgramming.Dependency.Container;
 using LibraProgramming.Ecs;
 using LibraProgramming.Ecs.Core;
 using LibraProgramming.Ecs.Core.Reactive;
@@ -17,7 +8,14 @@ using LibraProgramming.Game.Towers.Core;
 using LibraProgramming.Game.Towers.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.UI.Xaml;
+using System;
+using System.Composition;
+using System.IO;
+using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.Graphics.Imaging;
 
 namespace LibraProgramming.Game.Towers.Systems
 {
@@ -136,12 +134,14 @@ namespace LibraProgramming.Game.Towers.Systems
             SpriteSheetComponent spriteSheetComponent)
         {
             //var tileSize = spriteSheetComponent.TileSize;
-            var sourceRect = new Rect(new Point(), spriteSheetComponent.TileSize.ToSize());
+            //var sourceRect = new Rect(new Point(), spriteSheetComponent.TileSize.ToSize());
             var mapTileSize = new Vector2(
                 ((float) bitmapSize.Width) / mapComponent.Size.Width,
                 ((float) bitmapSize.Height) / mapComponent.Size.Height
             );
             var scale = mapTileSize / spriteSheetComponent.TileSize.ToVector2();
+            var mapTiles = new MapTiles(spriteSheetComponent, spriteSheet);
+            var tilePosition = 0;
 
             for (var y = 0.0f; y < bitmapSize.Height; y += mapTileSize.Y)
             {
@@ -149,8 +149,60 @@ namespace LibraProgramming.Game.Towers.Systems
                 for (var x = 0.0f; x < bitmapSize.Width; x += mapTileSize.X)
                 {
                     var translation = Matrix3x2.CreateScale(scale) * Matrix3x2.CreateTranslation(x, y);
+                    var tileIndex = mapComponent.Tiles[tilePosition++];
+                    var sourceRect = mapTiles.GetTileRect(tileIndex);
+
+                    logger.LogDebug($"[{tilePosition} -> {tileIndex}] = {{X: {sourceRect.X}, Y: {sourceRect.Y}, W: {sourceRect.Width}, H: {sourceRect.Height}}}");
+
                     batch.DrawFromSpriteSheet(spriteSheet, translation, sourceRect);
                 }
+            }
+        }
+        
+        private sealed class MapTiles
+        {
+            private readonly SpriteSheetComponent component;
+            private readonly CanvasBitmap spriteSheet;
+            private readonly long spritesPerLine;
+            private readonly long linesCount;
+
+            public MapTiles(SpriteSheetComponent component, CanvasBitmap spriteSheet)
+            {
+                this.component = component;
+                this.spriteSheet = spriteSheet;
+
+                var bitmapSize = spriteSheet.SizeInPixels;
+                
+                spritesPerLine = Math.DivRem(bitmapSize.Width, component.TileSize.Width, out var reminder);
+
+                if (0 != reminder)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                linesCount = Math.DivRem(bitmapSize.Height, component.TileSize.Height, out reminder);
+
+                if (0 != reminder)
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+
+            public Rect GetTileRect(int index)
+            {
+                if (index >= component.TilesCount)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                var row = Math.DivRem(index, spritesPerLine, out var column);
+                var tileSize = component.TileSize.ToSize();
+                var origin = new Point(
+                    tileSize.Width * column,
+                    tileSize.Height * row
+                );
+
+                return new Rect(origin, tileSize);
             }
         }
     }

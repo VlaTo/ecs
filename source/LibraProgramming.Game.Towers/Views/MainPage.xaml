@@ -14,8 +14,8 @@
             x:Name="AnimatedControl"
             ClearColor="DarkSlateGray"
             Paused="False"
-            Width="600"
-            Height="500"
+            Width="640"
+            Height="640"
         />
     </ScrollViewer>
 </Page>
