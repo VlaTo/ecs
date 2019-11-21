@@ -6,7 +6,7 @@ namespace LibraProgramming.Ecs
     /// <summary>
     /// 
     /// </summary>
-    public partial class EntityFactory
+    public partial class EntityLoader
     {
         private class DefaultComponentRegistry : IComponentRegistry, IComponentResolver
         {

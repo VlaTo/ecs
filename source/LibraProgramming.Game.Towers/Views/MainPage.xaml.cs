@@ -85,7 +85,7 @@ namespace LibraProgramming.Game.Towers.Views
             world.ExecuteAsync(CancellationToken.None).RunAndForget();
         }
 
-        private static void LoadWorld(IWorld world, IFileProvider fileProvider, EntityFactory entityFactory)
+        private static void LoadWorld(IWorld world, IFileProvider fileProvider, EntityLoader entityLoader)
         {
             using (var file = fileProvider.GetFile("Towers.xml"))
             {
@@ -94,12 +94,12 @@ namespace LibraProgramming.Game.Towers.Views
                     var serializer = new XmlSerializer(typeof(EntityState));
                     var state = (EntityState)serializer.Deserialize(stream);
 
-                    entityFactory.LoadEntity(world.Root, state);
+                    entityLoader.LoadEntity(world.Root, state);
                 }
             }
         }
 
-        private static EntityFactory CreateEntityFactory()
+        private static EntityLoader CreateEntityFactory()
         {
             var assemblies = new[]
             {
@@ -109,7 +109,7 @@ namespace LibraProgramming.Game.Towers.Views
 
             var componentResolver = ComponentResolver.FromAssemblies(assemblies);
 
-            return new EntityFactory(componentResolver);
+            return new EntityLoader(componentResolver);
         }
     }
 }

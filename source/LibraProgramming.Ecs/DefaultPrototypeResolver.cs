@@ -3,7 +3,7 @@ using System;
 
 namespace LibraProgramming.Ecs
 {
-    public partial class EntityFactory
+    public partial class EntityLoader
     {
         internal class DefaultPrototypeResolver : IPrototypeResolver
         {

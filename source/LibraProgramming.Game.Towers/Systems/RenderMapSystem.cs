@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
+using Windows.UI;
 
 namespace LibraProgramming.Game.Towers.Systems
 {
@@ -133,28 +134,33 @@ namespace LibraProgramming.Game.Towers.Systems
             MapComponent mapComponent,
             SpriteSheetComponent spriteSheetComponent)
         {
-            //var tileSize = spriteSheetComponent.TileSize;
-            //var sourceRect = new Rect(new Point(), spriteSheetComponent.TileSize.ToSize());
-            var mapTileSize = new Vector2(
-                ((float) bitmapSize.Width) / mapComponent.Size.Width,
-                ((float) bitmapSize.Height) / mapComponent.Size.Height
-            );
-            var scale = mapTileSize / spriteSheetComponent.TileSize.ToVector2();
+            var mapSize = bitmapSize.ToVector2();
+            var mapTileSize = mapSize / mapComponent.Size.ToVector2();
+            var scale = Matrix3x2.CreateScale(mapTileSize / spriteSheetComponent.TileSize.ToVector2());
             var mapTiles = new MapTiles(spriteSheetComponent, spriteSheet);
             var tilePosition = 0;
 
-            for (var y = 0.0f; y < bitmapSize.Height; y += mapTileSize.Y)
+            //Colors.Red.
+            //Vector4.Transform()
+            for (var y = 0.0f; y < mapSize.Y; y += mapTileSize.Y)
             {
                 ;
-                for (var x = 0.0f; x < bitmapSize.Width; x += mapTileSize.X)
+                for (var x = 0.0f; x < mapSize.X; x += mapTileSize.X)
                 {
-                    var translation = Matrix3x2.CreateScale(scale) * Matrix3x2.CreateTranslation(x, y);
+                    var translation = scale * Matrix3x2.CreateTranslation(x, y);
                     var tileIndex = mapComponent.Tiles[tilePosition++];
                     var sourceRect = mapTiles.GetTileRect(tileIndex);
 
-                    logger.LogDebug($"[{tilePosition} -> {tileIndex}] = {{X: {sourceRect.X}, Y: {sourceRect.Y}, W: {sourceRect.Width}, H: {sourceRect.Height}}}");
+                    //logger.LogDebug($"[{tilePosition} -> {tileIndex}] = {{X: {sourceRect.X}, Y: {sourceRect.Y}, W: {sourceRect.Width}, H: {sourceRect.Height}}}");
 
-                    batch.DrawFromSpriteSheet(spriteSheet, translation, sourceRect);
+                    if (1 == tileIndex)
+                    {
+                        batch.DrawFromSpriteSheet(spriteSheet, translation, sourceRect, Vector4.Zero);
+                    }
+                    else
+                    {
+                        batch.DrawFromSpriteSheet(spriteSheet, translation, sourceRect);
+                    }
                 }
             }
         }
@@ -197,10 +203,7 @@ namespace LibraProgramming.Game.Towers.Systems
 
                 var row = Math.DivRem(index, spritesPerLine, out var column);
                 var tileSize = component.TileSize.ToSize();
-                var origin = new Point(
-                    tileSize.Width * column,
-                    tileSize.Height * row
-                );
+                var origin = new Point(tileSize.Width * column, tileSize.Height * row);
 
                 return new Rect(origin, tileSize);
             }

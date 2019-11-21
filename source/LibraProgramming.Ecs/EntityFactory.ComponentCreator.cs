@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public partial class EntityFactory
+    public partial class EntityLoader
     {
         private class DefaultComponentCreator : IComponentCreator
         {
